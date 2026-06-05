@@ -1,4 +1,24 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
+import { postRequest } from "../../lib/api";
+
+type User = {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  loginType: string;
+  isVerified: number;
+  role: string;
+  profilePicture: string;
+  accountStatus: string;
+  createdAt: string;
+  updatedAt: string;
+  lastLogin: string;
+};
 
 const highlights = [
   {
@@ -16,6 +36,30 @@ const highlights = [
 ];
 
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    setSuccessMessage(null);
+
+    try {
+      const response = await postRequest<User>("/auth/login", { email, password });
+
+      setSuccessMessage(response.message || "Login successful.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Login failed";
+      setErrorMessage(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
       <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
@@ -47,7 +91,7 @@ export default function LoginPage() {
               </p>
             </div>
 
-            <form className="mt-8 grid gap-5">
+            <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
               <label className="grid gap-2 text-sm font-semibold text-black">
                 Email address
                 <input
@@ -55,6 +99,8 @@ export default function LoginPage() {
                   name="email"
                   autoComplete="email"
                   placeholder="jordan@eventx.com"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   className="h-12 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
                 />
               </label>
@@ -65,16 +111,25 @@ export default function LoginPage() {
                   name="password"
                   autoComplete="current-password"
                   placeholder="Enter your password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
                   className="h-12 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
                 />
               </label>
 
               <button
                 type="submit"
-                className="mt-2 flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+                className="mt-2 flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/60"
+                disabled={isSubmitting}
               >
-                Sign in
+                {isSubmitting ? "Signing in..." : "Sign in"}
               </button>
+              {errorMessage ? (
+                <p className="text-xs font-semibold text-rose-600">{errorMessage}</p>
+              ) : null}
+              {successMessage ? (
+                <p className="text-xs font-semibold text-emerald-600">{successMessage}</p>
+              ) : null}
               <div className="flex flex-col gap-2 text-xs text-black/60 sm:flex-row sm:items-center sm:justify-between">
                 <span>Need access? Create an EventX account.</span>
                 <Link className="font-semibold text-black" href="/register">
