@@ -3,7 +3,7 @@
 import { getUser, loginRequest, logoutRequest } from "@/service/userService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
 export type AuthUser = {
