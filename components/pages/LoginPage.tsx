@@ -3,11 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth, type AuthUser } from "../auth/AuthContext";
-import { login } from "@/service/userService";
+import { useAuth } from "../auth/AuthContext";
 import { toast } from "react-hot-toast";
 
-type LoginResponseUser = AuthUser & { password?: string };
 
 const highlights = [
     {
@@ -26,7 +24,7 @@ const highlights = [
 
 export default function LoginPage() {
     const router = useRouter();
-    const { setUser } = useAuth();
+    const { login } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,13 +35,9 @@ export default function LoginPage() {
         setIsSubmitting(true);
 
         try {
-            const response = await login({ email, password });
-
-            const { password: _password, ...user } = response.data ?? ({} as LoginResponseUser);
-
-            setUser(Object.keys(user).length ? (user as AuthUser) : null);
-            toast.success(response.message || "Login successful.");
-            router.push("/home");
+            await login({ email, password });
+            toast.success("Login successful.");
+            router.replace("/home");
         } catch (error) {
             const message = error instanceof Error ? error.message : "Login failed";
             toast.error(message);
@@ -116,7 +110,7 @@ export default function LoginPage() {
                             >
                                 {isSubmitting ? "Signing in..." : "Sign in"}
                             </button>
-                            
+
                             <div className="flex flex-col gap-2 text-xs text-black/60 sm:flex-row sm:items-center sm:justify-between">
                                 <span>Need access? Create an EventX account.</span>
                                 <Link className="font-semibold text-black" href="/register">

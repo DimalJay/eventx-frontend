@@ -17,7 +17,7 @@ export const register = async (data: any) => {
   return res;
 };
 
-export const login = async (data: any) => {
+export const loginRequest = async (data: any) => {
   const res: Response = await authRequest("/auth/login", {
     method: "POST",
     data: {
@@ -29,3 +29,18 @@ export const login = async (data: any) => {
 
   return res;
 };
+
+export const getUser = async () => {
+  const res: Response = await authRequest("/user", {
+    method: "GET",
+  });
+  return res;
+};
+
+
+export const logoutRequest = async () => {
+  const res: Response = await authRequest("/auth/logout", {
+    method: "POST"
+  })
+  return res;
+}

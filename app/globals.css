@@ -24,3 +24,12 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
+
+
+.btn {
+  @apply inline-flex h-11 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90
+}
+
+.tab-item {
+  @apply data-[selected=true]:text-black text-black/55 font-medium data-[selected=true]:border-b-2 py-2
+}

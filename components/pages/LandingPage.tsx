@@ -1,16 +1,24 @@
+'use client'
 import Link from "next/link";
+import UserProfile from "../widgets/UserProfile";
 
 export default function LandingPage() {
+  
   return (
     <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
       <main className="flex w-full max-w-5xl flex-col gap-12 px-8 py-24 sm:px-14">
-        <div className="flex items-center gap-3">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-black text-sm font-semibold uppercase tracking-widest text-white">
-            EX
-          </span>
-          <span className="text-lg font-semibold tracking-wide text-black">
-            EventX
-          </span>
+        <div className="flex items-center gap-3 justify-between">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-black text-sm font-semibold uppercase tracking-widest text-white">
+              EX
+            </span>
+            <span className="text-lg font-semibold tracking-wide text-black">
+              EventX
+            </span>
+          </div>
+
+          {/* User profile */}
+          <UserProfile />
         </div>
 
         <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">

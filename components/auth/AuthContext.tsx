@@ -1,6 +1,8 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { getUser, loginRequest, logoutRequest } from "@/service/userService";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 export type AuthUser = {
   id: number;
@@ -8,9 +10,9 @@ export type AuthUser = {
   firstName: string;
   lastName: string;
   loginType: string;
-  isVerified: number;
+  isVerified: boolean;
   role: string;
-  profilePicture: string;
+  profilePicture?: string;
   accountStatus: string;
   createdAt: string;
   updatedAt: string;
@@ -20,23 +22,56 @@ export type AuthUser = {
 type AuthContextValue = {
   user: AuthUser | null;
   isAuthenticated: boolean;
-  setUser: (user: AuthUser | null) => void;
+  login: (data: any) => void;
   logout: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const queryClient = useQueryClient();
+
+  const { data: user = null, isLoading, isError } = useQuery({
+    queryKey: ['user'],
+    queryFn: async () => {
+      try {
+      const response = await getUser();
+      return response.data;
+      } catch (error) {
+        return null;
+      }
+    },
+    retry: false,
+  })
+
+  const login = async (data: any) => {
+    try {
+       await loginRequest(data);
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  const logout = async () => {
+    try {
+      await logoutRequest();
+    } finally {
+      queryClient.setQueryData(['user'], null);
+      queryClient.clear();
+    }
+  };
+
 
   const value = useMemo(
     () => ({
       user,
       isAuthenticated: Boolean(user),
-      setUser,
-      logout: () => setUser(null),
+      isLoading,
+      login,
+      logout,
     }),
-    [user]
+    [user, isLoading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
