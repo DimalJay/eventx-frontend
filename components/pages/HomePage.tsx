@@ -63,22 +63,19 @@ export default function HomePage() {
       <main className="relative flex w-full max-w-6xl flex-col gap-10 px-8 py-16 sm:px-12">
         <header className="flex flex-col">
           <div className="flex items-center gap-3 flex-row justify-between">
-            <div className="flex items-center gap-3">
-              <Logo />
-              <div>
+            <div className="flex flex-col">
+    
+              
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-black/50">
                   EventX workspace
                 </p>
                 <p className="text-2xl font-semibold tracking-tight text-black">
                   Welcome back, {user?.firstName}.
                 </p>
-              </div>
+              
 
             </div>
-            <div className="flex flex-row gap-4 text-black items-center">
-            <Link href={"/event/create"} className="underline font-medium">Create Event</Link>
-            <UserProfile />
-            </div>
+          
           </div>
         </header>
 

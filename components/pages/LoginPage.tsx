@@ -51,13 +51,12 @@ export default function LoginPage() {
         <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
             <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
                 <div className="flex items-center gap-3">
-                    <Logo />
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">
                             EventX
                         </p>
                         <p className="text-lg font-semibold tracking-wide text-black">
-                            Welcome back
+                            Login to your account
                         </p>
                     </div>
                 </div>

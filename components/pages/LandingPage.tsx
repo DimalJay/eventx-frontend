@@ -9,15 +9,7 @@ export default function LandingPage() {
     <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
       <main className="flex w-full max-w-5xl flex-col gap-12 px-8 py-24 sm:px-14">
         <div className="flex items-center gap-3 justify-between">
-          <div className="flex items-center gap-3">
-            <Logo />
-            <span className="text-lg font-semibold tracking-wide text-black">
-              EventX
-            </span>
-          </div>
-
-          {/* User profile */}
-          <UserProfile />
+          
         </div>
 
         <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
