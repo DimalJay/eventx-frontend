@@ -1,4 +1,5 @@
 import Link from "next/link";
+import AddToCalendar from "../widgets/AddToCalendar";
 
 const event = {
   name: "Astra Product Summit",
@@ -18,21 +19,6 @@ const event = {
   seatsLeft: 820,
   capacity: 1360,
 };
-
-// Builds a Google Calendar "add event" link (prefilled template).
-// dates expect the compact form YYYYMMDDTHHMMSS; ctz keeps the wall time correct.
-function googleCalendarUrl() {
-  const compact = (iso: string) => iso.replace(/[-:]/g, "");
-  const params = new URLSearchParams({
-    action: "TEMPLATE",
-    text: event.name,
-    dates: `${compact(event.start)}/${compact(event.end)}`,
-    ctz: event.timezone,
-    details: event.tagline,
-    location: `${event.venue}, ${event.location}`,
-  });
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
 
 const highlights = [
   { label: "Attending", value: "540" },
@@ -107,27 +93,14 @@ export default function EventViewPage() {
               >
                 Get tickets
               </Link>
-              <a
-                href={googleCalendarUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-black/20 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black hover:bg-black/5"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <rect x="3" y="4" width="18" height="18" rx="2" />
-                  <path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4" />
-                </svg>
-                Add to calendar
-              </a>
+              <AddToCalendar
+                title={event.name}
+                description={event.tagline}
+                location={`${event.venue}, ${event.location}`}
+                start={event.start}
+                end={event.end}
+                timezone={event.timezone}
+              />
             </div>
 
             <div className="mt-2 grid grid-cols-3 gap-4">
