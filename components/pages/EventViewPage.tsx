@@ -49,15 +49,15 @@ export default function EventViewPage() {
       <div className="pointer-events-none absolute -left-28 top-12 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-40 blur-3xl" />
       <div className="pointer-events-none absolute right-10 top-24 h-64 w-64 rounded-full bg-[#9fd3ff] opacity-35 blur-3xl" />
 
-      <main className="relative flex w-full max-w-5xl flex-col gap-12 px-8 py-16 sm:px-14">
+      <main className="relative flex w-full max-w-5xl flex-col gap-10 px-5 py-12 sm:gap-12 sm:px-10 sm:py-16 lg:px-14">
         {/* Cover */}
-        <section className="relative flex h-56 items-end overflow-hidden rounded-3xl border border-black/10 bg-linear-to-br from-[#1c1c1c] via-[#2d2d2d] to-[#444] shadow-[0_30px_80px_-50px_rgba(0,0,0,0.6)] sm:h-72">
+        <section className="relative flex h-44 items-end overflow-hidden rounded-3xl border border-black/10 bg-linear-to-br from-[#1c1c1c] via-[#2d2d2d] to-[#444] shadow-[0_30px_80px_-50px_rgba(0,0,0,0.6)] sm:h-64 lg:h-72">
           {/* Replace this block with <Image src={event.cover} ... /> once a cover is uploaded */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs font-semibold uppercase tracking-[0.3em] text-white/30">
             Event cover
           </div>
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
-          <div className="relative flex items-center gap-3 p-6">
+          <div className="relative flex items-center gap-3 p-5 sm:p-6">
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white text-sm font-semibold uppercase tracking-widest text-black">
               {event.name.charAt(0)}
             </span>
@@ -68,9 +68,9 @@ export default function EventViewPage() {
         </section>
 
         {/* Hero */}
-        <section className="grid gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-start">
+        <section className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-start lg:gap-10">
           <div className="flex flex-col gap-6">
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
                 {event.status}
               </span>
@@ -79,17 +79,17 @@ export default function EventViewPage() {
               </span>
             </div>
 
-            <h1 className="text-4xl font-semibold leading-tight tracking-tight text-black sm:text-5xl">
+            <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl lg:text-5xl">
               {event.name}
             </h1>
-            <p className="max-w-xl text-lg leading-8 text-black/70">
+            <p className="max-w-xl text-base leading-7 text-black/70 sm:text-lg sm:leading-8">
               {event.tagline}
             </p>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link
                 href="#tickets"
-                className="inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+                className="inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 sm:w-auto"
               >
                 Get tickets
               </Link>
@@ -100,14 +100,15 @@ export default function EventViewPage() {
                 start={event.start}
                 end={event.end}
                 timezone={event.timezone}
+                className="w-full sm:w-auto"
               />
             </div>
 
-            <div className="mt-2 grid grid-cols-3 gap-4">
+            <div className="mt-2 grid grid-cols-3 gap-3 sm:gap-4">
               {highlights.map((item) => (
                 <div
                   key={item.label}
-                  className="rounded-2xl border border-black/10 bg-white/70 px-4 py-3 backdrop-blur"
+                  className="rounded-2xl border border-black/10 bg-white/70 px-3 py-3 backdrop-blur sm:px-4"
                 >
                   <p className="text-2xl font-semibold text-black">{item.value}</p>
                   <p className="text-xs uppercase tracking-[0.18em] text-black/40">
@@ -123,7 +124,7 @@ export default function EventViewPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
               Event details
             </p>
-            <div className="mt-5 grid gap-5 text-sm">
+            <div className="mt-5 grid gap-5 text-sm sm:grid-cols-2 lg:grid-cols-1">
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-black/40">Date</p>
                 <p className="mt-1 font-semibold text-black">{event.date}</p>
@@ -132,7 +133,7 @@ export default function EventViewPage() {
                 <p className="text-xs uppercase tracking-[0.18em] text-black/40">Time</p>
                 <p className="mt-1 font-semibold text-black">{event.time}</p>
               </div>
-              <div>
+              <div className="sm:col-span-2 lg:col-span-1">
                 <p className="text-xs uppercase tracking-[0.18em] text-black/40">Venue</p>
                 <p className="mt-1 font-semibold text-black">{event.venue}</p>
                 <p className="text-black/60">{event.location}</p>
@@ -145,7 +146,7 @@ export default function EventViewPage() {
         </section>
 
         {/* About */}
-        <section className="rounded-3xl border border-black/10 bg-white/70 p-7 backdrop-blur">
+        <section className="rounded-3xl border border-black/10 bg-white/70 p-6 backdrop-blur sm:p-7">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
             About this event
           </p>
@@ -194,22 +195,22 @@ export default function EventViewPage() {
               Get your ticket
             </h2>
           </div>
-          <div className="grid gap-6 rounded-3xl border border-black/10 bg-white/80 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur sm:grid-cols-[1fr_auto] sm:items-center">
+          <div className="grid gap-6 rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur sm:p-7 lg:grid-cols-[1fr_auto] lg:items-center">
             <div className="flex flex-col gap-5">
               <div className="flex items-end gap-2">
-                <span className="text-5xl font-semibold text-black">{event.price}</span>
+                <span className="text-4xl font-semibold text-black sm:text-5xl">{event.price}</span>
                 <span className="pb-1 text-sm text-black/50">per ticket</span>
               </div>
               <ul className="grid gap-3 text-sm text-black/70 sm:grid-cols-2">
                 {included.map((item) => (
                   <li key={item} className="flex items-start gap-2">
-                    <span className="mt-1.5 inline-block h-1.5 w-1.5 rounded-full bg-black" />
+                    <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="flex flex-col items-stretch gap-3 sm:w-56">
+            <div className="flex flex-col items-stretch gap-3 lg:w-56">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
                 {event.seatsLeft} of {event.capacity} seats left
               </p>

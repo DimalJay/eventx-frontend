@@ -10,6 +10,7 @@ type AddToCalendarProps = {
   end: string;
   /** IANA timezone, e.g. "America/New_York" */
   timezone: string;
+  className?: string;
 };
 
 // "2026-06-18T09:00:00" -> "20260618T090000"
@@ -67,7 +68,7 @@ export default function AddToCalendar(props: AddToCalendarProps) {
     <button
       type="button"
       onClick={downloadIcs}
-      className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-black/20 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black hover:bg-black/5"
+      className={`inline-flex h-12 items-center justify-center gap-2 rounded-full border border-black/20 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black hover:bg-black/5 ${props.className ?? ""}`}
     >
       <svg
         viewBox="0 0 24 24"
