@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Logo from "../widgets/Logo";
-import { register } from "@/service/userService";
-import { toast } from "react-hot-toast/headless";
-
+import { registerRequest } from "@/service/userService";
+import { toast } from "sonner";
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 
 const perks = [
     {
@@ -23,42 +24,41 @@ const perks = [
     },
 ];
 
+const registerSchema = z.object({
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
+    email: z.string().email("Please enter a valid email"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type RegisterFormValues = z.infer<typeof registerSchema>;
+
 export default function RegisterPage() {
     const router = useRouter();
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        setIsSubmitting(true);
-
-        try {
-            const response = await register({
-                email,
-                firstName,
-                lastName,
-                password,
-            });
-
-            toast.success(response.message || "Registration successful.");
+    const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormValues>({ resolver: zodResolver(registerSchema) });
+    const mutation = useMutation({
+        mutationFn: async (data: RegisterFormValues) => {
+            return registerRequest(data);
+        },
+        onSuccess: () => {
+            toast.success("Registration Successfull!")         
             router.push("/login");
-        } catch (error) {
-            const message = error instanceof Error ? error.message : "Registration failed";
+        },
+        onError: (error: any) => {
+            const message = error?.response?.data?.message || error?.message || "Registration failed. Please try again.";
             toast.error(message);
-        } finally {
-            setIsSubmitting(false);
-        }
+        },
+    });
+
+    const onSubmit = (data: RegisterFormValues) => {
+        mutation.mutate(data);
     };
 
     return (
         <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
             <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
                 <div className="flex items-center gap-3">
-                    <Logo />
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">
                             EventX
@@ -83,62 +83,58 @@ export default function RegisterPage() {
                             </p>
                         </div>
 
-                        <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
+                        <form className="mt-8 grid gap-5" onSubmit={handleSubmit(onSubmit)}>
                             <label className="grid gap-2 text-sm font-semibold text-black">
                                 First name
                                 <input
                                     type="text"
-                                    name="firstName"
                                     autoComplete="given-name"
                                     placeholder="Jordan"
-                                    value={firstName}
-                                    onChange={(event) => setFirstName(event.target.value)}
+                                    {...register("firstName")}
                                     className="h-12 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
                                 />
+                                {errors.firstName && <span className="text-red-500 text-xs font-normal">{errors.firstName.message}</span>}
                             </label>
                             <label className="grid gap-2 text-sm font-semibold text-black">
                                 Last name
                                 <input
                                     type="text"
-                                    name="lastName"
                                     autoComplete="family-name"
                                     placeholder="Lee"
-                                    value={lastName}
-                                    onChange={(event) => setLastName(event.target.value)}
+                                    {...register("lastName")}
                                     className="h-12 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
                                 />
+                                {errors.lastName && <span className="text-red-500 text-xs font-normal">{errors.lastName.message}</span>}
                             </label>
                             <label className="grid gap-2 text-sm font-semibold text-black">
                                 Email address
                                 <input
                                     type="email"
-                                    name="email"
                                     autoComplete="email"
                                     placeholder="jordan@eventx.com"
-                                    value={email}
-                                    onChange={(event) => setEmail(event.target.value)}
+                                    {...register("email")}
                                     className="h-12 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
                                 />
+                                {errors.email && <span className="text-red-500 text-xs font-normal">{errors.email.message}</span>}
                             </label>
                             <label className="grid gap-2 text-sm font-semibold text-black">
                                 Password
                                 <input
                                     type="password"
-                                    name="password"
                                     autoComplete="new-password"
                                     placeholder="Create a secure password"
-                                    value={password}
-                                    onChange={(event) => setPassword(event.target.value)}
+                                    {...register("password")}
                                     className="h-12 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
                                 />
+                                {errors.password && <span className="text-red-500 text-xs font-normal">{errors.password.message}</span>}
                             </label>
 
                             <button
                                 type="submit"
                                 className="mt-2 flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/60"
-                                disabled={isSubmitting}
+                                disabled={mutation.isPending}
                             >
-                                {isSubmitting ? "Creating account..." : "Create account"}
+                                {mutation.isPending ? "Creating account..." : "Create account"}
                             </button>
                             <p className="text-xs text-black/60">
                                 By continuing you agree to EventX terms and privacy policy.

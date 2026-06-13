@@ -1,11 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
 import "./globals.css";
-import { AuthProvider } from "../components/auth/AuthContext";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "@/components/ui/sonner";
 import Footer from "@/components/widgets/Footer";
-import { QueryClientProvider } from "@tanstack/react-query";
 import Providers from "@/providers/Providers";
 import NavBar from "@/components/widgets/NavBar";
 
@@ -43,7 +40,7 @@ export default function RootLayout({
           {children}
           <Footer />
         </Providers>
-        <Toaster position="bottom-right" reverseOrder={false} />
+        <Toaster position="bottom-right" richColors />
       </body>
 
     </html>

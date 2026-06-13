@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../auth/AuthContext";
-import Logo from "../widgets/Logo";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
+import * as z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 
 
 const highlights = [
@@ -23,28 +25,34 @@ const highlights = [
     },
 ];
 
+const loginSchema = z.object({
+    email: z.string().email("Please enter a valid email"),
+    password: z.string().min(1, "Password is required"),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
+
 export default function LoginPage() {
     const router = useRouter();
     const { login } = useAuth();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [isSubmitting, setIsSubmitting] = useState(false);
 
-
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        setIsSubmitting(true);
-
-        try {
-            await login({ email, password });
+    const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
+    const mutation = useMutation({
+        mutationFn: async (data: LoginFormValues) => {
+            return login(data);
+        },
+        onSuccess: () => {
             toast.success("Login successful.");
             router.replace("/home");
-        } catch (error) {
-            const message = error instanceof Error ? error.message : "Login failed";
+        },
+        onError: (error: any) => {
+            const message = error?.response?.data?.message || error?.message || "Login failed. Please try again.";
             toast.error(message);
-        } finally {
-            setIsSubmitting(false);
-        }
+        },
+    });
+
+    const onSubmit = (data: LoginFormValues) => {
+        mutation.mutate(data);
     };
 
     return (
@@ -75,38 +83,36 @@ export default function LoginPage() {
                             </p>
                         </div>
 
-                        <form className="mt-8 grid gap-5" onSubmit={handleSubmit}>
+                        <form className="mt-8 grid gap-5" onSubmit={handleSubmit(onSubmit)}>
                             <label className="grid gap-2 text-sm font-semibold text-black">
                                 Email address
                                 <input
                                     type="email"
-                                    name="email"
                                     autoComplete="email"
                                     placeholder="jordan@eventx.com"
-                                    value={email}
-                                    onChange={(event) => setEmail(event.target.value)}
+                                    {...register("email")}
                                     className="h-12 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
                                 />
+                                {errors.email && <span className="text-red-500 text-xs font-normal">{errors.email.message}</span>}
                             </label>
                             <label className="grid gap-2 text-sm font-semibold text-black">
                                 Password
                                 <input
                                     type="password"
-                                    name="password"
                                     autoComplete="current-password"
                                     placeholder="Enter your password"
-                                    value={password}
-                                    onChange={(event) => setPassword(event.target.value)}
+                                    {...register("password")}
                                     className="h-12 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
                                 />
+                                {errors.password && <span className="text-red-500 text-xs font-normal">{errors.password.message}</span>}
                             </label>
 
                             <button
                                 type="submit"
                                 className="mt-2 flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/60"
-                                disabled={isSubmitting}
+                                disabled={mutation.isPending}
                             >
-                                {isSubmitting ? "Signing in..." : "Sign in"}
+                                {mutation.isPending ? "Signing in..." : "Sign in"}
                             </button>
 
                             <div className="flex flex-col gap-2 text-xs text-black/60 sm:flex-row sm:items-center sm:justify-between">

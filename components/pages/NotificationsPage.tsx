@@ -44,7 +44,7 @@ export default function NotificationsPage() {
                 key={item.id}
                 className={cn(
                   "flex items-start gap-4 border-b border-black/5 px-6 py-5 transition last:border-b-0 hover:bg-black/5",
-                  item.unread && "bg-black/[0.03]"
+                  item.unread && "bg-black/3"
                 )}
               >
                 <span

@@ -2,7 +2,9 @@
 
 import { getUser, loginRequest, logoutRequest } from "@/service/userService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 export type AuthUser = {
   id: number;
@@ -30,13 +32,14 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const { data: user = null, isLoading, isError } = useQuery({
     queryKey: ['user'],
     queryFn: async () => {
       try {
-      const response = await getUser();
-      return response.data;
+        const response = await getUser();
+        return response.data;
       } catch (error) {
         return null;
       }
@@ -44,9 +47,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     retry: false,
   })
 
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      queryClient.setQueryData(['user'], null);
+    }
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+    return () => {
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
+    };
+  }, [router, queryClient])
+
   const login = async (data: any) => {
     try {
-       await loginRequest(data);
+      await loginRequest(data);
       queryClient.invalidateQueries({ queryKey: ['user'] });
     } catch (error) {
       throw error;
@@ -56,9 +69,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = async () => {
     try {
       await logoutRequest();
+    } catch (error) {
+      console.warn("Logout request failed, but proceeding with local cleanup:", error);
     } finally {
       queryClient.setQueryData(['user'], null);
-      queryClient.clear();
+      toast.success("Logged out successfully.", { id: "logout-success" });
     }
   };
 

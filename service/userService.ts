@@ -1,9 +1,9 @@
-import { authRequest, request } from "@/lib/request";
+import { request } from "@/lib/request";
 import { Response, WithID } from "./types";
 import { z } from "zod";
 
-export const register = async (data: any) => {
-  const res: Response = await authRequest("/auth/register", {
+export const registerRequest = async (data: any) => {
+  const res: Response = await request("/auth/register", {
     method: "POST",
     data: {
       email: data.email,
@@ -18,7 +18,7 @@ export const register = async (data: any) => {
 };
 
 export const loginRequest = async (data: any) => {
-  const res: Response = await authRequest("/auth/login", {
+  const res: Response = await request("/auth/login", {
     method: "POST",
     data: {
       email: data.email,
@@ -31,7 +31,7 @@ export const loginRequest = async (data: any) => {
 };
 
 export const getUser = async () => {
-  const res: Response = await authRequest("/user", {
+  const res: Response = await request("/user", {
     method: "GET",
   });
   return res;
@@ -39,7 +39,7 @@ export const getUser = async () => {
 
 
 export const logoutRequest = async () => {
-  const res: Response = await authRequest("/auth/logout", {
+  const res: Response = await request("/auth/logout", {
     method: "POST"
   })
   return res;
