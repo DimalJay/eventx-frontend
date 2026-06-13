@@ -3,13 +3,12 @@
 import { useState } from "react";
 import EventOperationsSection from "./EventOperationsSection";
 import EventParticipantsSection from "./EventParticipantsSection";
-import EventTeamAccessSection from "./EventTeamAccessSection";
 import Logo from "../widgets/Logo";
 
 
 
 export default function EventDashboardPage() {
-  const [activeTab, setActiveTab] = useState<"operations" | "team" | "participants">("operations");
+  const [activeTab, setActiveTab] = useState<"operations" | "participants">("operations");
 
   return (
     <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f5f1ea]">
@@ -66,17 +65,6 @@ export default function EventDashboardPage() {
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab("team")}
-            className={`inline-flex h-10 items-center justify-center rounded-full border px-5 text-xs font-semibold uppercase tracking-widest transition ${
-              activeTab === "team"
-                ? "border-black bg-black text-white"
-                : "border-black/15 bg-white/80 text-black hover:border-black/40"
-            }`}
-          >
-            Team Access
-          </button>
-          <button
-            type="button"
             onClick={() => setActiveTab("participants")}
             className={`inline-flex h-10 items-center justify-center rounded-full border px-5 text-xs font-semibold uppercase tracking-widest transition ${
               activeTab === "participants"
@@ -90,8 +78,6 @@ export default function EventDashboardPage() {
 
         {activeTab === "operations" ? (
           <EventOperationsSection />
-        ) : activeTab === "team" ? (
-          <EventTeamAccessSection />
         ) : (
           <EventParticipantsSection />
         )}
