@@ -1,7 +1,7 @@
 import Link from "next/link";
-import QRCode from "react-qr-code";
 import AddToCalendar from "../widgets/AddToCalendar";
 import { ReactQRCode } from "@lglab/react-qr-code";
+import Logo from "../widgets/Logo";
 
 const ticket = {
   event: "Astra Product Summit",
@@ -31,9 +31,7 @@ export default function ViewTicketPage() {
 
       <main className="relative flex w-full max-w-md flex-col gap-8 px-5 py-12 sm:px-6 sm:py-16">
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-black text-sm font-semibold uppercase tracking-widest text-white">
-            EX
-          </span>
+          <Logo />
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-black/50">
               EventX ticket
@@ -52,8 +50,8 @@ export default function ViewTicketPage() {
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
                 {ticket.organizer}
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <span className="inline-flex items-center gap-1.5 uppercase rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500"  />
                 {ticket.status}
               </span>
             </div>
@@ -117,14 +115,6 @@ export default function ViewTicketPage() {
                   Ticket holder
                 </p>
                 <p className="mt-1 font-semibold text-black">{ticket.holder}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-black/40">Type</p>
-                <p className="mt-1 font-semibold text-black">{ticket.type}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-black/40">Order</p>
-                <p className="mt-1 font-semibold text-black">{ticket.orderId}</p>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-black/40">Paid</p>

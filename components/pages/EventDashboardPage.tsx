@@ -4,6 +4,7 @@ import { useState } from "react";
 import EventOperationsSection from "./EventOperationsSection";
 import EventParticipantsSection from "./EventParticipantsSection";
 import EventTeamAccessSection from "./EventTeamAccessSection";
+import Logo from "../widgets/Logo";
 
 
 
@@ -20,9 +21,7 @@ export default function EventDashboardPage() {
         <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-black text-sm font-semibold uppercase tracking-widest text-white">
-                EX
-              </span>
+              <Logo />
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-black/50">
                   EventX live dashboard

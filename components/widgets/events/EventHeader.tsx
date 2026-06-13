@@ -1,13 +1,12 @@
 import Link from "next/link";
+import Logo from "../Logo";
 
 export default function EventHeader() {
     return (
         <header className="">
             <div className="flex flex-row justify-between">
                 <div className="flex items-center gap-3">
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-black text-sm font-semibold uppercase tracking-widest text-white">
-                        EX
-                    </span>
+                    <Logo />
                     <div>
                         <p className="text-xs font-semibold uppercase tracking-[0.28em] text-black/50">
                             EventX live dashboard

@@ -1,3 +1,5 @@
+import Logo from "../widgets/Logo";
+
 const steps = [
   {
     title: "Choose the experience",
@@ -18,9 +20,7 @@ export default function CreateEventPage() {
     <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
       <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
         <div className="flex items-center gap-3">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-black text-sm font-semibold uppercase tracking-widest text-white">
-            EX
-          </span>
+          <Logo />
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">
               EventX

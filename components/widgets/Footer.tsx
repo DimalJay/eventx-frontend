@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { SiX, SiInstagram } from "react-icons/si";
+import { FaLinkedinIn } from "react-icons/fa";
+import Logo from "./Logo";
 
 const navGroups = [
   {
@@ -30,7 +33,11 @@ const navGroups = [
   },
 ];
 
-const socials = ["Twitter", "LinkedIn", "Instagram"];
+const socials = [
+  { label: "X", href: "#", Icon: SiX },
+  { label: "LinkedIn", href: "#", Icon: FaLinkedinIn },
+  { label: "Instagram", href: "#", Icon: SiInstagram },
+];
 
 export default function Footer() {
   return (
@@ -39,9 +46,7 @@ export default function Footer() {
         <div className="grid gap-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-black text-sm font-semibold uppercase tracking-widest text-white">
-                EX
-              </span>
+              <Logo />
               <span className="text-lg font-semibold tracking-wide text-black">
                 EventX
               </span>
@@ -53,11 +58,12 @@ export default function Footer() {
             <div className="flex flex-wrap gap-3">
               {socials.map((social) => (
                 <a
-                  key={social}
-                  href="#"
-                  className="inline-flex h-9 items-center justify-center rounded-full border border-black/15 bg-white/80 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+                  key={social.label}
+                  href={social.href}
+                  aria-label={social.label}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/15 bg-white/80 text-black transition hover:border-black/40 hover:bg-white"
                 >
-                  {social}
+                  <social.Icon className="h-4 w-4" />
                 </a>
               ))}
             </div>

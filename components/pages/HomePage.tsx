@@ -1,6 +1,7 @@
 'use client'
 import Link from "next/link";
 import { useAuth } from "../auth/AuthContext";
+import Logo from "../widgets/Logo";
 import UserProfile from "../widgets/UserProfile";
 
 const recentEvents = [
@@ -63,9 +64,7 @@ export default function HomePage() {
         <header className="flex flex-col">
           <div className="flex items-center gap-3 flex-row justify-between">
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-black text-sm font-semibold uppercase tracking-widest text-white">
-                EX
-              </span>
+              <Logo />
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.28em] text-black/50">
                   EventX workspace

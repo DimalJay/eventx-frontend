@@ -1,6 +1,7 @@
 'use client'
 import Link from "next/link";
 import UserProfile from "../widgets/UserProfile";
+import Logo from "../widgets/Logo";
 
 export default function LandingPage() {
   
@@ -9,9 +10,7 @@ export default function LandingPage() {
       <main className="flex w-full max-w-5xl flex-col gap-12 px-8 py-24 sm:px-14">
         <div className="flex items-center gap-3 justify-between">
           <div className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-black text-sm font-semibold uppercase tracking-widest text-white">
-              EX
-            </span>
+            <Logo />
             <span className="text-lg font-semibold tracking-wide text-black">
               EventX
             </span>
