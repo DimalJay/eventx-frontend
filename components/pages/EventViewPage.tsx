@@ -6,6 +6,10 @@ const event = {
   status: "Tickets live",
   date: "Thursday, Jun 18, 2026",
   time: "9:00 AM – 5:00 PM",
+  // Machine-readable times for calendar links (local wall time + IANA tz)
+  start: "2026-06-18T09:00:00",
+  end: "2026-06-18T17:00:00",
+  timezone: "America/New_York",
   venue: "Brooklyn Expo Center",
   location: "Brooklyn, NY",
   organizer: "EventX Studio",
@@ -14,6 +18,21 @@ const event = {
   seatsLeft: 820,
   capacity: 1360,
 };
+
+// Builds a Google Calendar "add event" link (prefilled template).
+// dates expect the compact form YYYYMMDDTHHMMSS; ctz keeps the wall time correct.
+function googleCalendarUrl() {
+  const compact = (iso: string) => iso.replace(/[-:]/g, "");
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: event.name,
+    dates: `${compact(event.start)}/${compact(event.end)}`,
+    ctz: event.timezone,
+    details: event.tagline,
+    location: `${event.venue}, ${event.location}`,
+  });
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
+}
 
 const highlights = [
   { label: "Attending", value: "540" },
@@ -88,12 +107,27 @@ export default function EventViewPage() {
               >
                 Get tickets
               </Link>
-              <button
-                type="button"
-                className="inline-flex h-12 items-center justify-center rounded-full border border-black/20 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black hover:bg-black/5"
+              <a
+                href={googleCalendarUrl()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-black/20 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black hover:bg-black/5"
               >
-                Share
-              </button>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="h-4 w-4"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <path d="M16 2v4M8 2v4M3 10h18M12 14v4M10 16h4" />
+                </svg>
+                Add to calendar
+              </a>
             </div>
 
             <div className="mt-2 grid grid-cols-3 gap-4">
