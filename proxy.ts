@@ -4,7 +4,7 @@ export function proxy(request: NextRequest) {
   const hasToken = request.cookies.has("auth_token");
   const pathname = request.nextUrl.pathname;
   const isAuthpage = pathname.startsWith("/login") || pathname.startsWith("/register");
-  const publicPage = pathname === '/';
+  const publicPage = pathname === '/' || pathname.startsWith("/event");
 
   if(hasToken && isAuthpage) {
     return NextResponse.redirect(new URL("/home", request.url));
