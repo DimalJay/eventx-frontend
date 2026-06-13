@@ -1,7 +1,7 @@
 import { request } from "@/lib/request";
-import { Response, WithID } from "./types";
-import { z } from "zod";
+import { Response } from "./types";
 
+// register request
 export const registerRequest = async (data: any) => {
   const res: Response = await request("/auth/register", {
     method: "POST",
@@ -17,6 +17,7 @@ export const registerRequest = async (data: any) => {
   return res;
 };
 
+// login request
 export const loginRequest = async (data: any) => {
   const res: Response = await request("/auth/login", {
     method: "POST",
@@ -30,6 +31,7 @@ export const loginRequest = async (data: any) => {
   return res;
 };
 
+// get user details
 export const getUser = async () => {
   const res: Response = await request("/user", {
     method: "GET",
@@ -37,7 +39,7 @@ export const getUser = async () => {
   return res;
 };
 
-
+// logout request
 export const logoutRequest = async () => {
   const res: Response = await request("/auth/logout", {
     method: "POST"
