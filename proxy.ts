@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function proxy(request: NextRequest) {
-  const hasToken = request.cookies.has("auth_token");
+export async function proxy(request: NextRequest) {
+ const token = request.headers.get("cookie")?.split(";").find(cookie => cookie.trim().startsWith("auth_token="))?.split("=")[1];
+  const hasToken = !!token;
+  console.log(request.url);
   const pathname = request.nextUrl.pathname;
   const isAuthpage = pathname.startsWith("/login") || pathname.startsWith("/register");
   const publicPage = pathname === '/' || pathname.startsWith("/event");
