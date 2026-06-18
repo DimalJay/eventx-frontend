@@ -1,7 +1,7 @@
 import { request } from "@/lib/request";
 import { Response } from "./types";
 
-export interface CreateEventInput {
+export interface IEvent {
   title: string;
   eventCategory: string;
   description?: string;
@@ -20,7 +20,7 @@ export interface CreateEventInput {
 }
 
 // POST request to create an event
-export const createEventRequest = async (data: CreateEventInput) => {
+export const createEventRequest = async (data: IEvent) => {
   const res: Response = await request("/events", {
     method: "POST",
     data,
@@ -42,3 +42,12 @@ export const uploadEventCoverRequest = async (file: File) => {
   });
   return res;
 };
+
+// GET request to fetch events (for HomePage)
+export const getEvents = async () => {
+  const res: Response = await request("/events", {
+    method: "GET",
+  });
+  return res;
+};
+
