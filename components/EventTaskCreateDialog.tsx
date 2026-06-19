@@ -3,7 +3,7 @@
 import * as z from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createTaskRequest } from "@/service/taskService";
 import Select from "./widgets/Select";
@@ -14,6 +14,7 @@ type Props = {
     open: boolean;
     onClose: () => void;
     users: TeamMember[];
+    eventId: string;
 };
 
 const eventTaskSchema = z.object({
@@ -27,10 +28,11 @@ const eventTaskSchema = z.object({
 
 type EventTaskFormValues = z.infer<typeof eventTaskSchema>;
 
-export default function EventTaskCreateDialog({ open, onClose, users }: Props) {
+export default function EventTaskCreateDialog({ open, onClose, users, eventId }: Props) {
+     const queryClient = useQueryClient();
     const { register, handleSubmit, control, reset, formState: { errors } } = useForm<EventTaskFormValues>({
         resolver: zodResolver(eventTaskSchema),
-        defaultValues: { eventId: "1" }
+        defaultValues: { eventId: eventId }
     });
 
     const mutation = useMutation({
@@ -38,6 +40,7 @@ export default function EventTaskCreateDialog({ open, onClose, users }: Props) {
             return createTaskRequest(data);
         },
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['tasks-event-' + eventId] });
             toast.success("Task created successfully.");
             reset();
             onClose();
