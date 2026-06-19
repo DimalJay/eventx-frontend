@@ -1,29 +1,12 @@
 import { request } from "@/lib/request";
 import { Response } from "./types";
 
-export interface IEvent {
-  title: string;
-  eventCategory: string;
-  description?: string;
-  startDate: string; // YYYY-MM-DD HH:MM:SS
-  endDate: string;   // YYYY-MM-DD HH:MM:SS
-  location?: string;
-  organizerId?: number;
-  imageUrl?: string;
-  isPublic: boolean;
-  capacity: number;
-  ticketPrice: number;
-  registrationDeadline?: string; // YYYY-MM-DD HH:MM:SS
-  agenda?: string;
-  waitlistEnabled?: boolean;
-  isPaid?: boolean;
-}
 
 // POST request to create an event
-export const createEventRequest = async (data: IEvent) => {
-  const res: Response = await request("/events", {
+export const createEventRequest = async (form: FormData) => {
+  const res: Response = await request("/event", {
     method: "POST",
-    data,
+    data: form,
   });
   return res;
 };

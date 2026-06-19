@@ -4,7 +4,8 @@ import { useAuth } from "../auth/AuthContext";
 import Logo from "../widgets/Logo";
 import UserProfile from "../widgets/UserProfile";
 import { useQuery } from "@tanstack/react-query";
-import { getEvents, IEvent } from "@/service/eventService";
+import { getEvents } from "@/service/eventService";
+import { IEvent } from "@/service/types";
 
 // const recentEvents = [
 //   {
@@ -135,8 +136,8 @@ export default function HomePage() {
                 >
                   <div>
                    <div className="flex items-center gap-2">
-                   <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${event.agenda}`}>
-                   {event.eventCategory}
+                   <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${event.title}`}>
+                   {event.title}
                    </span>
                    </div>
                     <h3 className="mt-3 text-lg font-semibold text-black">{event.title}</h3>
@@ -161,8 +162,8 @@ export default function HomePage() {
                   )} 
                   </div>
                  <div className="flex flex-col items-end gap-2 sm:items-center">
-                   <span className={`text-xs ${event.ticketPrice === 0 || !event.isPaid ? 'font-bold text-green-600' : 'text-black/50'}`}>
-                    {event.ticketPrice === 0 || !event.isPaid ? "Free" : `$${event.ticketPrice}`}
+                   <span className={`text-xs ${event.ticketPrice === 0 || !event.ticketPrice ? 'font-bold text-green-600' : 'text-black/50'}`}>
+                    {event.ticketPrice === 0 || !event.ticketPrice ? "Free" : `$${event.ticketPrice}`}
                     </span>
 
                    <button

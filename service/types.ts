@@ -6,3 +6,18 @@ export type Response<T = any> = {
 };
 
 export type WithID<T> = { _id: string } & T;
+
+
+export interface IEvent {
+  title: string;
+  description?: string;
+  startDate: Date,
+  endDate: Date, 
+  location?: string;
+  imageUrl?: string;
+  isPublic: boolean;
+  capacity: number;
+  ticketPrice: number;
+  registrationDeadline?: string; // YYYY-MM-DD HH:MM:SS
+  waitlistEnabled?: boolean;
+}
