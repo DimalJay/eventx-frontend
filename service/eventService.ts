@@ -25,3 +25,11 @@ export const uploadEventCoverRequest = async (file: File) => {
   });
   return res;
 };
+
+// GET request to fetch all events
+export const getEvents = async () => {
+  const res: Response = await request("/events", {
+    method: "GET",
+  });
+  return res;
+};
