@@ -2,13 +2,8 @@
 
 import { useState } from "react";
 import EventTaskCreateDialog from "../EventTaskCreateDialog";
-
-const users = [
-  { id: 1, name: "Dana" },
-  { id: 2, name: "Marcus" },
-  { id: 3, name: "Priya" },
-  { id: 4, name: "Leo" },
-];
+import { useQuery } from "@tanstack/react-query";
+import { getTeamMembers } from "@/service/teamService";
 
 const initialTaskGroups = [
   {
@@ -56,14 +51,29 @@ const initialTaskGroups = [
 ];
 
 
+export interface TeamMember {
+  id: number;
+  firstName: string;
+  lastName: string;
+}
 
 export default function EventManageTasksPage() {
+  const { data: users = null, isLoading, isError } = useQuery({
+    queryKey: ['team-members-event-1'],
+    queryFn: async () => {
+      try {
+        const response = await getTeamMembers({ eventId: "1" });
+        return response.data as TeamMember[];
+      } catch (error) {
+        return null;
+      }
+    },
+    retry: false,
+  })
   const [groups, setGroups] = useState(initialTaskGroups);
 
   const [addTaskOpen, setAddTaskOpen] = useState(false);
   const [taskCreatedOpen, setTaskCreatedOpen] = useState(false);
-
- 
 
   const total = groups.reduce(
     (sum, group) => sum + group.tasks.length,
@@ -75,15 +85,6 @@ export default function EventManageTasksPage() {
 
   const progress =
     total > 0 ? Math.round((done / total) * 100) : 0;
-
-  const formatDueDate = (dateString: string) => {
-    const date = new Date(dateString);
-
-    return `Due ${date.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-    })}`;
-  };
 
   return (
     <>
@@ -130,8 +131,8 @@ export default function EventManageTasksPage() {
                   {group.title === "TODO"
                     ? "To Do"
                     : group.title === "IN_PROGRESS"
-                    ? "In Progress"
-                    : "Done"}
+                      ? "In Progress"
+                      : "Done"}
                 </span>
 
                 <span className="text-xs text-black/40">
@@ -177,19 +178,8 @@ export default function EventManageTasksPage() {
       <EventTaskCreateDialog
         open={addTaskOpen}
         onClose={() => setAddTaskOpen(false)}
-        users={users}
-        onCreate={(newTask) => {
-          setGroups((current) =>
-            current.map((group) =>
-              group.title === initialTaskGroups[0].title
-                ? { ...group, tasks: [...group.tasks, newTask] }
-                : group
-            )
-          );
-
-          setAddTaskOpen(false);
-          setTaskCreatedOpen(true);
-        }}
+        users={users ?? []}
+        
       />
 
       {taskCreatedOpen ? (
