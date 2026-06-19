@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { getEvents } from "@/service/eventService";
+import { getPublicEvents } from "@/service/discoverEventService";
 import { IEvent, WithID } from "@/service/types";
 import Select from "../widgets/Select";
 import Logo from "../widgets/Logo";
@@ -18,10 +18,10 @@ export default function DiscoverEvents() {
 
   // Fetch events from backend
   const { data: rawEvents = [], isLoading, isError, refetch } = useQuery({
-    queryKey: ["events"],
+    queryKey: ["public-events"],
     queryFn: async () => {
       try {
-        const response = await getEvents();
+        const response = await getPublicEvents();
         return response.data || [];
       } catch (error) {
         throw error;
@@ -33,8 +33,8 @@ export default function DiscoverEvents() {
   // Safe typed list of events (only show public events by default for discovery)
   const events = useMemo(() => {
     return (rawEvents as WithID<IEvent>[]).filter(
-      (event) => event.isPublic !== false && String(event.isPublic) !== "false"
-    );
+    (event) => event.isPublic !== false && String(event.isPublic) !== "false"
+  );
   }, [rawEvents]);
 
   // Handle filtering logic
