@@ -3,11 +3,14 @@ import { Response } from "./types";
 
 // create task request
 export const createTaskRequest = async (data: any) => {
-  const res: Response = await request("/tasks", {
+  const res: Response = await request("/task", {
     method: "POST",
     data: {
+      eventId: data.eventId,
       title: data.title,
       description: data.description,
+      assignedTo: data.assignedTo,
+      assignedBy: data.assignedBy,
       dueDate: data.dueDate,
     },
   });
@@ -29,6 +32,8 @@ export const updateTaskRequest = async (id: string, data: any) => {
     data: {
       title: data.title,
       description: data.description,
+      assignedTo: data.assignedTo,
+      assignedBy: data.assignedBy,
       dueDate: data.dueDate,
     },
   });

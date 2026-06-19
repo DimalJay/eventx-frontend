@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import EventTaskCreateDialog from "../EventTaskCreateDialog";
 
 const users = [
   { id: 1, name: "Dana" },
@@ -54,7 +55,7 @@ const initialTaskGroups = [
   },
 ];
 
-const statusOptions = ["TODO", "IN_PROGRESS", "DONE"] as const;
+
 
 export default function EventManageTasksPage() {
   const [groups, setGroups] = useState(initialTaskGroups);
@@ -62,13 +63,7 @@ export default function EventManageTasksPage() {
   const [addTaskOpen, setAddTaskOpen] = useState(false);
   const [taskCreatedOpen, setTaskCreatedOpen] = useState(false);
 
-  const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [newTaskDescription, setNewTaskDescription] = useState("");
-  const [newTaskAssignedTo, setNewTaskAssignedTo] = useState("");
-  const [newTaskDueDate, setNewTaskDueDate] = useState("");
-  const [newTaskStatus, setNewTaskStatus] = useState<string>(
-    statusOptions[0]
-  );
+ 
 
   const total = groups.reduce(
     (sum, group) => sum + group.tasks.length,
@@ -115,12 +110,6 @@ export default function EventManageTasksPage() {
             type="button"
             className="inline-flex h-11 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
             onClick={() => {
-              setNewTaskTitle("");
-              setNewTaskDescription("");
-              setNewTaskAssignedTo("");
-              setNewTaskDueDate("");
-              setNewTaskStatus(statusOptions[0]);
-
               setAddTaskOpen(true);
             }}
           >
@@ -185,156 +174,23 @@ export default function EventManageTasksPage() {
         </section>
       </div>
 
-      {addTaskOpen ? (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-          <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-              Add task
-            </p>
+      <EventTaskCreateDialog
+        open={addTaskOpen}
+        onClose={() => setAddTaskOpen(false)}
+        users={users}
+        onCreate={(newTask) => {
+          setGroups((current) =>
+            current.map((group) =>
+              group.title === initialTaskGroups[0].title
+                ? { ...group, tasks: [...group.tasks, newTask] }
+                : group
+            )
+          );
 
-            <h3 className="mt-2 text-xl font-semibold text-black">
-              Create a new task
-            </h3>
-
-            <p className="mt-2 text-sm text-black/60">
-              Assign a task to a team member.
-            </p>
-
-            <label className="mt-5 grid gap-2 text-sm font-semibold text-black">
-              Task title
-              <input
-                type="text"
-                value={newTaskTitle}
-                onChange={(event) =>
-                  setNewTaskTitle(event.target.value)
-                }
-                className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
-              />
-            </label>
-
-            <label className="mt-4 grid gap-2 text-sm font-semibold text-black">
-              Description
-              <textarea
-                rows={4}
-                value={newTaskDescription}
-                onChange={(event) =>
-                  setNewTaskDescription(event.target.value)
-                }
-                className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-base text-black outline-none transition focus:border-black/40"
-              />
-            </label>
-
-            <label className="mt-4 grid gap-2 text-sm font-semibold text-black">
-              Assigned To
-              <select
-                value={newTaskAssignedTo}
-                onChange={(event) =>
-                  setNewTaskAssignedTo(event.target.value)
-                }
-                className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
-              >
-                <option value="">Select assignee</option>
-
-                {users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.name}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="mt-4 grid gap-2 text-sm font-semibold text-black">
-              Due Date
-              <input
-                type="date"
-                value={newTaskDueDate}
-                onChange={(event) =>
-                  setNewTaskDueDate(event.target.value)
-                }
-                className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
-              />
-            </label>
-
-            <label className="mt-4 grid gap-2 text-sm font-semibold text-black">
-              Status
-              <select
-                value={newTaskStatus}
-                onChange={(event) =>
-                  setNewTaskStatus(event.target.value)
-                }
-                className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
-              >
-                {statusOptions.map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
-                onClick={() => setAddTaskOpen(false)}
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                className="inline-flex h-10 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
-                onClick={() => {
-                  if (
-                    !newTaskTitle.trim() ||
-                    !newTaskAssignedTo ||
-                    !newTaskDueDate ||
-                    !newTaskStatus
-                  ) {
-                    alert(
-                      "Task title, assignee, due date and status are required."
-                    );
-                    return;
-                  }
-
-                  const selectedUser = users.find(
-                    (user) =>
-                      user.id === Number(newTaskAssignedTo)
-                  );
-
-                  if (!selectedUser) {
-                    alert("Invalid assignee.");
-                    return;
-                  }
-
-                  const newTask = {
-                    title: newTaskTitle,
-                    owner: selectedUser.name,
-                    due: formatDueDate(newTaskDueDate),
-                    team: "General",
-                  };
-
-                  setGroups((current) =>
-                    current.map((group) =>
-                      group.title === newTaskStatus
-                        ? {
-                            ...group,
-                            tasks: [...group.tasks, newTask],
-                          }
-                        : group
-                    )
-                  );
-
-                  setAddTaskOpen(false);
-                  setTaskCreatedOpen(true);
-                }}
-              >
-                Create task
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+          setAddTaskOpen(false);
+          setTaskCreatedOpen(true);
+        }}
+      />
 
       {taskCreatedOpen ? (
         <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
