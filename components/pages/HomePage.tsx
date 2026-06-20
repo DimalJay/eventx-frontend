@@ -1,11 +1,5 @@
 'use client'
-import Link from "next/link";
 import { useAuth } from "../auth/AuthContext";
-import { useQuery } from "@tanstack/react-query";
-import { getEvents } from "@/service/eventService";
-import { IEvent } from "@/service/types";
-import Logo from "../widgets/Logo";
-import UserProfile from "../widgets/UserProfile";
 import { useQuery } from "@tanstack/react-query";
 import { getEvents } from "@/service/eventService";
 import { IEvent } from "@/service/types";
