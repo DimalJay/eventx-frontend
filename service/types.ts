@@ -9,6 +9,8 @@ export type WithID<T> = { _id: string } & T;
 
 
 export interface IEvent {
+  id?: string | number;
+  organizerId?: string | number;
   title: string;
   description?: string;
   startDate: Date,
