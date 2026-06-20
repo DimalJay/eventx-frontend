@@ -1,5 +1,5 @@
 import { request } from "@/lib/request";
-import { IEvent, Response } from "./types";
+import { Response } from "./types";
 
 
 // POST request to create an event

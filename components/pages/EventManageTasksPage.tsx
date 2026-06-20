@@ -91,7 +91,10 @@ export default function EventManageTasksPage() {
   
   const { data: users = [] } = useQuery({
     queryKey: ['team-members-event-' + eventId],
-    queryFn: async () => (await getTeamMembers({ eventId: "1" })).data as TeamMember[],
+    queryFn: async () => {
+      const response = await getTeamMembers({ eventId });
+      return response.data as TeamMember[];
+    },
     retry: false,
   })
 
