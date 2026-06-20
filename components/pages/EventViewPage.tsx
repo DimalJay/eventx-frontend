@@ -3,25 +3,7 @@ import AddToCalendar from "../widgets/AddToCalendar";
 import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
 import { IEvent } from "@/service/types";
-
-// const event = {
-//   name: "Astra Product Summit",
-//   tagline: "A full day of keynotes, hands-on sessions, and networking for product teams.",
-//   status: "Tickets live",
-//   date: "Thursday, Jun 18, 2026",
-//   time: "9:00 AM – 5:00 PM",
-//   // Machine-readable times for calendar links (local wall time + IANA tz)
-//   start: "2026-06-18T09:00:00",
-//   end: "2026-06-18T17:00:00",
-//   timezone: "America/New_York",
-//   venue: "Brooklyn Expo Center",
-//   location: "Brooklyn, NY",
-//   organizer: "EventX Studio",
-//   cover: "", // image URL — empty shows the placeholder cover
-//   price: "$49",
-//   seatsLeft: 820,
-//   capacity: 1360,
-// };
+import { useRouter } from "next/navigation";
 
 const highlights = [
   { label: "Attending", value: "540" },
@@ -47,23 +29,22 @@ const included = [
 
 
 export default function EventViewPage({ id }: { id: string }) {
-
+  const router = useRouter();
   const { data: event } = useQuery({
-    queryKey: ['event_details', id],
+    queryKey: ['event', id],
     queryFn: async () => {
-      const response = await getEventById(id);
-      console.log(response.data);
-      return response.data as IEvent;
+      try {
+        const response = await getEventById(id);
+        return response.data as IEvent;
+      } catch (error) {
+        router.push('/404');
+        return null;
+      }
     },
+
     retry: false,
   })
-  if(!event) {
-    return (
-      <div className="flex h-96 items-center justify-center text-sm text-black/50">
-        Event not found.
-      </div>
-    )
-  }
+
   return (
     <div className="relative flex flex-1 justify-center overflow-hidden bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
       <div className="pointer-events-none absolute -left-28 top-12 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-40 blur-3xl" />
@@ -117,7 +98,7 @@ export default function EventViewPage({ id }: { id: string }) {
                 title={event?.title ?? 'Event title'}
                 description={event?.description}
                 location={`${event?.location}`}
-                start={Date.now().toString()} 
+                start={Date.now().toString()}
                 end={(Date.now() + 2 * 60 * 60 * 1000).toString()}
                 timezone={'America/New_York'}
                 className="w-full sm:w-auto"
@@ -147,16 +128,16 @@ export default function EventViewPage({ id }: { id: string }) {
             <div className="mt-5 grid gap-5 text-sm sm:grid-cols-2 lg:grid-cols-1">
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-black/40">Date</p>
-                <p className="mt-1 font-semibold text-black">{event.startDate.toString()}</p>
+                <p className="mt-1 font-semibold text-black">{event?.startDate.toString()}</p>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-black/40">Time</p>
-                <p className="mt-1 font-semibold text-black">{event.startDate.toString()}</p>
+                <p className="mt-1 font-semibold text-black">{event?.startDate.toString()}</p>
               </div>
               <div className="sm:col-span-2 lg:col-span-1">
                 <p className="text-xs uppercase tracking-[0.18em] text-black/40">Venue</p>
-                <p className="mt-1 font-semibold text-black">{event.location}</p>
-                <p className="text-black/60">{event.location}</p>
+                <p className="mt-1 font-semibold text-black">{event?.location}</p>
+                <p className="text-black/60">{event?.location}</p>
               </div>
             </div>
             <div className="mt-6 flex h-32 items-center justify-center rounded-2xl border border-black/10 bg-[#f2f6ff] text-xs font-semibold uppercase tracking-[0.2em] text-black/40">
