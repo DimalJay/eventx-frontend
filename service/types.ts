@@ -12,7 +12,7 @@ export interface IEvent {
   title: string;
   description?: string;
   startDate: Date,
-  endDate: Date, 
+  endDate: Date,
   location?: string;
   imageUrl?: string;
   isPublic: boolean;
@@ -20,4 +20,12 @@ export interface IEvent {
   ticketPrice: number;
   registrationDeadline?: string; // YYYY-MM-DD HH:MM:SS
   waitlistEnabled?: boolean;
+}
+
+export interface IAgendaItem {
+  id: string;
+  eventId: string;
+  task: string;
+  time: string;
+  location: string;
 }
