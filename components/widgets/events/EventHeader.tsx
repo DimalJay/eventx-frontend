@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Logo from "../Logo";
 
-export default function EventHeader() {
+export default function EventHeader({id}: {id: string}) {
     return (
         <header className="">
             <div className="flex flex-row justify-between">
@@ -16,7 +16,7 @@ export default function EventHeader() {
                         </p>
                     </div>
                 </div>
-                <Link href="/event/123" className="btn">
+                <Link href={`/event/${id}`} className="btn">
                     View Event
                 </Link>
             </div>

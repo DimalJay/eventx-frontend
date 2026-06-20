@@ -34,3 +34,10 @@ export const getEvents = async () => {
   return res;
 };
 
+export const getEventById = async (eventId: string) => {
+  const res: Response = await request("/event", {
+    method: "GET",
+    params: { id: eventId },
+  });
+  return res;
+};

@@ -1,24 +1,27 @@
 import Link from "next/link";
 import AddToCalendar from "../widgets/AddToCalendar";
+import { useQuery } from "@tanstack/react-query";
+import { getEventById } from "@/service/eventService";
+import { IEvent } from "@/service/types";
 
-const event = {
-  name: "Astra Product Summit",
-  tagline: "A full day of keynotes, hands-on sessions, and networking for product teams.",
-  status: "Tickets live",
-  date: "Thursday, Jun 18, 2026",
-  time: "9:00 AM – 5:00 PM",
-  // Machine-readable times for calendar links (local wall time + IANA tz)
-  start: "2026-06-18T09:00:00",
-  end: "2026-06-18T17:00:00",
-  timezone: "America/New_York",
-  venue: "Brooklyn Expo Center",
-  location: "Brooklyn, NY",
-  organizer: "EventX Studio",
-  cover: "", // image URL — empty shows the placeholder cover
-  price: "$49",
-  seatsLeft: 820,
-  capacity: 1360,
-};
+// const event = {
+//   name: "Astra Product Summit",
+//   tagline: "A full day of keynotes, hands-on sessions, and networking for product teams.",
+//   status: "Tickets live",
+//   date: "Thursday, Jun 18, 2026",
+//   time: "9:00 AM – 5:00 PM",
+//   // Machine-readable times for calendar links (local wall time + IANA tz)
+//   start: "2026-06-18T09:00:00",
+//   end: "2026-06-18T17:00:00",
+//   timezone: "America/New_York",
+//   venue: "Brooklyn Expo Center",
+//   location: "Brooklyn, NY",
+//   organizer: "EventX Studio",
+//   cover: "", // image URL — empty shows the placeholder cover
+//   price: "$49",
+//   seatsLeft: 820,
+//   capacity: 1360,
+// };
 
 const highlights = [
   { label: "Attending", value: "540" },
@@ -43,7 +46,24 @@ const included = [
 ];
 
 
-export default function EventViewPage() {
+export default function EventViewPage({ id }: { id: string }) {
+
+  const { data: event } = useQuery({
+    queryKey: ['event_details', id],
+    queryFn: async () => {
+      const response = await getEventById(id);
+      console.log(response.data);
+      return response.data as IEvent;
+    },
+    retry: false,
+  })
+  if(!event) {
+    return (
+      <div className="flex h-96 items-center justify-center text-sm text-black/50">
+        Event not found.
+      </div>
+    )
+  }
   return (
     <div className="relative flex flex-1 justify-center overflow-hidden bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
       <div className="pointer-events-none absolute -left-28 top-12 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-40 blur-3xl" />
@@ -59,10 +79,10 @@ export default function EventViewPage() {
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
           <div className="relative flex items-center gap-3 p-5 sm:p-6">
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white text-sm font-semibold uppercase tracking-widest text-black">
-              {event.name.charAt(0)}
+              {event?.title?.charAt(0)}
             </span>
             <span className="text-sm font-semibold uppercase tracking-[0.2em] text-white/80">
-              {event.organizer}
+              {event?.organizerId}
             </span>
           </div>
         </section>
@@ -72,18 +92,18 @@ export default function EventViewPage() {
           <div className="flex flex-col gap-6">
             <div className="flex flex-wrap items-center gap-3">
               <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
-                {event.status}
+                {event?.isPublic ? 'Public event' : 'Private event'}
               </span>
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-                Hosted by {event.organizer}
+                Hosted by {event?.organizerId}
               </span>
             </div>
 
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl lg:text-5xl">
-              {event.name}
+              {event?.title}
             </h1>
             <p className="max-w-xl text-base leading-7 text-black/70 sm:text-lg sm:leading-8">
-              {event.tagline}
+              {event?.description}
             </p>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
@@ -94,12 +114,12 @@ export default function EventViewPage() {
                 Get tickets
               </Link>
               <AddToCalendar
-                title={event.name}
-                description={event.tagline}
-                location={`${event.venue}, ${event.location}`}
-                start={event.start}
-                end={event.end}
-                timezone={event.timezone}
+                title={event?.title ?? 'Event title'}
+                description={event?.description}
+                location={`${event?.location}`}
+                start={Date.now().toString()} 
+                end={(Date.now() + 2 * 60 * 60 * 1000).toString()}
+                timezone={'America/New_York'}
                 className="w-full sm:w-auto"
               />
             </div>
@@ -127,15 +147,15 @@ export default function EventViewPage() {
             <div className="mt-5 grid gap-5 text-sm sm:grid-cols-2 lg:grid-cols-1">
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-black/40">Date</p>
-                <p className="mt-1 font-semibold text-black">{event.date}</p>
+                <p className="mt-1 font-semibold text-black">{event.startDate.toString()}</p>
               </div>
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-black/40">Time</p>
-                <p className="mt-1 font-semibold text-black">{event.time}</p>
+                <p className="mt-1 font-semibold text-black">{event.startDate.toString()}</p>
               </div>
               <div className="sm:col-span-2 lg:col-span-1">
                 <p className="text-xs uppercase tracking-[0.18em] text-black/40">Venue</p>
-                <p className="mt-1 font-semibold text-black">{event.venue}</p>
+                <p className="mt-1 font-semibold text-black">{event.location}</p>
                 <p className="text-black/60">{event.location}</p>
               </div>
             </div>
@@ -198,7 +218,7 @@ export default function EventViewPage() {
           <div className="grid gap-6 rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur sm:p-7 lg:grid-cols-[1fr_auto] lg:items-center">
             <div className="flex flex-col gap-5">
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-semibold text-black sm:text-5xl">{event.price}</span>
+                <span className="text-4xl font-semibold text-black sm:text-5xl">{event?.ticketPrice}</span>
                 <span className="pb-1 text-sm text-black/50">per ticket</span>
               </div>
               <ul className="grid gap-3 text-sm text-black/70 sm:grid-cols-2">
@@ -212,14 +232,14 @@ export default function EventViewPage() {
             </div>
             <div className="flex flex-col items-stretch gap-3 lg:w-56">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
-                {event.seatsLeft} of {event.capacity} seats left
+                {0} of {event?.capacity} seats left
               </p>
               <div className="h-2 overflow-hidden rounded-full bg-black/10">
                 <div
                   className="h-full rounded-full bg-black"
                   style={{
                     width: `${Math.round(
-                      ((event.capacity - event.seatsLeft) / event.capacity) * 100
+                      ((100 - 0) / 100) * 100
                     )}%`,
                   }}
                 />
@@ -241,7 +261,7 @@ export default function EventViewPage() {
               Don&apos;t miss it
             </p>
             <p className="mt-2 text-2xl font-semibold">
-              Save your spot at {event.name}.
+              Save your spot at {event?.title}.
             </p>
           </div>
           <Link

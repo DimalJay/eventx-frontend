@@ -20,7 +20,7 @@ const activity = [
   { title: "Venue walkthrough scheduled", meta: "Mon · Ops" },
 ];
 
-export default function EventManageOverviewPage() {
+export default function EventManageOverviewPage({ id: eventId }: { id: string }) {
   return (
     <div className="flex flex-col gap-6">
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

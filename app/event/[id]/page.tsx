@@ -1,5 +1,8 @@
+'use client';
 import EventViewPage from "@/components/pages/EventViewPage";
+import { useParams } from 'next/navigation';
 
 export default function ViewEvent() {
-    return <EventViewPage />
+    const { id: eventId } = useParams();
+    return <EventViewPage id={eventId as string} />
 }
