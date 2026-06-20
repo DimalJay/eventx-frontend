@@ -6,8 +6,39 @@ import { getEvents } from "@/service/eventService";
 import { IEvent } from "@/service/types";
 import Logo from "../widgets/Logo";
 import UserProfile from "../widgets/UserProfile";
+import { useQuery } from "@tanstack/react-query";
+import { getEvents } from "@/service/eventService";
+import { IEvent } from "@/service/types";
 
-
+// const recentEvents = [
+//   {
+//     title: "Astra Product Summit",
+//     location: "Brooklyn, NY",
+//     created: "Created 2 days ago",
+//     date: "Jun 18, 2026",
+//     attendees: "540",
+//     status: "Tickets live",
+//     tone: "border-emerald-200 bg-emerald-50 text-emerald-800",
+//   },
+//   {
+//     title: "Night Market Sessions",
+//     location: "Austin, TX",
+//     created: "Created 4 days ago",
+//     date: "Jun 26, 2026",
+//     attendees: "220",
+//     status: "Drafting agenda",
+//     tone: "border-amber-200 bg-amber-50 text-amber-800",
+//   },
+//   {
+//     title: "Pulse Design Retreat",
+//     location: "Big Sur, CA",
+//     created: "Created 1 week ago",
+//     date: "Jul 04, 2026",
+//     attendees: "86",
+//     status: "Venue hold",
+//     tone: "border-sky-200 bg-sky-50 text-sky-800",
+//   },
+// ];
 
 const highlights = [
   {
@@ -29,24 +60,18 @@ const highlights = [
 
 export default function HomePage() {
   const { user } = useAuth();
-
-  const { data: rawEvents = [], isLoading, isError } = useQuery({
-    queryKey: ["events"],
+  const { data: events = [], isLoading, isError } = useQuery({
+    queryKey: ['events'],
     queryFn: async () => {
-      const response = await getEvents();
-      return response.data || [];
+      try {
+        const response = await getEvents();
+        return response.data;
+      } catch (error) {
+        return null;
+      }
     },
     retry: false,
-  });
-
-  const myEvents = (rawEvents as IEvent[]).filter(
-    (event) => String(event.organizerId) === String(user?.id) || String(event.organizerId) === String((user as any)?._id)
-  );
-
-  const recentMyEvents = myEvents
-    .sort((a, b) => new Date(b.startDate).getTime() - new Date(a.startDate).getTime())
-    .slice(0, 5);
-
+  })
   return (
     <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f5f1ea]">
       <div className="pointer-events-none absolute -left-28 top-12 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-40 blur-3xl" />
@@ -107,54 +132,52 @@ export default function HomePage() {
             </div>
 
             <div className="mt-6 grid gap-4">
-              {isLoading ? (
-                <div className="text-sm text-black/60 p-4">Loading your events...</div>
-              ) : isError ? (
-                <div className="text-sm text-red-500 p-4">Failed to load events.</div>
-              ) : recentMyEvents.length === 0 ? (
-                <div className="text-sm text-black/60 p-4">No events found. Create your first event!</div>
-              ) : (
-                recentMyEvents.map((event) => {
-                  const eventId = event.id || (event as any)._id;
-                  const displayDate = new Date(event.startDate).toLocaleDateString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "numeric",
-                  });
-                  return (
-                    <article
-                      key={eventId}
-                      className="grid gap-4 rounded-2xl border border-black/10 bg-white px-5 py-4 sm:grid-cols-[1.4fr_1fr_auto] sm:items-center"
-                    >
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${event.isPublic ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-amber-200 bg-amber-50 text-amber-800"}`}>
-                            {event.isPublic ? "Public" : "Draft/Private"}
-                          </span>
-                        </div>
-                        <h3 className="mt-3 text-lg font-semibold text-black">{event.title}</h3>
-                        <p className="mt-1 text-sm text-black/60">{event.location || "Online"}</p>
-                      </div>
-                      <div className="flex items-center justify-between gap-6 text-sm text-black/70 sm:justify-start">
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.2em] text-black/40">Launch</p>
-                          <p className="mt-1 font-semibold text-black">{displayDate}</p>
-                        </div>
-                        <div>
-                          <p className="text-xs uppercase tracking-[0.2em] text-black/40">Capacity</p>
-                          <p className="mt-1 font-semibold text-black">{event.capacity > 0 ? event.capacity : "Open"}</p>
-                        </div>
-                      </div>
-                      <Link
-                        href={`/event/${eventId}`}
-                        className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
-                      >
-                        Open
-                      </Link>
-                    </article>
-                  );
-                })
-              )}
+              {events.map((event:IEvent) => (
+                <article
+                  key={event.title}
+                  className="grid gap-4 rounded-2xl border border-black/10 bg-white px-5 py-4 sm:grid-cols-[1.4fr_1fr_auto] sm:items-center"
+                >
+                  <div>
+                   <div className="flex items-center gap-2">
+                   <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold ${event.title}`}>
+                   {event.title}
+                   </span>
+                   </div>
+                    <h3 className="mt-3 text-lg font-semibold text-black">{event.title}</h3>
+                    <p className="mt-1 text-sm text-black/60 truncate">{event.location}</p>                 
+                   </div>
+                  <div className="flex items-center justify-between gap-6 text-sm text-black/70 sm:justify-start">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.2em] text-black/40">Date</p>
+                      <p className="mt-1 font-semibold text-black">
+                      {new Date(event.startDate).toLocaleDateString('en-US', {
+                       year: 'numeric',
+                       month: 'short',
+                       day: 'numeric',
+                       })}
+                       </p>
+                    </div>
+                    {event.capacity <= 10 && (
+                    <div>
+                    <p className="text-xs uppercase tracking-[0.2em] text-orange-500/80">Hurry</p>
+                    <p className="mt-1 font-semibold text-orange-600">Only {event.capacity} Spots Left</p>
+                    </div>
+                  )} 
+                  </div>
+                 <div className="flex flex-col items-end gap-2 sm:items-center">
+                   <span className={`text-xs ${event.ticketPrice === 0 || !event.ticketPrice ? 'font-bold text-green-600' : 'text-black/50'}`}>
+                    {event.ticketPrice === 0 || !event.ticketPrice ? "Free" : `$${event.ticketPrice}`}
+                    </span>
+
+                   <button
+                    type="button"
+                    className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+                  >
+                View details
+                  </button>
+                 </div>
+                </article>
+              ))}
             </div>
           </div>
 

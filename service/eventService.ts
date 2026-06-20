@@ -1,5 +1,5 @@
 import { request } from "@/lib/request";
-import { IEvent, Response } from "./types";
+import { Response } from "./types";
 
 
 // POST request to create an event
@@ -26,10 +26,11 @@ export const uploadEventCoverRequest = async (file: File) => {
   return res;
 };
 
-// GET request to fetch all events
+// GET request to fetch events (for HomePage)
 export const getEvents = async () => {
   const res: Response = await request("/events", {
     method: "GET",
   });
   return res;
 };
+
