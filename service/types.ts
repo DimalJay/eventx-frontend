@@ -23,3 +23,24 @@ export interface IEvent {
   registrationDeadline?: string; // YYYY-MM-DD HH:MM:SS
   waitlistEnabled?: boolean;
 }
+
+export interface IEventResponse extends WithID<IEvent> {
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ITask {
+  id: string;
+  eventId: string;
+  title: string;
+  description?: string;
+  createdBy: string;
+  assignedTo: string;
+  assignedBy: string;
+  createdAt: string;
+  assignedDate: string;
+  dueDate: string;
+  status: TaskStatus;
+}
+
+export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
