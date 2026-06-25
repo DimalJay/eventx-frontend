@@ -98,7 +98,7 @@ export default function HomePage() {
             <div className="mt-6 grid gap-4">
               {events.map((event:IEvent) => (
                 <article
-                  key={event.title}
+                  key={event.id}
                   className="grid gap-4 rounded-2xl border border-black/10 bg-white px-5 py-4 sm:grid-cols-[1.4fr_1fr_auto] sm:items-center"
                 >
                   <div>
