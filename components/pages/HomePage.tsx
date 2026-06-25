@@ -1,44 +1,8 @@
 'use client'
-import Link from "next/link";
 import { useAuth } from "../auth/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { getEvents } from "@/service/eventService";
 import { IEvent } from "@/service/types";
-import Logo from "../widgets/Logo";
-import UserProfile from "../widgets/UserProfile";
-import { useQuery } from "@tanstack/react-query";
-import { getEvents } from "@/service/eventService";
-import { IEvent } from "@/service/types";
-
-// const recentEvents = [
-//   {
-//     title: "Astra Product Summit",
-//     location: "Brooklyn, NY",
-//     created: "Created 2 days ago",
-//     date: "Jun 18, 2026",
-//     attendees: "540",
-//     status: "Tickets live",
-//     tone: "border-emerald-200 bg-emerald-50 text-emerald-800",
-//   },
-//   {
-//     title: "Night Market Sessions",
-//     location: "Austin, TX",
-//     created: "Created 4 days ago",
-//     date: "Jun 26, 2026",
-//     attendees: "220",
-//     status: "Drafting agenda",
-//     tone: "border-amber-200 bg-amber-50 text-amber-800",
-//   },
-//   {
-//     title: "Pulse Design Retreat",
-//     location: "Big Sur, CA",
-//     created: "Created 1 week ago",
-//     date: "Jul 04, 2026",
-//     attendees: "86",
-//     status: "Venue hold",
-//     tone: "border-sky-200 bg-sky-50 text-sky-800",
-//   },
-// ];
 
 const highlights = [
   {
