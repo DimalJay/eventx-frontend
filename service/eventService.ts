@@ -34,3 +34,22 @@ export const getEvents = async () => {
   return res;
 };
 
+// Get Event details
+export const getEventById = async (eventId: String) => {
+  const res: Response = await request("/event", {
+    method: "GET",
+    params: {
+      id: eventId
+    }
+  });
+  return res;
+};
+
+// Update Event details
+export const updateEventRequest = async (data: any) => {
+  const res: Response = await request("/event", {
+    method: "PUT",
+    data: data,
+  });
+  return res;
+};

@@ -20,12 +20,11 @@ export interface IEvent {
   ticketPrice: number;
   registrationDeadline?: string; // YYYY-MM-DD HH:MM:SS
   waitlistEnabled?: boolean;
+  agenda?: string;
 }
 
 export interface IAgendaItem {
-  id: string;
-  eventId: string;
   task: string;
-  time: string;
+  time: Date;
   location: string;
 }
