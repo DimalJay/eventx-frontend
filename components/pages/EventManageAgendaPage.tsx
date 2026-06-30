@@ -9,6 +9,7 @@ import { getEventById, updateEventRequest } from "@/service/eventService";
 import AddEventAgendaItem from "../dialog/AddEventAgendaItem";
 import EditEventAgendaItem from "../dialog/EditEventAgendaItem";
 import DeleteEventAgendaItem from "../dialog/DeleteEventAgendaItem";
+import { EllipsisVertical } from "lucide-react";
 
 
 export default function EventManageAgendaPage() {
@@ -50,7 +51,7 @@ export default function EventManageAgendaPage() {
     const updateEventMutation = useMutation({
         mutationFn: (updatedAgendaArray: any[]) => {
             const agendaString = JSON.stringify(updatedAgendaArray);
-            return updateEventRequest({ id: eventId, agenda: agendaString });
+            return updateEventRequest(eventId, { agenda: agendaString });
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['event', eventId] });
@@ -169,7 +170,7 @@ export default function EventManageAgendaPage() {
                                         onClick={() => setMenuOpenFor((current) => current === item.id ? null : item.id)}
                                         className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/15 text-lg font-semibold text-black transition hover:border-black/40"
                                     >
-                                        ...
+                                        <EllipsisVertical/>
                                     </button>
                                     {menuOpenFor === item.id ? (
                                         <div className="absolute right-0 top-11 z-10 w-40 rounded-2xl border border-black/10 bg-white p-2 shadow-[0_20px_40px_-30px_rgba(0,0,0,0.35)]">

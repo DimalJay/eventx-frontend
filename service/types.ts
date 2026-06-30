@@ -20,6 +20,7 @@ export interface IEvent {
   isPublic: boolean;
   capacity: number;
   ticketPrice: number;
+  agenda: string,
   registrationDeadline?: string; // YYYY-MM-DD HH:MM:SS
   waitlistEnabled?: boolean;
 }
@@ -44,3 +45,11 @@ export interface ITask {
 }
 
 export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
+
+export interface IAgendaItem {
+  id: string;
+  eventId: string;
+  task: string;
+  time: Date,
+  location: string;
+}

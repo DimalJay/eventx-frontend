@@ -54,7 +54,7 @@ export default function AddEventAgendaItem({
 
         <div className="mt-5 space-y-4">
           <label className="grid gap-2 text-sm font-semibold text-black">
-            Task / Title
+            Title
             <input type="text" required placeholder="e.g. Opening Keynote Speech" className="h-11 rounded-2xl border border-black/10 px-4 text-base outline-none transition focus:border-black/40" {...register("task")} />
           </label>
 
