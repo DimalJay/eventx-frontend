@@ -1,14 +1,7 @@
+import { IEvent } from "@/service/types";
 import { CalendarCheck, MapPin } from "lucide-react";
 import Link from "next/link";
 
-interface IEvent {
-  id: string;
-  title: string;
-  location: string;
-  startDate: string;
-  capacity: number;
-  ticketPrice: number;
-}
 
 export default function EventCard({ event }: { event: IEvent }) {
   const formattedDate = new Date(event.startDate).toLocaleDateString("en-US", {
