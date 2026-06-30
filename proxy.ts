@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 
+const publicPages = ["/", "/event", "/terms", "/privacy", "/login", "/register"];
 export async function proxy(request: NextRequest) {
   const token = request.cookies.get("auth_token")?.value;
   const hasToken = !!token;
   console.log(request.url);
   const pathname = request.nextUrl.pathname;
   const isAuthpage = pathname.startsWith("/login") || pathname.startsWith("/register");
-  const publicPage = pathname === '/' || pathname.startsWith("/event");
+  const publicPage = publicPages.includes(pathname);
 
   if(hasToken && isAuthpage) {
     return NextResponse.redirect(new URL("/home", request.url));
