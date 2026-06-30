@@ -1,6 +1,9 @@
 import { ITask } from "@/service/types";
+import EventTaskUpdateDialog from "./widgets/EventTaskUpdate";
+import { useState } from "react";
 
-export default function TaskCard({ task }: { task: ITask }) {
+export default function TaskCard({ task , users, eventId }: { task: ITask , users: any[], eventId: string }) {
+    const [open, setOpen] = useState(false);
 
     const formatDueDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -13,9 +16,11 @@ export default function TaskCard({ task }: { task: ITask }) {
 
 
     return (
+        <>
         <article
             key={`${task.id}`}
             className="rounded-2xl border border-black/10 bg-white px-4 py-4"
+            onClick={() => setOpen(true)}
         >
             <h3 className="text-sm font-semibold text-black">
                 {task.title}
@@ -39,5 +44,7 @@ export default function TaskCard({ task }: { task: ITask }) {
                 </span>
             </div>
         </article>
+        <EventTaskUpdateDialog task={task} open={open} onClose={() => setOpen(false)} users={users} eventId={eventId} />
+        </>
     )
 }
