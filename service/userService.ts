@@ -46,3 +46,16 @@ export const logoutRequest = async () => {
   })
   return res;
 }
+
+// google login request
+export const googleLoginRequest = async (credential: string) => {
+  const res: Response = await request("/auth/google-login", {
+    method: "POST",
+    data: {
+      credential,
+    },
+  });
+  localStorage.setItem("loggedIn", "true");
+
+  return res;
+};

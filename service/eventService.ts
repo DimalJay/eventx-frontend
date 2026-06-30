@@ -34,22 +34,11 @@ export const getEvents = async () => {
   return res;
 };
 
-// Get Event details
-export const getEventById = async (eventId: String) => {
-  const res: Response = await request("/event", {
+// GET request to fetch public events (for DiscoverEvents page)
+export const getPublicEvents = async () => {
+  const res: Response = await request("/discover-events", {
     method: "GET",
-    params: {
-      id: eventId
-    }
   });
   return res;
 };
 
-// Update Event details
-export const updateEventRequest = async (data: any) => {
-  const res: Response = await request("/event", {
-    method: "PUT",
-    data: data,
-  });
-  return res;
-};
