@@ -27,8 +27,8 @@ const navGroups = [
     links: [
       { label: "Guides", href: "#" },
       { label: "Support", href: "#" },
-      { label: "Privacy", href: "#" },
-      { label: "Terms", href: "#" },
+      { label: "Privacy", href: "/privacy" },
+      { label: "Terms", href: "/terms" },
     ],
   },
 ];
@@ -95,10 +95,10 @@ export default function Footer() {
             © {new Date().getFullYear()} EventX. All rights reserved.
           </p>
           <div className="flex flex-wrap gap-6 text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-            <Link href="#" className="transition hover:text-black">
+            <Link href="/privacy" className="transition hover:text-black">
               Privacy
             </Link>
-            <Link href="#" className="transition hover:text-black">
+            <Link href="/terms" className="transition hover:text-black">
               Terms
             </Link>
             <Link href="#" className="transition hover:text-black">
