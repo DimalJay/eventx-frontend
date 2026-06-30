@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
-import { getPublicEvents } from "@/service/discoverEventService";
+import { getPublicEvents } from "@/service/eventService";
 import { IEvent, WithID } from "@/service/types";
 import Select from "../widgets/Select";
 import Logo from "../widgets/Logo";
@@ -33,8 +33,8 @@ export default function DiscoverEvents() {
   // Safe typed list of events (only show public events by default for discovery)
   const events = useMemo(() => {
     return (rawEvents as WithID<IEvent>[]).filter(
-    (event) => event.isPublic !== false && String(event.isPublic) !== "false"
-  );
+      (event) => event.isPublic !== false && String(event.isPublic) !== "false"
+    );
   }, [rawEvents]);
 
   // Handle filtering logic
@@ -62,7 +62,7 @@ export default function DiscoverEvents() {
       if (dateFilter !== "all") {
         const now = new Date();
         const eventDate = new Date(event.startDate);
-        
+
         // Reset time parts for date comparison
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const eventDateStart = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
@@ -294,9 +294,9 @@ export default function DiscoverEvents() {
                 // Get cover image path from database or mockup
                 const rawImg = (event as any).coverImage || event.imageUrl;
                 const backendBaseUrl = process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL?.replace("/api/v1", "") || "";
-                const imageUrl = rawImg
+                const imageUrl = (rawImg && rawImg !== "null" && rawImg !== "undefined" && rawImg.trim() !== "")
                   ? (rawImg.startsWith("http") ? rawImg : `${backendBaseUrl}${rawImg}`)
-                  : null;
+                  : "/images/default-event.jpg";
 
                 return (
                   <article
@@ -321,9 +321,8 @@ export default function DiscoverEvents() {
                       {/* Price Badge */}
                       <div className="absolute left-3 top-3">
                         <span
-                          className={`inline-flex items-center rounded-full px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase shadow-xs ${
-                            isFree ? "bg-emerald-500 text-white" : "bg-black text-white"
-                          }`}
+                          className={`inline-flex items-center rounded-full px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase shadow-xs ${isFree ? "bg-emerald-500 text-white" : "bg-black text-white"
+                            }`}
                         >
                           {displayPrice}
                         </span>
@@ -368,15 +367,9 @@ export default function DiscoverEvents() {
                       <div className="mt-auto flex items-center justify-between border-t border-black/5 pt-4">
                         <div>
                           {event.capacity > 0 ? (
-                            event.capacity <= 10 ? (
-                              <span className="text-[10px] font-semibold uppercase tracking-wider text-orange-600">
-                                Only {event.capacity} left
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-semibold uppercase tracking-wider text-black/45">
-                                Cap: {event.capacity}
-                              </span>
-                            )
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-black/45">
+                              Cap: {event.capacity}
+                            </span>
                           ) : (
                             <span className="text-[10px] font-semibold uppercase tracking-wider text-black/45">
                               Open spots
