@@ -200,8 +200,8 @@ export default function EventFAQPage() {
           </div>
         </div>
 
-        <div className=" gap 10 lg:items-start">
-          {/* Left Section: FAQ Content */}
+        <div className=" gap-10 lg:items-start">
+          {/* Section: FAQ Content */}
           <section className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-8">
             <div className="flex flex-col gap-3 mb-8">
               <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl">

@@ -76,8 +76,7 @@ const sections = [
 export default function EventTermsPage() {
   return (
     <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
-      <main className="flex w-full max-w-4xl flex-col gap-10 px-8 py-20 sm:px-14">
-        {/* Header */}
+      <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
         <div className="flex items-center gap-3">
           <div>
 

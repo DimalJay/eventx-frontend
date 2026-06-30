@@ -81,12 +81,16 @@ const sections = [
 export default function EventPrivacyPage() {
   return (
     <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
-      <main className="flex w-full max-w-4xl flex-col gap-10 px-8 py-20 sm:px-14">
+      <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
+        <div className="flex items-center gap-3">
+          <div>
+          </div>
+        </div>
 
         {/* Main Document */}
         <section className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-8">
           {/* Document Header */}
-          <div className="flex flex-col gap-3 mb-8">
+          <div className="mb-8 flex flex-col gap-3">
 
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl">
               Privacy Policy
