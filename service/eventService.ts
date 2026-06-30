@@ -34,3 +34,11 @@ export const getEvents = async () => {
   return res;
 };
 
+// GET request to fetch public events (for DiscoverEvents page)
+export const getPublicEvents = async () => {
+  const res: Response = await request("/discover-events", {
+    method: "GET",
+  });
+  return res;
+};
+
