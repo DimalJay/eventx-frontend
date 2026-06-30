@@ -10,52 +10,6 @@ import TaskCard from "../TaskCard";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-const initialTaskGroups = [
-  {
-    title: "TODO",
-    tone: "border-sky-200 bg-sky-50 text-sky-800",
-    tasks: [
-      {
-        title: "Order onsite signage",
-        owner: "Priya",
-        due: "Due 16 June",
-        team: "Ops",
-      },
-      {
-        title: "Brief volunteer team",
-        owner: "Leo",
-        due: "Due 17 June",
-        team: "Ops",
-      },
-    ],
-  },
-  {
-    title: "IN_PROGRESS",
-    tone: "border-amber-200 bg-amber-50 text-amber-800",
-    tasks: [
-      {
-        title: "Confirm keynote speakers",
-        owner: "Dana",
-        due: "Due today",
-        team: "Program",
-      },
-    ],
-  },
-  {
-    title: "DONE",
-    tone: "border-emerald-200 bg-emerald-50 text-emerald-800",
-    tasks: [
-      {
-        title: "Lock venue contract",
-        owner: "Dana",
-        due: "Completed",
-        team: "Ops",
-      },
-    ],
-  },
-];
-
-
 export interface TeamMember {
   id: number;
   firstName: string;
@@ -230,7 +184,7 @@ export default function EventManageTasksPage() {
               <div className="grid gap-3">
                 {value.map((task) => (
                   <div key={task.id} onDragStart={(e) => handleDragStart(e, parseInt(task.id))} draggable>
-                    <TaskCard task={task} />
+                    <TaskCard task={task} users={users} eventId={eventId} />
                   </div>
                 ))}
               </div>
