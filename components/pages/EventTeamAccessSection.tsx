@@ -1,30 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import { getTeamMembers, addTeamMember, updateTeamMemberRole, removeTeamMember } from "@/service/teamService";
+import { EllipsisVertical } from "lucide-react";
 
-const teamMembers = [
-  {
-    name: "Dana Brooks",
-    email: "dana@eventx.com",
-    role: "Coordinator",
-  },
-  {
-    name: "Malik Nguyen",
-    email: "malik@eventx.com",
-    role: "Member",
-  },
-  {
-    name: "Priya Shah",
-    email: "priya@eventx.com",
-    role: "Member",
-  },
-];
-
-type TeamMember = (typeof teamMembers)[number];
+type TeamMember = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+};
 
 const roleOptions = ["Member", "Coordinator"] as const;
 
 export default function EventTeamAccessSection() {
+  const { id: eventId } = useParams() as { id: string };
+
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
   const [roleModalMember, setRoleModalMember] = useState<TeamMember | null>(null);
   const [pendingRole, setPendingRole] = useState<string>(roleOptions[0]);
@@ -32,6 +27,81 @@ export default function EventTeamAccessSection() {
   const [addMemberOpen, setAddMemberOpen] = useState(false);
   const [newMemberEmail, setNewMemberEmail] = useState("");
   const [newMemberRole, setNewMemberRole] = useState<string>(roleOptions[0]);
+
+  const loadTeam = async () => {
+    if (!eventId) return;
+    setLoading(true);
+    try {
+      const res = await getTeamMembers({ eventId });
+      if (res.success) {
+        setTeamMembers(res.data);
+      }
+    } catch (err) {
+      console.error("Error fetching team members:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTeam();
+  }, [eventId]);
+
+  const handleSendInvite = async () => {
+    if (!newMemberEmail || !eventId) return;
+    try {
+      const res = await addTeamMember({
+        eventId,
+        email: newMemberEmail,
+        role: newMemberRole.toUpperCase(),
+      });
+      if (res.success) {
+        setAddMemberOpen(false);
+        setNewMemberEmail("");
+        loadTeam();
+      } else {
+        alert(res.message);
+      }
+    } catch (err: any) {
+      alert(err?.message || "Error adding member");
+      console.error(err);
+    }
+  };
+
+  const handleUpdateRole = async () => {
+    if (!roleModalMember) return;
+    try {
+      const res = await updateTeamMemberRole({
+        id: roleModalMember.id,
+        role: pendingRole.toUpperCase(),
+      });
+      if (res.success) {
+        setRoleModalMember(null);
+        loadTeam();
+      } else {
+        alert(res.message);
+      }
+    } catch (err: any) {
+      alert(err?.message || "Error updating role");
+      console.error(err);
+    }
+  };
+
+  const handleRemoveMember = async () => {
+    if (!removeConfirmMember) return;
+    try {
+      const res = await removeTeamMember({ id: removeConfirmMember.id });
+      if (res.success) {
+        setRemoveConfirmMember(null);
+        loadTeam();
+      } else {
+        alert(res.message);
+      }
+    } catch (err: any) {
+      alert(err?.message || "Error removing member");
+      console.error(err);
+    }
+  };
 
   return (
     <>
@@ -59,60 +129,68 @@ export default function EventTeamAccessSection() {
         </div>
 
         <div className="mt-6 grid gap-4">
-          {teamMembers.map((member) => (
-            <div
-              key={member.email}
-              className="grid gap-4 rounded-2xl border border-black/10 bg-white px-5 py-4 sm:grid-cols-[1.4fr_auto] sm:items-center"
-            >
-              <div>
-                <p className="text-base font-semibold text-black">{member.name}</p>
-                <p className="text-sm text-black/60">{member.email}</p>
-                <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-                  {member.role}
-                </p>
+          {loading ? (
+            <p className="text-sm text-black/60">Loading team members...</p>
+          ) : teamMembers.length === 0 ? (
+            <p className="text-sm text-black/60">No team members found.</p>
+          ) : (
+            teamMembers.map((member) => (
+              <div
+                key={member.id}
+                className="grid gap-4 rounded-2xl border border-black/10 bg-white px-5 py-4 sm:grid-cols-[1.4fr_auto] sm:items-center"
+              >
+                <div>
+                  <p className="text-base font-semibold text-black">{member.name}</p>
+                  <p className="text-sm text-black/60">{member.email}</p>
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+                    {member.role}
+                  </p>
+                </div>
+                <div className="relative flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    aria-haspopup="menu"
+                    aria-expanded={menuOpenFor === member.email}
+                    onClick={() =>
+                      setMenuOpenFor((current) =>
+                        current === member.email ? null : member.email
+                      )
+                    }
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/15 text-lg font-semibold text-black transition hover:border-black/40"
+                  >
+                    <EllipsisVertical/>
+                  </button>
+                  {menuOpenFor === member.email ? (
+                    <div className="absolute right-0 top-11 z-10 w-48 rounded-2xl border border-black/10 bg-white p-2 shadow-[0_20px_40px_-30px_rgba(0,0,0,0.35)]">
+                      <button
+                        type="button"
+                        className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-widest text-black transition hover:bg-black/5"
+                        onClick={() => {
+                          setMenuOpenFor(null);
+                          setRoleModalMember(member);
+                          setPendingRole(
+                            member.role.toLowerCase() === "member" ? "Coordinator" : "Member"
+                          );
+                        }}
+                      >
+                        Promote / Demote
+                      </button>
+                      <button
+                        type="button"
+                        className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-widest text-rose-700 transition hover:bg-rose-50"
+                        onClick={() => {
+                          setMenuOpenFor(null);
+                          setRemoveConfirmMember(member);
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
               </div>
-              <div className="relative flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  aria-haspopup="menu"
-                  aria-expanded={menuOpenFor === member.email}
-                  onClick={() =>
-                    setMenuOpenFor((current) =>
-                      current === member.email ? null : member.email
-                    )
-                  }
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/15 text-lg font-semibold text-black transition hover:border-black/40"
-                >
-                  ...
-                </button>
-                {menuOpenFor === member.email ? (
-                  <div className="absolute right-0 top-11 z-10 w-48 rounded-2xl border border-black/10 bg-white p-2 shadow-[0_20px_40px_-30px_rgba(0,0,0,0.35)]">
-                    <button
-                      type="button"
-                      className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-widest text-black transition hover:bg-black/5"
-                      onClick={() => {
-                        setMenuOpenFor(null);
-                        setRoleModalMember(member);
-                        setPendingRole(member.role === "Member" ? "Coordinator" : "Member");
-                      }}
-                    >
-                      Promote / Demote
-                    </button>
-                    <button
-                      type="button"
-                      className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-widest text-rose-700 transition hover:bg-rose-50"
-                      onClick={() => {
-                        setMenuOpenFor(null);
-                        setRemoveConfirmMember(member);
-                      }}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                ) : null}
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </section>
 
@@ -155,7 +233,7 @@ export default function EventTeamAccessSection() {
               <button
                 type="button"
                 className="inline-flex h-10 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
-                onClick={() => setRoleModalMember(null)}
+                onClick={handleUpdateRole}
               >
                 Update role
               </button>
@@ -216,7 +294,7 @@ export default function EventTeamAccessSection() {
               <button
                 type="button"
                 className="inline-flex h-10 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
-                onClick={() => setAddMemberOpen(false)}
+                onClick={handleSendInvite}
               >
                 Send invite
               </button>
@@ -249,7 +327,7 @@ export default function EventTeamAccessSection() {
               <button
                 type="button"
                 className="inline-flex h-10 items-center justify-center rounded-full border border-rose-200 px-4 text-xs font-semibold uppercase tracking-widest text-rose-700 transition hover:border-rose-300"
-                onClick={() => setRemoveConfirmMember(null)}
+                onClick={handleRemoveMember}
               >
                 Yes, remove
               </button>
