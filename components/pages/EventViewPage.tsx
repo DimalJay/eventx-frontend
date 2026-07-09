@@ -5,6 +5,8 @@ import AddToCalendar from "../widgets/AddToCalendar";
 import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
 import { toast } from "sonner";
+import { useState } from "react";
+import RegisterEventDialog from "../dialog/RegisterEventDialog";
 
 const highlights = [
   { label: "Attending", value: "540" },
@@ -20,6 +22,8 @@ const included = [
 ];
 
 export default function EventViewPage({ id }: { id?: string }) {
+  const [registerOpen, setRegisterOpen] = useState(false);
+
   // Fetching data from backend using React Query
   const { data: response, isLoading, isError } = useQuery({
     queryKey: ["event", id],
@@ -291,6 +295,7 @@ export default function EventViewPage({ id }: { id?: string }) {
               </div>
               <button
                 type="button"
+                onClick={() => setRegisterOpen(true)}
                 className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
               >
                 Register
@@ -309,13 +314,21 @@ export default function EventViewPage({ id }: { id?: string }) {
               Save your spot at {event.name}.
             </p>
           </div>
-          <Link
-            href="#tickets"
+          <button
+            type="button"
+            onClick={() => setRegisterOpen(true)}
             className="inline-flex h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-semibold uppercase tracking-widest text-black"
           >
             Register now
-          </Link>
+          </button>
         </section>
+      {id && (
+          <RegisterEventDialog
+            eventId={id}
+            open={registerOpen}
+            onClose={() => setRegisterOpen(false)}
+          />
+        )}
       </main>
     </div>
   );
