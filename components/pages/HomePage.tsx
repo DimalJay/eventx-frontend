@@ -259,8 +259,7 @@ export default function HomePage() {
                     <Users size={18} />
                   </div>
                   <div>
-                    <p className="text-xs text-black/50">Total Attendees Reached</p>
-                    <p className="text-lg font-semibold text-black">12,840</p>
+                    <p className="text-xs text-black/50Qtext-black">12,840</p>
                   </div>
                 </div>
               </div>
