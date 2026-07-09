@@ -81,28 +81,19 @@ const sections = [
 export default function EventPrivacyPage() {
   return (
     <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
-      <main className="flex w-full max-w-4xl flex-col gap-10 px-8 py-20 sm:px-14">
-        {/* Header */}
+      <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
         <div className="flex items-center gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">
-              EventX
-            </p>
-            <p className="text-lg font-semibold tracking-wide text-black">
-              Privacy policy
-            </p>
           </div>
         </div>
 
         {/* Main Document */}
         <section className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-8">
           {/* Document Header */}
-          <div className="flex flex-col gap-3 mb-8">
-            <p className="inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-black">
-              Legal Document
-            </p>
+          <div className="mb-8 flex flex-col gap-3">
+
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl">
-              EventX Privacy Policy
+              Privacy Policy
             </h1>
             <p className="text-sm leading-6 text-black/70">
               Effective Date: June 1, 2026 | Last Updated: June 20, 2026
@@ -146,52 +137,8 @@ export default function EventPrivacyPage() {
             ))}
           </div>
 
-          {/* Footer Notice */}
-          <div className="mt-8 pt-8 border-t border-black/10">
-            <p className="text-sm text-black/60 mb-4">
-              <strong>Last Updated:</strong> This Privacy Policy was last updated on June 20, 2026. We will notify you of any material changes by posting the updated policy on our Platform and updating the date above.
-            </p>
-            <p className="text-xs text-black/50">
-              © 2026 EventX. All rights reserved. This document is the exclusive property of EventX and may not be reproduced or distributed without permission.
-            </p>
-          </div>
-        </section>
-
-        {/* Support Section */}
-        <section className="grid gap-4">
-          <div className="rounded-3xl border border-black/10 bg-black px-6 py-8 text-white">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
-              Privacy Questions?
-            </p>
-            <p className="mt-2 text-2xl font-semibold">
-              We're here to help you.
-            </p>
-            <p className="mt-3 text-sm text-white/70">
-              Contact our privacy team if you have concerns about how we handle your data.
-            </p>
-          </div>
-
-          <div className="rounded-3xl border border-black/10 bg-white/80 p-6">
-            <div className="space-y-4">
-              <div className="pb-4 border-b border-black/10 last:border-b-0 last:pb-0">
-                <h3 className="text-base font-semibold text-black">Privacy Contact</h3>
-                <p className="mt-1 text-sm text-black/60">privacy@eventx.com</p>
-              </div>
-              <div className="pb-4 border-b border-black/10 last:border-b-0 last:pb-0">
-                <h3 className="text-base font-semibold text-black">Data Protection Officer</h3>
-                <p className="mt-1 text-sm text-black/60">dpo@eventx.com</p>
-              </div>
-              <div className="pb-4 border-b border-black/10 last:border-b-0 last:pb-0">
-                <h3 className="text-base font-semibold text-black">Request Your Data</h3>
-                <p className="mt-1 text-sm text-black/60">Access, download, or delete your information</p>
-              </div>
-            </div>
-
-            <button className="w-full h-12 rounded-full bg-black text-white text-sm font-semibold uppercase tracking-widest transition hover:bg-black/90 mt-6">
-              Submit Privacy Request
-            </button>
-          </div>
-        </section>
+          
+        </section>       
       </main>
     </div>
   );

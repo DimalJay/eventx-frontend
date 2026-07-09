@@ -76,27 +76,19 @@ const sections = [
 export default function EventTermsPage() {
   return (
     <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
-      <main className="flex w-full max-w-4xl flex-col gap-10 px-8 py-20 sm:px-14">
-        {/* Header */}
+      <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
         <div className="flex items-center gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">
-              EventX
-            </p>
-            <p className="text-lg font-semibold tracking-wide text-black">
-              Terms and conditions
-            </p>
+
           </div>
         </div>
 
         {/* Document Info */}
         <section className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-8">
           <div className="flex flex-col gap-3 mb-8">
-            <p className="inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-black">
-              Legal Document
-            </p>
+
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl">
-              EventX Terms and Conditions
+              Terms and Conditions
             </h1>
             <p className="text-sm leading-6 text-black/70">
               Effective Date: June 1, 2026 | Last Updated: June 20, 2026
@@ -124,52 +116,10 @@ export default function EventTermsPage() {
             ))}
           </div>
 
-          {/* Footer Note */}
-          <div className="mt-8 pt-8 border-t border-black/10">
-            <p className="text-sm text-black/60 mb-4">
-              <strong>Acknowledgment:</strong> By clicking "I Accept" during registration or by continuing to use the Platform, you acknowledge that you have read and agree to these Terms and Conditions. If you have any questions, please contact our legal team.
-            </p>
-            <p className="text-xs text-black/50">
-              © 2026 EventX. All rights reserved. This document is the exclusive property of EventX and may not be reproduced or distributed without permission.
-            </p>
-          </div>
+
         </section>
 
-        {/* Right-side CTA Section */}
-        <section className="grid gap-4">
-          <div className="rounded-3xl border border-black/10 bg-black px-6 py-8 text-white">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
-              Questions?
-            </p>
-            <p className="mt-2 text-2xl font-semibold">
-              We're here to help.
-            </p>
-            <p className="mt-3 text-sm text-white/70">
-              Contact our legal team if you have questions about any aspect of these terms.
-            </p>
-          </div>
 
-          <div className="rounded-3xl border border-black/10 bg-white/80 p-6">
-            <div className="space-y-4">
-              <div className="pb-4 border-b border-black/10 last:border-b-0 last:pb-0">
-                <h3 className="text-base font-semibold text-black">Email Support</h3>
-                <p className="mt-1 text-sm text-black/60">legal@eventx.com</p>
-              </div>
-              <div className="pb-4 border-b border-black/10 last:border-b-0 last:pb-0">
-                <h3 className="text-base font-semibold text-black">View Privacy Policy</h3>
-                <p className="mt-1 text-sm text-black/60">Read our data protection practices</p>
-              </div>
-              <div className="pb-4 border-b border-black/10 last:border-b-0 last:pb-0">
-                <h3 className="text-base font-semibold text-black">Report an Issue</h3>
-                <p className="mt-1 text-sm text-black/60">Help us improve the platform</p>
-              </div>
-            </div>
-
-            <button className="w-full h-12 rounded-full bg-black text-white text-sm font-semibold uppercase tracking-widest transition hover:bg-black/90 mt-6">
-              Contact Support
-            </button>
-          </div>
-        </section>
       </main>
     </div>
   );
