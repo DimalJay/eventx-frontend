@@ -10,3 +10,37 @@ export const getTeamMembers = async (data: { eventId: string }) => {
   });
   return res;
 };
+
+export const addTeamMember = async (data: { eventId: string; email: string; role: string }) => {
+  const res: Response = await request("/team-access", {
+    method: "POST",
+    data: {
+      eventId: data.eventId,
+      email: data.email,
+      role: data.role,
+    },
+  });
+  return res;
+};
+
+export const updateTeamMemberRole = async (data: { id: number; role: string }) => {
+  const res: Response = await request("/team-access", {
+    method: "PUT",
+    data: {
+      id: data.id,
+      role: data.role,
+    },
+  });
+  return res;
+};
+
+export const removeTeamMember = async (data: { id: number }) => {
+  const res: Response = await request("/team-access", {
+    method: "DELETE",
+    data: {
+      id: data.id,
+    },
+  });
+  return res;
+};
+

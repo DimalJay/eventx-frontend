@@ -4,57 +4,12 @@ import { useState } from "react";
 import EventTaskCreateDialog from "../EventTaskCreateDialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getTeamMembers } from "@/service/teamService";
-import { getTasksRequest, updateTaskRequest, updateTaskStatusRequest } from "@/service/taskService";
+import { getTasksRequest, updateTaskStatusRequest } from "@/service/taskService";
 import { ITask, TaskStatus } from "@/service/types";
 import TaskCard from "../TaskCard";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-
-const initialTaskGroups = [
-  {
-    title: "TODO",
-    tone: "border-sky-200 bg-sky-50 text-sky-800",
-    tasks: [
-      {
-        title: "Order onsite signage",
-        owner: "Priya",
-        due: "Due 16 June",
-        team: "Ops",
-      },
-      {
-        title: "Brief volunteer team",
-        owner: "Leo",
-        due: "Due 17 June",
-        team: "Ops",
-      },
-    ],
-  },
-  {
-    title: "IN_PROGRESS",
-    tone: "border-amber-200 bg-amber-50 text-amber-800",
-    tasks: [
-      {
-        title: "Confirm keynote speakers",
-        owner: "Dana",
-        due: "Due today",
-        team: "Program",
-      },
-    ],
-  },
-  {
-    title: "DONE",
-    tone: "border-emerald-200 bg-emerald-50 text-emerald-800",
-    tasks: [
-      {
-        title: "Lock venue contract",
-        owner: "Dana",
-        due: "Completed",
-        team: "Ops",
-      },
-    ],
-  },
-];
-
+import { useParams } from "next/navigation";
 
 export interface TeamMember {
   id: number;
@@ -86,7 +41,7 @@ const TaskStatusDetails: Record<TaskStatus, StatusAttributes> = {
 };
 
 export default function EventManageTasksPage() {
-  const eventId = "1"; 
+  const { id: eventId } = useParams() as { id: string };
   const queryClient = useQueryClient();
   
   const { data: users = [] } = useQuery({
@@ -100,7 +55,7 @@ export default function EventManageTasksPage() {
 
   const { data: tasks = [] } = useQuery({
     queryKey: ['tasks-event-' + eventId],
-    queryFn: async () => (await getTasksRequest({ eventId: "1" })).data as ITask[],
+    queryFn: async () => (await getTasksRequest({ eventId: eventId })).data as ITask[],
     retry: false,
   })
 
@@ -230,7 +185,7 @@ export default function EventManageTasksPage() {
               <div className="grid gap-3">
                 {value.map((task) => (
                   <div key={task.id} onDragStart={(e) => handleDragStart(e, parseInt(task.id))} draggable>
-                    <TaskCard task={task} />
+                    <TaskCard task={task} users={users} eventId={eventId} />
                   </div>
                 ))}
               </div>
