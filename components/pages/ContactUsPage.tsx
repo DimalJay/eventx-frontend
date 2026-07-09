@@ -10,9 +10,9 @@ import { toast } from "sonner";
 import { request } from "@/lib/request";
 
 const contactSchema = z.object({
-    name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+    name: z.string().min(2, { message: "Name must be required." }),
     email: z.string().email({ message: "Please enter a valid email address." }),
-    subject: z.string().min(3, { message: "Subject must be at least 3 characters." }),
+    subject: z.string().min(3, { message: "Subject is required." }),
     message: z.string().min(10, { message: "Message must be at least 10 characters." }),
 });
 
@@ -98,6 +98,7 @@ export default function ContactUsPage() {
                                 <div className="space-y-2">
                                     <label htmlFor="name" className="text-sm font-medium text-black/80">Your Name</label>
                                     <input
+                                        autoComplete="off"
                                         id="name"
                                         {...register("name")}
                                         className={`w-full px-4 py-3 rounded-2xl border ${errors.name ? 'border-red-500' : 'border-black/10'} bg-white text-sm text-black outline-none transition focus:border-black/30`}
@@ -109,10 +110,11 @@ export default function ContactUsPage() {
                                 <div className="space-y-2">
                                     <label htmlFor="email" className="text-sm font-medium text-black/80">Email Address</label>
                                     <input
+                                        autoComplete="off"
                                         type="email"
                                         id="email"
                                         {...register("email")}
-                                        className={`w-full px-4 py-3 rounded-2xl border ${errors.email ? 'border-red-500' : 'border-black/10'} bg-white text-sm text-blackgit  outline-none transition focus:border-black/30`}
+                                        className={`w-full px-4 py-3 rounded-2xl border ${errors.email ? 'border-red-500' : 'border-black/10'} bg-white text-sm text-black git  outline-none transition focus:border-black/30`}
                                         placeholder="john@example.com"
                                     />
                                     {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
