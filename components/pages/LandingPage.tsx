@@ -2,9 +2,12 @@
 import Link from "next/link";
 import UserProfile from "../widgets/UserProfile";
 import Logo from "../widgets/Logo";
+import { useAuth } from "../auth/AuthContext";
+
 
 export default function LandingPage() {
-  
+  const { isAuthenticated } = useAuth();
+
   return (
     <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
       <main className="flex w-full max-w-5xl flex-col gap-12 px-8 py-24 sm:px-14">
@@ -104,7 +107,7 @@ export default function LandingPage() {
           </div>
           <Link
             className="inline-flex h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-semibold uppercase tracking-widest text-black"
-            href="/register"
+            href={isAuthenticated ? "/event/create" : "/register"}
           >
             Create workspace
           </Link>

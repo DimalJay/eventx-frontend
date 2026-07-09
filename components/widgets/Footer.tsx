@@ -7,26 +7,26 @@ const navGroups = [
   {
     title: "Product",
     links: [
-      { label: "Create event", href: "/create-event" },
-      { label: "Dashboard", href: "/event-dashboard" },
+      { label: "Create event", href: "/event/create" },
+      { label: "Dashboard", href: "/home" },
       { label: "Event history", href: "/event-history" },
-      { label: "Home", href: "/home" },
+      { label: "Home", href: "/" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "About", href: "#" },
-      { label: "Careers", href: "#" },
-      { label: "Press", href: "#" },
-      { label: "Contact", href: "#" },
+      { label: "About", href: "/about" },
+      { label: "Careers", href: "/careers" },
+      { label: "Press", href: "/press" },
+      { label: "Contact", href: "/contact" },
     ],
   },
   {
     title: "Resources",
     links: [
-      { label: "Guides", href: "#" },
-      { label: "Support", href: "#" },
+      { label: "Guides", href: "/guides" },
+      { label: "Support", href: "/support" },
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
     ],
@@ -98,14 +98,17 @@ export default function Footer() {
             <Link href="/privacy" className="transition hover:text-black">
               Privacy
             </Link>
+
             <Link href="/terms" className="transition hover:text-black">
               Terms
             </Link>
-            <Link href="#" className="transition hover:text-black">
+
+            <Link href="/cookies" className="transition hover:text-black">
               Cookies
             </Link>
           </div>
         </div>
+
       </div>
     </footer>
   );
