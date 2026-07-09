@@ -10,7 +10,6 @@ import { motion } from "framer-motion";
 export default function LandingPage() {
   const { isAuthenticated } = useAuth();
 
-  // Backend එකෙන් public events ලබා ගැනීම
   const { data: rawEvents = [], isLoading } = useQuery({
     queryKey: ["public-events"],
     queryFn: async () => {
@@ -24,18 +23,16 @@ export default function LandingPage() {
     },
   });
 
-  // ළඟම එන (Future) events 3ක් පමණක් තෝරා ගැනීම
   const featuredEvents = rawEvents
     .filter((e: IEvent) => e.startDate && new Date(e.startDate) > new Date())
     .sort((a: IEvent, b: IEvent) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
     .slice(0, 3);
 
-  // --- Animation Configurations ---
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.15 } // එකින් එක පිලිවෙලට load වීමට
+      transition: { staggerChildren: 0.15 }
     }
   };
 
@@ -123,7 +120,6 @@ export default function LandingPage() {
           </motion.div>
         </motion.div>
 
-        {/* --- 1. University Clubs Brand Strip (Animated on Scroll) --- */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -147,7 +143,6 @@ export default function LandingPage() {
           </div>
         </motion.div>
 
-        {/* --- 2. Featured Upcoming Public Events Section (Animated on Scroll) --- */}
         <motion.div
           initial="hidden"
           whileInView="visible"
@@ -175,7 +170,6 @@ export default function LandingPage() {
           </div>
 
           {isLoading ? (
-            // සැබෑ Cards වල හැඩයට සමානව animate-pulse වන Skeleton Cards 3ක්
             <div className="grid gap-6 sm:grid-cols-3">
               {[1, 2, 3].map((n) => (
                 <div key={n} className="flex flex-col justify-between rounded-[24px] border border-black/5 bg-white/40 p-6 animate-pulse">
@@ -189,7 +183,6 @@ export default function LandingPage() {
                     {/* Description Skeleton */}
                     <div className="mt-3 h-4 w-5/6 rounded bg-black/5" />
                   </div>
-                  {/* Button Skeleton */}
                   <div className="mt-6 h-10 w-full rounded-full bg-black/5" />
                 </div>
               ))}
@@ -205,34 +198,40 @@ export default function LandingPage() {
                 });
                 const isFree = event.ticketPrice === 0;
 
+                const rawImg = (event as IEvent & { coverImage?: string }).coverImage || event.imageUrl;
+                let eventImgUrl = null;
+
+                if (rawImg && rawImg !== "null" && rawImg !== "undefined" && rawImg.trim() !== "") {
+                  if (rawImg.startsWith("http")) {
+                    eventImgUrl = rawImg;
+                  } else {
+                    // අනිත් පිටු වල මෙන් '/api/v1' කොටස ඉවත් කර Base URL එක ගැනීම
+                    const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace("/api/v1", "");
+                    eventImgUrl = `${backendBase}${rawImg.startsWith("/") ? "" : "/"}${rawImg}`;
+                  }
+                }
+
+
                 return (
                   <motion.div
                     variants={itemVariants}
                     key={event.id}
                     className="group flex flex-col overflow-hidden rounded-[24px] border border-black/10 bg-white/70 shadow-[0_15px_40px_-25px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_25px_60px_-25px_rgba(0,0,0,0.3)]"
                   >
-                    {/* Creative Image Section (Hover zoom effect සහිතව) */}
                     <div className="relative h-36 w-full overflow-hidden bg-black/5">
 
-                      {/* Backend එකේ image field එක (උදා: event.imageUrl, event.image හෝ event.bannerUrl) මෙතැනට දෙන්න */}
-                      {event.imageUrl ? (
+                      {eventImgUrl ? (
                         <img
-                          src={
-                            event.imageUrl.startsWith("http")
-                              ? event.imageUrl
-                              : `${process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "http://localhost:8080"}${event.imageUrl.startsWith("/") ? "" : "/"}${event.imageUrl}`
-                          }
+                          src={eventImgUrl}
                           alt={event.title}
                           className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                         />
                       ) : (
-                        // Image එකක් නැති විට පෙන්වන ලස්සන Placeholder එක
                         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-black/5 to-black/10 transition-transform duration-700 ease-out group-hover:scale-110">
                           <span className="text-2xl font-bold tracking-[0.3em] text-black/10">EVENTX</span>
                         </div>
                       )}
 
-                      {/* Floating Price Badge (Image එක උඩින්) */}
                       <div className="absolute right-4 top-4">
                         <span className="inline-flex items-center rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-black shadow-sm backdrop-blur-md">
                           {isFree ? "Free Entry" : `$${event.ticketPrice} Ticket`}
@@ -356,7 +355,6 @@ export default function LandingPage() {
                   <div className="hidden lg:flex flex-1 items-center justify-center relative min-w-[140px] max-w-[240px]">
                     <div className="w-full h-[2px] rounded-full bg-gradient-to-r from-black/5 via-black/15 to-black/5 relative overflow-hidden">
 
-                      {/* Bold Moving Line (ඇතුලින් ගමන් කරන තද කලු පැහැති ඉර) */}
                       <motion.div
                         animate={{
                           x: ["-300%", "400%"]
