@@ -1,9 +1,7 @@
 import Link from "next/link";
 import Logo from "../Logo";
-import { useParams } from "next/navigation";
 
-export default function EventHeader() {
-    const { id } = useParams();
+export default function EventHeader({ id }: { id: string }) {
     return (
         <header className="">
             <div className="flex flex-row justify-between">
