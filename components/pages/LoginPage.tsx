@@ -139,9 +139,9 @@ export default function LoginPage() {
                             </button>
 
                             <div className="relative flex py-1 items-center">
-                                <div className="flex-grow border-t border-black/10"></div>
-                                <span className="flex-shrink mx-4 text-black/40 text-xs font-semibold uppercase tracking-[0.1em]">or</span>
-                                <div className="flex-grow border-t border-black/10"></div>
+                                <div className="grow border-t border-black/10"></div>
+                                <span className="shrink mx-4 text-black/40 text-xs font-semibold uppercase tracking-widest">or</span>
+                                <div className="grow border-t border-black/10"></div>
                             </div>
 
                             <div className="flex justify-center w-full">
