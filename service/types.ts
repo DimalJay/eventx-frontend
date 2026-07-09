@@ -9,15 +9,47 @@ export type WithID<T> = { _id: string } & T;
 
 
 export interface IEvent {
+  id?: string | number;
+  organizerId?: string | number;
   title: string;
   description?: string;
   startDate: Date,
-  endDate: Date, 
+  endDate: Date,
   location?: string;
   imageUrl?: string;
   isPublic: boolean;
   capacity: number;
   ticketPrice: number;
+  agenda: string,
   registrationDeadline?: string; // YYYY-MM-DD HH:MM:SS
   waitlistEnabled?: boolean;
+}
+
+export interface IEventResponse extends WithID<IEvent> {
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ITask {
+  id: string;
+  eventId: string;
+  title: string;
+  description?: string;
+  createdBy: string;
+  assignedTo: string;
+  assignedBy: string;
+  createdAt: string;
+  assignedDate: string;
+  dueDate: string;
+  status: TaskStatus;
+}
+
+export type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
+
+export interface IAgendaItem {
+  id: string;
+  eventId: string;
+  task: string;
+  time: Date,
+  location: string;
 }

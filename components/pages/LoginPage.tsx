@@ -8,6 +8,7 @@ import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { GoogleLogin } from "@react-oauth/google";
 
 
 const highlights = [
@@ -34,7 +35,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
     const router = useRouter();
-    const { login } = useAuth();
+    const { login, googleLogin } = useAuth();
 
     const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({ resolver: zodResolver(loginSchema) });
     const mutation = useMutation({
@@ -50,6 +51,28 @@ export default function LoginPage() {
             toast.error(message);
         },
     });
+
+    const googleMutation = useMutation({
+        mutationFn: async (credential: string) => {
+            return googleLogin(credential);
+        },
+        onSuccess: () => {
+            toast.success("Google Login successful.");
+            router.replace("/home");
+        },
+        onError: (error: any) => {
+            const message = error?.response?.data?.message || error?.message || "Google Login failed. Please try again.";
+            toast.error(message);
+        },
+    });
+
+    const handleSuccess = (credentialResponse: any) => {
+        if (credentialResponse.credential) {
+            googleMutation.mutate(credentialResponse.credential);
+        } else {
+            toast.error("Google authentication failed.");
+        }
+    };
 
     const onSubmit = (data: LoginFormValues) => {
         mutation.mutate(data);
@@ -114,6 +137,27 @@ export default function LoginPage() {
                             >
                                 {mutation.isPending ? "Signing in..." : "Sign in"}
                             </button>
+
+                            <div className="relative flex py-1 items-center">
+                                <div className="flex-grow border-t border-black/10"></div>
+                                <span className="flex-shrink mx-4 text-black/40 text-xs font-semibold uppercase tracking-[0.1em]">or</span>
+                                <div className="flex-grow border-t border-black/10"></div>
+                            </div>
+
+                            <div className="flex justify-center w-full">
+                                <GoogleLogin
+                                    onSuccess={handleSuccess}
+                                    onError={() => {
+                                        toast.error("Google Login failed");
+                                    }}
+                                    theme="outline"
+                                    size="large"
+                                    shape="pill"
+                                    text="continue_with"
+                                    width={500}
+
+                                />
+                            </div>
 
                             <div className="flex flex-col gap-2 text-xs text-black/60 sm:flex-row sm:items-center sm:justify-between">
                                 <span>Need access? Create an EventX account.</span>
