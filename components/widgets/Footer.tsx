@@ -96,18 +96,19 @@ export default function Footer() {
           </p>
           <div className="flex flex-wrap gap-6 text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
             <Link href="/privacy" className="transition hover:text-black">
-            <Link href="/privacy" className="transition hover:text-black">
               Privacy
             </Link>
-            <Link href="/terms" className="transition hover:text-black">
+
             <Link href="/terms" className="transition hover:text-black">
               Terms
             </Link>
-            <Link href="#" className="transition hover:text-black">
+
+            <Link href="/cookies" className="transition hover:text-black">
               Cookies
             </Link>
           </div>
         </div>
+
       </div>
     </footer>
   );
