@@ -1,18 +1,10 @@
+"use client";
+
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { getEventById } from "@/service/eventService";
+import { IEvent } from "@/service/types";
 import Link from "next/link";
-
-const stats = [
-  { label: "Registrations", value: "1,284", delta: "+12% this week" },
-  { label: "Capacity filled", value: "64%", delta: "820 seats left" },
-  { label: "Revenue", value: "$48.2k", delta: "+$6.1k this week" },
-  { label: "Check-ins", value: "0", delta: "Opens on event day" },
-];
-
-const details = [
-  { label: "Date", value: "Jun 18, 2026" },
-  { label: "Time", value: "9:00 AM – 5:00 PM" },
-  { label: "Venue", value: "Brooklyn Expo Center" },
-  { label: "Location", value: "Brooklyn, NY" },
-];
 
 const activity = [
   { title: "Registration email approved", meta: "2 hours ago · Comms" },
@@ -21,6 +13,77 @@ const activity = [
 ];
 
 export default function EventManageOverviewPage() {
+  const { id: eventId } = useParams() as { id: string };
+
+  const { data: event, isLoading, isError } = useQuery({
+    queryKey: ["event", eventId],
+    queryFn: async () => {
+      const response = await getEventById(eventId);
+      return response.data as IEvent;
+    },
+    enabled: !!eventId,
+    retry: false,
+  });
+
+  const startDate = event?.startDate ? new Date(event.startDate) : null;
+  const endDate = event?.endDate ? new Date(event.endDate) : null;
+
+  const dateStr = startDate?.toLocaleDateString(undefined, {
+    weekday: "short", month: "short", day: "numeric", year: "numeric",
+  }) ?? "—";
+
+  const timeStr = startDate && endDate
+    ? `${startDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} – ${endDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`
+    : "—";
+
+  const stats = [
+    {
+      label: "Capacity",
+      value: event ? String(event.capacity) : "—",
+      delta: event ? `${event.capacity} total seats` : "—",
+    },
+    {
+      label: "Ticket Price",
+      value: event ? (event.ticketPrice > 0 ? `$${event.ticketPrice}` : "Free") : "—",
+      delta: event?.registrationDeadline
+        ? `Reg by ${new Date(event.registrationDeadline).toLocaleDateString()}`
+        : "Open registration",
+    },
+    {
+      label: "Visibility",
+      value: event ? (event.isPublic ? "Public" : "Private") : "—",
+      delta: "Listed on discover page",
+    },
+    {
+      label: "Check-ins",
+      value: "0",
+      delta: "Opens on event day",
+    },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-black/10 border-t-black" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <p className="text-sm text-red-500">Failed to load event data.</p>
+      </div>
+    );
+  }
+
+  const details = [
+    { label: "Date", value: dateStr },
+    { label: "Time", value: timeStr },
+    { label: "Venue", value: event?.location || "TBA" },
+    { label: "Location", value: event?.location || "TBA" },
+  ];
+
   return (
     <div className="flex flex-col gap-6">
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -46,11 +109,11 @@ export default function EventManageOverviewPage() {
                 Event details
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-black">
-                Astra Product Summit
+                {event?.title || "Untitled Event"}
               </h2>
             </div>
             <Link
-              href="#"
+              href={`/event/manage/${eventId}`}
               className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
             >
               Edit
@@ -72,8 +135,7 @@ export default function EventManageOverviewPage() {
           </div>
 
           <p className="mt-6 text-sm leading-7 text-black/70">
-            A full-day summit bringing product, design, and engineering leaders
-            together for keynotes, hands-on sessions, and networking.
+            {event?.description || "No description provided."}
           </p>
         </div>
 
@@ -87,7 +149,7 @@ export default function EventManageOverviewPage() {
               3 speaker confirmations pending and 1 agenda slot left to fill.
             </p>
             <Link
-              href="#"
+              href={`/event/manage/${eventId}/agenda`}
               className="mt-5 inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-xs font-semibold uppercase tracking-widest text-black"
             >
               Review agenda
