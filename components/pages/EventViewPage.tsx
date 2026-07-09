@@ -1,38 +1,14 @@
+"use client";
+
 import Link from "next/link";
 import AddToCalendar from "../widgets/AddToCalendar";
-
-const event = {
-  name: "Astra Product Summit",
-  tagline: "A full day of keynotes, hands-on sessions, and networking for product teams.",
-  status: "Tickets live",
-  date: "Thursday, Jun 18, 2026",
-  time: "9:00 AM – 5:00 PM",
-  // Machine-readable times for calendar links (local wall time + IANA tz)
-  start: "2026-06-18T09:00:00",
-  end: "2026-06-18T17:00:00",
-  timezone: "America/New_York",
-  venue: "Brooklyn Expo Center",
-  location: "Brooklyn, NY",
-  organizer: "EventX Studio",
-  cover: "", // image URL — empty shows the placeholder cover
-  price: "$49",
-  seatsLeft: 820,
-  capacity: 1360,
-};
+import { useQuery } from "@tanstack/react-query";
+import { getEventById } from "@/service/eventService";
 
 const highlights = [
   { label: "Attending", value: "540" },
   { label: "Sessions", value: "18" },
   { label: "Speakers", value: "24" },
-];
-
-const agenda = [
-  { time: "9:00 AM", title: "Doors open & coffee", track: "Lobby" },
-  { time: "10:00 AM", title: "Opening keynote: The next product era", track: "Main stage" },
-  { time: "11:30 AM", title: "Hands-on: Designing for momentum", track: "Workshop A" },
-  { time: "1:00 PM", title: "Lunch & networking", track: "Atrium" },
-  { time: "2:30 PM", title: "Panel: Scaling teams that ship", track: "Main stage" },
-  { time: "4:00 PM", title: "Closing remarks & social", track: "Main stage" },
 ];
 
 const included = [
@@ -42,8 +18,78 @@ const included = [
   "Networking social",
 ];
 
+export default function EventViewPage({ id }: { id?: string }) {
+  // Fetching data from backend using React Query
+  const { data: response, isLoading, isError } = useQuery({
+    queryKey: ["event", id],
+    queryFn: () => getEventById(id as string),
+    enabled: !!id,
+  });
 
-export default function EventViewPage() {
+  // දත්ත එනකන් Loading State එක
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f7efe2]">
+        <p className="text-lg font-semibold text-black/50 tracking-widest uppercase">Loading event details...</p>
+      </div>
+    );
+  }
+
+  // දත්ත ආවේ නැත්නම් හෝ වැරදි ID එකක් නම් පෙන්වන Error State එක
+  if (isError || !response?.data) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f7efe2]">
+        <div className="text-center">
+          <p className="text-xl font-semibold text-red-500 uppercase tracking-widest mb-2">Error loading event</p>
+          <p className="text-black/60">Please check if the Event ID ({id}) exists in the database.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const backendEvent = response.data;
+
+  // Formatting Dates safely
+  const startDateObj = backendEvent.startDate ? new Date(backendEvent.startDate) : new Date();
+  const endDateObj = backendEvent.endDate ? new Date(backendEvent.endDate) : new Date();
+
+  // Mapping Backend Data to Frontend Variables
+  const event = {
+    name: backendEvent.title || "Untitled Event",
+    tagline: backendEvent.description || "No description provided.",
+    status: backendEvent.isPaid || backendEvent.ticketPrice > 0 ? "Tickets live" : "Free Event",
+    date: startDateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }),
+    time: `${startDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – ${endDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+    start: backendEvent.startDate || startDateObj.toISOString(),
+    end: backendEvent.endDate || endDateObj.toISOString(),
+    timezone: "Asia/Colombo",
+    venue: backendEvent.location || "TBA",
+    location: backendEvent.location || "TBA",
+    organizer: "EventX Studio",
+    cover: (() => {
+      const coverPath = backendEvent.imageUrl || backendEvent.coverImage || "";
+      if (!coverPath) return "";
+      // Image path එක already full URL එකක් නම් (e.g. http://...) එය කෙලින්ම යොදයි.
+      if (coverPath.startsWith("http")) return coverPath;
+
+      // NEXT_PUBLIC_EVENTX_BACKEND_URL එකෙන් '/api/v1' කොටස ඉවත් කර Base URL එක ලබා ගනී (e.g. http://localhost/eventx)
+      const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace("/api/v1", "");
+      return `${backendBase}${coverPath}`;
+    })(),
+    price: backendEvent.ticketPrice && backendEvent.ticketPrice > 0 ? `$${backendEvent.ticketPrice}` : "Free",
+    seatsLeft: backendEvent.capacity || 0,
+    capacity: backendEvent.capacity || 0,
+  };
+
+  // Parsing Agenda (assuming backend returns it as a JSON string)
+  let agenda = [];
+  try {
+    agenda = backendEvent.agenda && typeof backendEvent.agenda === "string" ? JSON.parse(backendEvent.agenda) : [];
+    if (!Array.isArray(agenda)) agenda = [];
+  } catch (e) {
+    agenda = [];
+  }
+
   return (
     <div className="relative flex flex-1 justify-center overflow-hidden bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
       <div className="pointer-events-none absolute -left-28 top-12 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-40 blur-3xl" />
@@ -52,12 +98,15 @@ export default function EventViewPage() {
       <main className="relative flex w-full max-w-5xl flex-col gap-10 px-5 py-12 sm:gap-12 sm:px-10 sm:py-16 lg:px-14">
         {/* Cover */}
         <section className="relative flex h-44 items-end overflow-hidden rounded-3xl border border-black/10 bg-linear-to-br from-[#1c1c1c] via-[#2d2d2d] to-[#444] shadow-[0_30px_80px_-50px_rgba(0,0,0,0.6)] sm:h-64 lg:h-72">
-          {/* Replace this block with <Image src={event.cover} ... /> once a cover is uploaded */}
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs font-semibold uppercase tracking-[0.3em] text-white/30">
-            Event cover
-          </div>
+          {event.cover ? (
+            <img src={event.cover} alt="Event Cover" className="absolute inset-0 h-full w-full object-cover" />
+          ) : (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs font-semibold uppercase tracking-[0.3em] text-white/30">
+              Event cover
+            </div>
+          )}
           <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
-          <div className="relative flex items-center gap-3 p-5 sm:p-6">
+          <div className="relative flex items-center gap-3 p-5 sm:p-6 z-10">
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white text-sm font-semibold uppercase tracking-widest text-black">
               {event.name.charAt(0)}
             </span>
@@ -150,40 +199,38 @@ export default function EventViewPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
             About this event
           </p>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-black/70">
-            The Astra Product Summit gathers product, design, and engineering
-            leaders for a single day of sharp talks and practical workshops.
-            Expect real stories from teams shipping at scale, hands-on sessions
-            you can apply on Monday, and plenty of room to meet the people
-            building alongside you.
+          <p className="mt-4 max-w-3xl text-base leading-8 text-black/70 whitespace-pre-wrap">
+            {event.tagline}
           </p>
         </section>
 
         {/* Agenda */}
-        <section className="flex flex-col gap-5">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-              Agenda
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold text-black">
-              What the day looks like
-            </h2>
-          </div>
-          <div className="grid gap-3">
-            {agenda.map((slot) => (
-              <article
-                key={slot.title}
-                className="grid gap-2 rounded-2xl border border-black/10 bg-white/80 px-5 py-4 sm:grid-cols-[120px_1fr_auto] sm:items-center"
-              >
-                <span className="text-sm font-semibold text-black">{slot.time}</span>
-                <h3 className="text-base font-semibold text-black">{slot.title}</h3>
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
-                  {slot.track}
-                </span>
-              </article>
-            ))}
-          </div>
-        </section>
+        {agenda && agenda.length > 0 && (
+          <section className="flex flex-col gap-5">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+                Agenda
+              </p>
+              <h2 className="mt-2 text-2xl font-semibold text-black">
+                What the day looks like
+              </h2>
+            </div>
+            <div className="grid gap-3">
+              {agenda.map((slot: any, index: number) => (
+                <article
+                  key={index}
+                  className="grid gap-2 rounded-2xl border border-black/10 bg-white/80 px-5 py-4 sm:grid-cols-[160px_1fr_auto] sm:items-center"
+                >
+                  <span className="text-sm font-semibold text-black whitespace-nowrap">{slot.time}</span>
+                  <h3 className="text-base font-semibold text-black">{slot.title || slot.task}</h3>
+                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
+                    {slot.location || slot.track || "Main Session"}
+                  </span>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Tickets */}
         <section id="tickets" className="flex flex-col gap-5">
@@ -218,9 +265,10 @@ export default function EventViewPage() {
                 <div
                   className="h-full rounded-full bg-black"
                   style={{
-                    width: `${Math.round(
-                      ((event.capacity - event.seatsLeft) / event.capacity) * 100
-                    )}%`,
+                    width: `${event.capacity > 0
+                      ? Math.round(((event.capacity - event.seatsLeft) / event.capacity) * 100)
+                      : 0
+                      }%`,
                   }}
                 />
               </div>
