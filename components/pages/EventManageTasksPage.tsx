@@ -185,7 +185,7 @@ export default function EventManageTasksPage() {
               <div className="grid gap-3">
                 {value.map((task) => (
                   <div key={task.id} onDragStart={(e) => handleDragStart(e, parseInt(task.id))} draggable>
-                    <TaskCard task={task} />
+                    <TaskCard task={task} users={users} eventId={eventId} />
                   </div>
                 ))}
               </div>
