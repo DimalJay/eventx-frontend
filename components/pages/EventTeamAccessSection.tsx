@@ -1,9 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
-import { getTeamMembers, addTeamMember, updateTeamMemberRole, removeTeamMember } from "@/service/teamService";
+import { useQuery } from "@tanstack/react-query";
+import { getTeamMembers } from "@/service/teamService";
 import { EllipsisVertical } from "lucide-react";
+import RoleChangeDialog from "../dialog/RoleChangeDialog";
+import AddMemberDialog from "../dialog/AddMemberDialog";
+import RemoveMemberDialog from "../dialog/RemoveMemberDialog";
 
 type TeamMember = {
   id: number;
@@ -12,96 +16,24 @@ type TeamMember = {
   role: string;
 };
 
-const roleOptions = ["Member", "Coordinator"] as const;
 
 export default function EventTeamAccessSection() {
   const { id: eventId } = useParams() as { id: string };
 
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: teamMembers = [], isLoading } = useQuery({
+    queryKey: ["team-members", eventId],
+    queryFn: async () => {
+      const response = await getTeamMembers({ eventId });
+      return response.data as TeamMember[];
+    },
+    enabled: !!eventId,
+    retry: false,
+  });
 
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
   const [roleModalMember, setRoleModalMember] = useState<TeamMember | null>(null);
-  const [pendingRole, setPendingRole] = useState<string>(roleOptions[0]);
   const [removeConfirmMember, setRemoveConfirmMember] = useState<TeamMember | null>(null);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
-  const [newMemberEmail, setNewMemberEmail] = useState("");
-  const [newMemberRole, setNewMemberRole] = useState<string>(roleOptions[0]);
-
-  const loadTeam = async () => {
-    if (!eventId) return;
-    setLoading(true);
-    try {
-      const res = await getTeamMembers({ eventId });
-      if (res.success) {
-        setTeamMembers(res.data);
-      }
-    } catch (err) {
-      console.error("Error fetching team members:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadTeam();
-  }, [eventId]);
-
-  const handleSendInvite = async () => {
-    if (!newMemberEmail || !eventId) return;
-    try {
-      const res = await addTeamMember({
-        eventId,
-        email: newMemberEmail,
-        role: newMemberRole.toUpperCase(),
-      });
-      if (res.success) {
-        setAddMemberOpen(false);
-        setNewMemberEmail("");
-        loadTeam();
-      } else {
-        alert(res.message);
-      }
-    } catch (err: any) {
-      alert(err?.message || "Error adding member");
-      console.error(err);
-    }
-  };
-
-  const handleUpdateRole = async () => {
-    if (!roleModalMember) return;
-    try {
-      const res = await updateTeamMemberRole({
-        id: roleModalMember.id,
-        role: pendingRole.toUpperCase(),
-      });
-      if (res.success) {
-        setRoleModalMember(null);
-        loadTeam();
-      } else {
-        alert(res.message);
-      }
-    } catch (err: any) {
-      alert(err?.message || "Error updating role");
-      console.error(err);
-    }
-  };
-
-  const handleRemoveMember = async () => {
-    if (!removeConfirmMember) return;
-    try {
-      const res = await removeTeamMember({ id: removeConfirmMember.id });
-      if (res.success) {
-        setRemoveConfirmMember(null);
-        loadTeam();
-      } else {
-        alert(res.message);
-      }
-    } catch (err: any) {
-      alert(err?.message || "Error removing member");
-      console.error(err);
-    }
-  };
 
   return (
     <>
@@ -118,18 +50,14 @@ export default function EventTeamAccessSection() {
           <button
             type="button"
             className="inline-flex h-11 items-center justify-center rounded-full bg-black px-5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
-            onClick={() => {
-              setNewMemberEmail("");
-              setNewMemberRole(roleOptions[0]);
-              setAddMemberOpen(true);
-            }}
+            onClick={() => setAddMemberOpen(true)}
           >
             Add member
           </button>
         </div>
 
         <div className="mt-6 grid gap-4">
-          {loading ? (
+          {isLoading ? (
             <p className="text-sm text-black/60">Loading team members...</p>
           ) : teamMembers.length === 0 ? (
             <p className="text-sm text-black/60">No team members found.</p>
@@ -168,9 +96,6 @@ export default function EventTeamAccessSection() {
                         onClick={() => {
                           setMenuOpenFor(null);
                           setRoleModalMember(member);
-                          setPendingRole(
-                            member.role.toLowerCase() === "member" ? "Coordinator" : "Member"
-                          );
                         }}
                       >
                         Promote / Demote
@@ -194,147 +119,25 @@ export default function EventTeamAccessSection() {
         </div>
       </section>
 
-      {roleModalMember ? (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-          <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-              Update role
-            </p>
-            <h3 className="mt-2 text-xl font-semibold text-black">
-              Change role for {roleModalMember.name}
-            </h3>
-            <p className="mt-2 text-sm text-black/60">
-              Select the new role and confirm to update team access.
-            </p>
+      <RoleChangeDialog
+        eventId={eventId}
+        member={roleModalMember!}
+        open={!!roleModalMember}
+        onClose={() => setRoleModalMember(null)}
+      />
 
-            <label className="mt-5 grid gap-2 text-sm font-semibold text-black">
-              Role
-              <select
-                value={pendingRole}
-                onChange={(event) => setPendingRole(event.target.value)}
-                className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
-              >
-                {roleOptions.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
-              </select>
-            </label>
+      <AddMemberDialog
+        eventId={eventId}
+        open={addMemberOpen}
+        onClose={() => setAddMemberOpen(false)}
+      />
 
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
-                onClick={() => setRoleModalMember(null)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="inline-flex h-10 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
-                onClick={handleUpdateRole}
-              >
-                Update role
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {addMemberOpen ? (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-          <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-              Add member
-            </p>
-            <h3 className="mt-2 text-xl font-semibold text-black">
-              Invite a team member
-            </h3>
-            <p className="mt-2 text-sm text-black/60">
-              Enter an email and assign a role for event access.
-            </p>
-
-            <label className="mt-5 grid gap-2 text-sm font-semibold text-black">
-              Email address
-              <input
-                type="email"
-                name="memberEmail"
-                autoComplete="email"
-                placeholder="person@eventx.com"
-                value={newMemberEmail}
-                onChange={(event) => setNewMemberEmail(event.target.value)}
-                className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
-              />
-            </label>
-
-            <label className="mt-4 grid gap-2 text-sm font-semibold text-black">
-              Role
-              <select
-                value={newMemberRole}
-                onChange={(event) => setNewMemberRole(event.target.value)}
-                className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
-              >
-                {roleOptions.map((role) => (
-                  <option key={role} value={role}>
-                    {role}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
-                onClick={() => setAddMemberOpen(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="inline-flex h-10 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
-                onClick={handleSendInvite}
-              >
-                Send invite
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
-
-      {removeConfirmMember ? (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-          <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-              Remove member
-            </p>
-            <h3 className="mt-2 text-xl font-semibold text-black">
-              Remove {removeConfirmMember.name}?
-            </h3>
-            <p className="mt-2 text-sm text-black/60">
-              This member will lose access to event operations immediately.
-            </p>
-
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <button
-                type="button"
-                className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
-                onClick={() => setRemoveConfirmMember(null)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="inline-flex h-10 items-center justify-center rounded-full border border-rose-200 px-4 text-xs font-semibold uppercase tracking-widest text-rose-700 transition hover:border-rose-300"
-                onClick={handleRemoveMember}
-              >
-                Yes, remove
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      <RemoveMemberDialog
+        eventId={eventId}
+        member={removeConfirmMember!}
+        open={!!removeConfirmMember}
+        onClose={() => setRemoveConfirmMember(null)}
+      />
     </>
   );
 }
