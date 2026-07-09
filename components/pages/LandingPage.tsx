@@ -130,15 +130,16 @@ export default function LandingPage() {
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-black/40">
             Trusted by leading student organizations
           </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-x-12 gap-y-6 text-sm font-semibold tracking-wider text-black/50">
+          {/* සියල්ල එකම පේළියක දිස්වන සේ සකසා ඇත */}
+          <div className="mt-6 flex flex-nowrap items-center justify-center gap-3 overflow-x-auto pb-4 w-full sm:gap-4 md:overflow-visible md:pb-0">
             {["IEEE Student Branch", "Gavel Club", "Rotaract Club", "Aero Society", "CS Student Union"].map((club, idx) => (
-              <motion.span
+              <motion.div
                 key={idx}
-                whileHover={{ scale: 1.1, color: "#000" }}
-                className="transition-colors cursor-default"
+                whileHover={{ scale: 1.05, y: -2 }}
+                className="flex cursor-default whitespace-nowrap items-center justify-center rounded-full border border-black/5 bg-black/[0.03] px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-black/50 transition-all hover:border-black/15 hover:bg-white hover:text-black hover:shadow-sm"
               >
                 {club}
-              </motion.span>
+              </motion.div>
             ))}
           </div>
         </motion.div>
@@ -205,12 +206,10 @@ export default function LandingPage() {
                   if (rawImg.startsWith("http")) {
                     eventImgUrl = rawImg;
                   } else {
-                    // අනිත් පිටු වල මෙන් '/api/v1' කොටස ඉවත් කර Base URL එක ගැනීම
                     const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace("/api/v1", "");
                     eventImgUrl = `${backendBase}${rawImg.startsWith("/") ? "" : "/"}${rawImg}`;
                   }
                 }
-
 
                 return (
                   <motion.div
@@ -402,6 +401,6 @@ export default function LandingPage() {
           </Link>
         </motion.div>
       </main>
-    </div>
+    </div >
   );
 }
