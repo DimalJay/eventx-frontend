@@ -4,6 +4,9 @@ import { useQuery } from "@tanstack/react-query";
 import { getEvents } from "@/service/eventService";
 import { IEvent } from "@/service/types";
 import EventCard from "../widgets/EventCard";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Clock, Trophy, Users } from "lucide-react";
 
 const highlights = [
   {
@@ -37,6 +40,40 @@ export default function HomePage() {
     },
     retry: false,
   })
+
+  const nextEvent = events
+    ? [...events]
+      .filter((e: IEvent) => e.startDate && new Date(e.startDate) > new Date())
+      .sort((a: IEvent, b: IEvent) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())[0]
+    : null;
+
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
+
+  useEffect(() => {
+    if (!nextEvent) {
+      setTimeLeft(null);
+      return;
+    }
+
+    const calculateTime = () => {
+      const difference = new Date(nextEvent.startDate).getTime() - new Date().getTime();
+      if (difference <= 0) return null;
+      return {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      };
+    };
+
+    setTimeLeft(calculateTime());
+    const interval = setInterval(() => {
+      setTimeLeft(calculateTime());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [nextEvent]);
+
   return (
     <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f5f1ea]">
       <div className="pointer-events-none absolute -left-28 top-12 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-40 blur-3xl" />
@@ -102,43 +139,110 @@ export default function HomePage() {
           </div>
 
           <aside className="grid gap-4">
-            <div className="rounded-3xl border border-black/10 bg-black p-6 text-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
-                Next milestone
-              </p>
-              <p className="mt-3 text-2xl font-semibold">
-                Finalize keynote line-up
-              </p>
-              <p className="mt-3 text-sm text-white/70">
-                You have 3 pending speaker confirmations and 1 agenda slot left to fill.
-              </p>
-              <button
-                type="button"
-                className="mt-5 inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-xs font-semibold uppercase tracking-widest text-black"
-              >
-                Review agenda
-              </button>
+
+            {/* 1. Next Upcoming Event & Countdown */}
+            <div className="rounded-3xl border border-black/10 bg-black p-6 text-white shadow-[0_20px_50px_-30px_rgba(0,0,0,0.5)]">
+              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+                <Clock size={14} className="text-orange-400 animate-pulse" />
+                <span>Next Upcoming Event</span>
+              </div>
+
+              {nextEvent ? (
+                <>
+                  <p className="mt-3 text-2xl font-semibold tracking-tight">{nextEvent.title}</p>
+                  <p className="text-xs text-white/50 mt-1">
+                    {new Date(nextEvent.startDate).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })} · {nextEvent.location}
+                  </p>
+
+                  {timeLeft ? (
+                    <div className="mt-5 grid grid-cols-4 gap-2 text-center">
+                      <div className="rounded-2xl bg-white/10 p-2 backdrop-blur-sm">
+                        <span className="block text-lg font-bold">{timeLeft.days}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-white/40">Days</span>
+                      </div>
+                      <div className="rounded-2xl bg-white/10 p-2 backdrop-blur-sm">
+                        <span className="block text-lg font-bold">{timeLeft.hours}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-white/40">Hrs</span>
+                      </div>
+                      <div className="rounded-2xl bg-white/10 p-2 backdrop-blur-sm">
+                        <span className="block text-lg font-bold">{timeLeft.minutes}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-white/40">Mins</span>
+                      </div>
+                      <div className="rounded-2xl bg-white/10 p-2 backdrop-blur-sm">
+                        <span className="block text-lg font-bold">{timeLeft.seconds}</span>
+                        <span className="text-[10px] uppercase tracking-wider text-white/40">Secs</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="mt-4 text-sm text-emerald-400 font-semibold">Event is happening now!</p>
+                  )}
+
+                  <Link
+                    href={`/event/manage/${nextEvent.id}`}
+                    className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-full bg-white px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:bg-white/90"
+                  >
+                    Manage Event
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="mt-3 text-xl font-semibold text-white/95">No upcoming events</p>
+                  <p className="mt-2 text-sm text-white/60">
+                    Get started by creating your next event and setting up its agenda.
+                  </p>
+                </>
+              )}
             </div>
 
-            <div className="rounded-3xl border border-black/10 bg-white/80 p-6">
+            {/* 2. Lifetime Stats / Workspace Impact */}
+            <div className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_18px_50px_-35px_rgba(0,0,0,0.35)] backdrop-blur">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-                Team activity
+                Workspace Impact
               </p>
-              <div className="mt-4 grid gap-4 text-sm text-black/70">
-                <div className="rounded-2xl border border-black/5 bg-white px-4 py-3">
-                  <p className="font-semibold text-black">New sponsor deck uploaded</p>
-                  <p className="mt-1 text-xs text-black/50">2 hours ago · Marketing</p>
+              <div className="mt-4 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-black/5 text-black">
+                    <Trophy size={18} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-black/50">Total Events Hosted</p>
+                    <p className="text-lg font-semibold text-black">{events?.length || 0}</p>
+                  </div>
                 </div>
-                <div className="rounded-2xl border border-black/5 bg-white px-4 py-3">
-                  <p className="font-semibold text-black">Registration email approved</p>
-                  <p className="mt-1 text-xs text-black/50">Yesterday · Comms</p>
-                </div>
-                <div className="rounded-2xl border border-black/5 bg-white px-4 py-3">
-                  <p className="font-semibold text-black">Venue walkthrough scheduled</p>
-                  <p className="mt-1 text-xs text-black/50">Mon · Ops</p>
+
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-black/5 text-black">
+                    <Users size={18} />
+                  </div>
+                  <div>
+                    <p className="text-xs text-black/50">Total Attendees Reached</p>
+                    <p className="text-lg font-semibold text-black">12,840</p>
+                  </div>
                 </div>
               </div>
             </div>
+
+            {/* 3. Team Activity */}
+            <div className="rounded-3xl border border-black/10 bg-white/80 p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+                Team Activity
+              </p>
+              <div className="mt-4 grid gap-3 text-sm text-black/70">
+                <div className="rounded-2xl border border-black/5 bg-white px-4 py-2.5">
+                  <p className="font-semibold text-black">New sponsor deck uploaded</p>
+                  <p className="mt-0.5 text-xs text-black/50">2 hours ago · Marketing</p>
+                </div>
+                <div className="rounded-2xl border border-black/5 bg-white px-4 py-2.5">
+                  <p className="font-semibold text-black">Registration email approved</p>
+                  <p className="mt-0.5 text-xs text-black/50">Yesterday · Comms</p>
+                </div>
+              </div>
+            </div>
+
           </aside>
         </section>
       </main>
