@@ -4,12 +4,6 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
 
-const activity = [
-  { title: "Registration email approved", meta: "2 hours ago · Comms" },
-  { title: "New sponsor deck uploaded", meta: "Yesterday · Marketing" },
-  { title: "Venue walkthrough scheduled", meta: "Mon · Ops" },
-];
-
 export default function EventManageOverviewPage() {
   const params = useParams();
   const eventId = params.id as string;
@@ -46,7 +40,7 @@ export default function EventManageOverviewPage() {
   const isFree = event.ticketPrice === 0;
 
   const stats = [
-    { label: "Registrations", value: "1,284", delta: "+12% this week" }, // Still dummy as there's no attendees in backend yet
+    { label: "Registrations", value: "0", delta: "No data available" },
     { label: "Capacity filled", value: `${event.capacity} seats`, delta: "Total spots available" },
     { label: "Ticket Price", value: isFree ? "Free" : `$${event.ticketPrice}`, delta: isFree ? "No cost" : "Paid event" },
     { label: "Check-ins", value: "0", delta: "Opens on event day" },
@@ -58,6 +52,8 @@ export default function EventManageOverviewPage() {
     { label: "Location", value: event.location || "TBA" },
     { label: "Visibility", value: event.isPublic ? "Public Event" : "Private Event" },
   ];
+
+  const activity: any[] = [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -88,7 +84,7 @@ export default function EventManageOverviewPage() {
               </h2>
             </div>
             <Link
-              href="#"
+              href={`/event/manage/${eventId}/edit`}
               className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
             >
               Edit
@@ -119,9 +115,11 @@ export default function EventManageOverviewPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
               Next milestone
             </p>
-            <p className="mt-3 text-2xl font-semibold">Finalize event agenda</p>
+            <p className="mt-3 text-2xl font-semibold">Event Status</p>
             <p className="mt-3 text-sm text-white/70">
-              Review and finalize your event agenda items.
+              {new Date(event.startDate) > new Date()
+                ? "This event is scheduled for the future. Prepare your agenda and invite speakers."
+                : "This event has already started or passed."}
             </p>
             <Link
               href={`/event/manage/${eventId}/agenda`}
@@ -136,15 +134,19 @@ export default function EventManageOverviewPage() {
               Recent activity
             </p>
             <div className="mt-4 grid gap-4 text-sm text-black/70">
-              {activity.map((item) => (
-                <div
-                  key={item.title}
-                  className="rounded-2xl border border-black/5 bg-white px-4 py-3"
-                >
-                  <p className="font-semibold text-black">{item.title}</p>
-                  <p className="mt-1 text-xs text-black/50">{item.meta}</p>
-                </div>
-              ))}
+              {activity.length > 0 ? (
+                activity.map((item: any) => (
+                  <div
+                    key={item.title}
+                    className="rounded-2xl border border-black/5 bg-white px-4 py-3"
+                  >
+                    <p className="font-semibold text-black">{item.title}</p>
+                    <p className="mt-1 text-xs text-black/50">{item.meta}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-black/50 p-2">No recent activity recorded yet.</p>
+              )}
             </div>
           </div>
         </aside>

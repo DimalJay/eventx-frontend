@@ -41,11 +41,14 @@ export default function HomePage() {
     retry: false,
   })
 
-  const nextEvent = events
+  const upcomingEvents = events
     ? [...events]
       .filter((e: IEvent) => e.startDate && new Date(e.startDate) > new Date())
-      .sort((a: IEvent, b: IEvent) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())[0]
-    : null;
+      .sort((a: IEvent, b: IEvent) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())
+    : [];
+
+  const nextEvent = upcomingEvents.length > 0 ? upcomingEvents[0] : null;
+  const subsequentEvents = upcomingEvents.slice(1, 3);
 
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
 
@@ -179,6 +182,28 @@ export default function HomePage() {
                     </div>
                   ) : (
                     <p className="mt-4 text-sm text-emerald-400 font-semibold">Event is happening now!</p>
+                  )}
+
+                  {subsequentEvents.length > 0 && (
+                    <div className="mt-5 border-t border-white/10 pt-4">
+                      <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-white/40">Also coming up</p>
+                      <div className="grid gap-2">
+                        {subsequentEvents.map((ev: IEvent) => (
+                          <Link
+                            href={`/event/manage/${ev.id}`}
+                            key={ev.id}
+                            className="group flex flex-col rounded-xl bg-white/5 px-3 py-2.5 transition hover:bg-white/10"
+                          >
+                            <p className="text-sm font-semibold truncate group-hover:text-emerald-400 transition-colors">
+                              {ev.title}
+                            </p>
+                            <p className="text-[11px] text-white/50 mt-0.5 truncate">
+                              {new Date(ev.startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })} · {ev.location}
+                            </p>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
                   )}
 
                   <Link
