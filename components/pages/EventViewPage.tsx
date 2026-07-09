@@ -4,6 +4,7 @@ import Link from "next/link";
 import AddToCalendar from "../widgets/AddToCalendar";
 import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
+import { toast } from "sonner";
 
 const highlights = [
   { label: "Attending", value: "540" },
@@ -151,6 +152,22 @@ export default function EventViewPage({ id }: { id?: string }) {
                 timezone={event.timezone}
                 className="w-full sm:w-auto"
               />
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success("Event link copied!");
+                }}
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-black/15 px-5 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black/40 sm:w-auto"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                  <path d="M6 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M16 6a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M16 18a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="m8.6 13.5 6.8 3.1M15.4 7.4 8.6 10.5" strokeLinecap="round" />
+                </svg>
+                Share
+              </button>
             </div>
 
             <div className="mt-2 grid grid-cols-3 gap-3 sm:gap-4">
