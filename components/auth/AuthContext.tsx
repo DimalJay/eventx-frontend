@@ -1,6 +1,6 @@
 "use client";
 
-import { getUser, loginRequest, logoutRequest } from "@/service/userService";
+import { getUser, loginRequest, logoutRequest, googleLoginRequest } from "@/service/userService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useMemo } from "react";
@@ -25,6 +25,7 @@ type AuthContextValue = {
   user: AuthUser | null;
   isAuthenticated: boolean;
   login: (data: any) => void;
+  googleLogin: (credential: string) => Promise<void>;
   logout: () => void;
 };
 
@@ -66,6 +67,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
+  const googleLogin = async (credential: string) => {
+    try {
+      await googleLoginRequest(credential);
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const logout = async () => {
     try {
       await logoutRequest();
@@ -84,6 +94,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       isAuthenticated: Boolean(user),
       isLoading,
       login,
+      googleLogin,
       logout,
     }),
     [user, isLoading]

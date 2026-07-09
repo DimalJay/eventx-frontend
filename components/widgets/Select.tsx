@@ -59,7 +59,7 @@ export default function Select({
           <div
             role="listbox"
             className={cn(
-              "absolute top-full z-20 mt-2 min-w-full overflow-hidden rounded-2xl border border-black/10 bg-white p-1 shadow-[0_25px_70px_-35px_rgba(0,0,0,0.45)]",
+              "absolute top-full z-20 mt-2 min-w-full overflow-y-auto max-h-60 rounded-2xl border border-black/10 bg-white p-1 shadow-[0_25px_70px_-35px_rgba(0,0,0,0.45)]",
               align === "right" ? "right-0" : "left-0",
               menuClassName
             )}
