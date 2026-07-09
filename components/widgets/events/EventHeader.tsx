@@ -1,7 +1,9 @@
 import Link from "next/link";
 import Logo from "../Logo";
+import { useParams } from "next/navigation";
 
 export default function EventHeader() {
+    const { id } = useParams();
     return (
         <header className="">
             <div className="flex flex-row justify-between">
@@ -16,7 +18,7 @@ export default function EventHeader() {
                         </p>
                     </div>
                 </div>
-                <Link href="/event/123" className="btn">
+                <Link href={`/event/${id}`} className="btn">
                     View Event
                 </Link>
             </div>
