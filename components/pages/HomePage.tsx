@@ -7,24 +7,10 @@ import EventCard from "../widgets/EventCard";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Clock, Trophy, Users } from "lucide-react";
+import { getTasksRequest } from "@/service/taskService";
 
-const highlights = [
-  {
-    label: "Registrations",
-    value: "1,284",
-    delta: "+12% this week",
-  },
-  {
-    label: "Events in flight",
-    value: "7",
-    delta: "3 in build mode",
-  },
-  {
-    label: "Team tasks",
-    value: "14",
-    delta: "5 due today",
-  },
-];
+
+
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -76,6 +62,35 @@ export default function HomePage() {
 
     return () => clearInterval(interval);
   }, [nextEvent]);
+
+  const { data: tasks = [] } = useQuery({
+    queryKey: ['tasks', nextEvent?.id],
+    queryFn: async () => {
+      if (!nextEvent?.id) return [];
+      const response = await getTasksRequest({ eventId: String(nextEvent.id) });
+      return response.data;
+    },
+    enabled: !!nextEvent?.id,
+  });
+
+  const highlights = [
+    {
+      label: "Registrations",
+      value: "0",
+      delta: "No active registrations",
+    },
+    {
+      label: "Events in flight",
+      value: String(events.length),
+      delta: `${events.filter((e: IEvent) => !e.isPublic).length} in build mode`, // Draft/Private events ගණන
+    },
+    {
+      label: "Team tasks",
+      value: String(tasks.length),
+      delta: nextEvent ? `For: ${nextEvent.title}` : "No upcoming tasks",
+    },
+  ];
+
 
   return (
     <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f5f1ea]">
