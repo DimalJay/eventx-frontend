@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Select from "../widgets/Select";
 import DateTimePicker from "../widgets/DateTimePicker";
 import z from "zod";
@@ -123,6 +124,7 @@ const eventSchema = z.object({
 type EventFormValues = z.infer<typeof eventSchema>;
 
 export default function CreateEventPage() {
+  const router = useRouter();
   const { register, control, handleSubmit, watch, setValue, formState: { errors } } = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -154,8 +156,13 @@ export default function CreateEventPage() {
       const res = await createEventRequest(formData);
       return res.data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Event created successfully.");
+      console.log("Event created:", data);
+      const eventId = data?.id;
+      if (eventId) {
+        router.push(`/event/manage/${eventId}`);
+      }
     },
     onError: (error: any) => {
       console.log("Validation Errors:", errors);
