@@ -197,22 +197,13 @@ export default function EventFAQPage() {
       <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
         <div className="flex items-center gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60">
-              EventX
-            </p>
-            <p className="text-lg font-semibold tracking-wide text-black">
-              Help Center
-            </p>
           </div>
         </div>
 
-        <div className="grid gap-10 lg:grid-cols-[1fr_1fr] lg:items-start">
-          {/* Left Section: FAQ Content */}
+        <div className=" gap-10 lg:items-start">
+          {/* Section: FAQ Content */}
           <section className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-8">
             <div className="flex flex-col gap-3 mb-8">
-              <p className="inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-black">
-                Support
-              </p>
               <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl">
                 Frequently Asked Questions
               </h1>
@@ -232,7 +223,7 @@ export default function EventFAQPage() {
                 placeholder="Search questions..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-2xl border border-black/10 bg-white text-sm outline-none transition focus:border-black/30"
+                className="w-full pl-12 pr-4 py-3 rounded-2xl border border-black/10 bg-white text-sm text-black outline-none transition focus:border-black/30"
               />
             </div>
 
@@ -242,11 +233,10 @@ export default function EventFAQPage() {
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category)}
-                  className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-widest transition ${
-                    activeCategory === category
+                  className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-widest transition ${activeCategory === category
                       ? "bg-black text-white"
                       : "border border-black/10 text-black hover:border-black/30 bg-white"
-                  }`}
+                    }`}
                 >
                   {category}
                 </button>
@@ -281,18 +271,16 @@ export default function EventFAQPage() {
                     </div>
                     <ChevronDown
                       size={20}
-                      className={`ml-4 flex-shrink-0 transition-transform duration-300 ${
-                        openIndex === index ? "rotate-180" : ""
-                      }`}
+                      className={`ml-4 flex-shrink-0 transition-transform duration-300 ${openIndex === index ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
 
                   <div
-                    className={`grid transition-all duration-300 ${
-                      openIndex === index
+                    className={`grid transition-all duration-300 ${openIndex === index
                         ? "grid-rows-[1fr]"
                         : "grid-rows-[0fr]"
-                    }`}
+                      }`}
                   >
                     <div className="overflow-hidden">
                       <div className="border-t border-black/5 px-4 py-4 sm:px-5">
@@ -310,11 +298,10 @@ export default function EventFAQPage() {
                                 [faq.id]: prev[faq.id] === true ? null : true,
                               }))
                             }
-                            className={`p-1.5 rounded-lg transition ${
-                              helpful[faq.id] === true
+                            className={`p-1.5 rounded-lg transition ${helpful[faq.id] === true
                                 ? "bg-black/10 text-black"
                                 : "text-black/40 hover:text-black"
-                            }`}
+                              }`}
                           >
                             <ThumbsUp size={16} />
                           </button>
@@ -325,11 +312,10 @@ export default function EventFAQPage() {
                                 [faq.id]: prev[faq.id] === false ? null : false,
                               }))
                             }
-                            className={`p-1.5 rounded-lg transition ${
-                              helpful[faq.id] === false
+                            className={`p-1.5 rounded-lg transition ${helpful[faq.id] === false
                                 ? "bg-black/10 text-black"
                                 : "text-black/40 hover:text-black"
-                            }`}
+                              }`}
                           >
                             <ThumbsDown size={16} />
                           </button>
@@ -384,82 +370,7 @@ export default function EventFAQPage() {
           </section>
 
           {/* Right Section: Quick Access & Resources */}
-          <section className="grid gap-4">
-            <div className="rounded-3xl border border-black/10 bg-black px-6 py-8 text-white">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
-                Need Quick Help?
-              </p>
-              <p className="mt-2 text-2xl font-semibold">
-                Browse by Category
-              </p>
-              <p className="mt-3 text-sm text-white/70">
-                Filter FAQs by topic to find exactly what you need.
-              </p>
-            </div>
 
-            <div className="grid gap-4 rounded-3xl border border-black/10 bg-white/80 p-6">
-              {highlights.map((highlight) => (
-                <div
-                  key={highlight.title}
-                  className="border-b border-black/10 pb-4 last:border-b-0 last:pb-0"
-                >
-                  <h2 className="text-base font-semibold text-black">
-                    {highlight.title}
-                  </h2>
-                  <p className="mt-1 text-sm text-black/60">{highlight.body}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="rounded-3xl border border-black/10 bg-white/80 p-6">
-              <div className="flex items-start gap-3 mb-4">
-                <MessageCircle size={20} className="text-black flex-shrink-0 mt-1" />
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60 mb-2">
-                    Still Have Questions?
-                  </p>
-                  <p className="text-sm text-black/70 mb-4">
-                    Our support team is here to help with anything else.
-                  </p>
-                </div>
-              </div>
-              <button className="w-full h-12 rounded-full bg-black text-white text-sm font-semibold uppercase tracking-widest transition hover:bg-black/90">
-                Contact Support
-              </button>
-            </div>
-
-            <div className="rounded-3xl border border-black/10 bg-white/80 p-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60 mb-3">
-                Documentation
-              </p>
-              <div className="space-y-2">
-                <a
-                  href="#"
-                  className="block text-sm text-black/60 hover:text-black transition"
-                >
-                  → Getting Started Guide
-                </a>
-                <a
-                  href="#"
-                  className="block text-sm text-black/60 hover:text-black transition"
-                >
-                  → Event Organizer Handbook
-                </a>
-                <a
-                  href="#"
-                  className="block text-sm text-black/60 hover:text-black transition"
-                >
-                  → API Documentation
-                </a>
-                <a
-                  href="#"
-                  className="block text-sm text-black/60 hover:text-black transition"
-                >
-                  → Community Forum
-                </a>
-              </div>
-            </div>
-          </section>
         </div>
       </main>
     </div>
