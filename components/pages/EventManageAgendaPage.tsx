@@ -4,11 +4,11 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { IEvent } from "@/service/types";
+import { IEvent } from "@/types";
 import { getEventById, updateEventRequest } from "@/service/eventService";
-import AddEventAgendaItem from "../dialog/AddEventAgendaItem";
-import EditEventAgendaItem from "../dialog/EditEventAgendaItem";
-import DeleteEventAgendaItem from "../dialog/DeleteEventAgendaItem";
+import AddEventAgendaItem from "../dialogs/AddEventAgendaItem";
+import EditEventAgendaItem from "../dialogs/EditEventAgendaItem";
+import DeleteEventAgendaItem from "../dialogs/DeleteEventAgendaItem";
 import { EllipsisVertical } from "lucide-react";
 
 

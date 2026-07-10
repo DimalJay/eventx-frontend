@@ -4,7 +4,7 @@ import React from "react";
 import { useAuth } from "../auth/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicEvents } from "@/service/eventService";
-import { IEvent } from "@/service/types";
+import { IEvent } from "@/types";
 import { motion } from "framer-motion";
 
 export default function LandingPage() {

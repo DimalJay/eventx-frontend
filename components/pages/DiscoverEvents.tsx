@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicEvents } from "@/service/eventService";
-import { IEvent, WithID } from "@/service/types";
+import { IEvent, WithID } from "@/types";
 import Select from "../widgets/Select";
 import Logo from "../widgets/Logo";
 import { FiSearch, FiCalendar, FiMapPin, FiInfo } from "react-icons/fi";

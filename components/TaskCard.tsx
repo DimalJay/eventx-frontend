@@ -1,5 +1,5 @@
-import { ITask } from "@/service/types";
-import EventTaskUpdateDialog from "./widgets/EventTaskUpdate";
+import { ITask } from "@/types";
+import EventTaskUpdateDialog from "./dialogs/EventTaskUpdate";
 import { useState } from "react";
 
 export default function TaskCard({ task , users, eventId }: { task: ITask , users: any[], eventId: string }) {

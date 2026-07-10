@@ -1,5 +1,5 @@
 import { request } from "@/lib/request";
-import { Response } from "./types";
+import { Response } from "@/types";
 
 // create task request
 export const createTaskRequest = async (data: any) => {

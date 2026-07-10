@@ -21,7 +21,7 @@ export interface IEvent {
   capacity: number;
   ticketPrice: number;
   agenda: string,
-  registrationDeadline?: string; // YYYY-MM-DD HH:MM:SS
+  registrationDeadline?: string;
   waitlistEnabled?: boolean;
 }
 

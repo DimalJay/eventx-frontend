@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
-import { IRegistration } from "@/service/types";
+import { IRegistration } from "@/types";
 import { toast } from "sonner";
 
 type Props = {
