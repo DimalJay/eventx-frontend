@@ -1,4 +1,4 @@
-import { IEvent } from "@/service/types";
+import { IEvent } from "@/types";
 import { CalendarCheck, MapPin } from "lucide-react";
 import Link from "next/link";
 

@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
 import { toast } from "sonner";
 import { useState } from "react";
-import RegisterEventDialog from "../dialog/RegisterEventDialog";
+import RegisterEventDialog from "../dialogs/RegisterEventDialog";
 
 const highlights = [
   { label: "Attending", value: "540" },

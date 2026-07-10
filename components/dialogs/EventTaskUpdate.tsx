@@ -7,9 +7,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { updateTaskRequest } from "@/service/taskService";
-import Select from "./Select";
-import { TeamMember } from "../pages/EventManageTasksPage";
-import { ITask } from "@/service/types";
+import Select from "../widgets/Select";
+import { TeamMember } from "@/types/team";
+import { ITask } from "@/types";
 
 const eventTaskSchema = z.object({
   title: z.string().min(1, "Task title is required"),

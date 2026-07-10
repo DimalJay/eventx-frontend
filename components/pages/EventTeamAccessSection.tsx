@@ -5,9 +5,9 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getTeamMembers } from "@/service/teamService";
 import { EllipsisVertical } from "lucide-react";
-import RoleChangeDialog from "../dialog/RoleChangeDialog";
-import AddMemberDialog from "../dialog/AddMemberDialog";
-import RemoveMemberDialog from "../dialog/RemoveMemberDialog";
+import RoleChangeDialog from "../dialogs/RoleChangeDialog";
+import AddMemberDialog from "../dialogs/AddMemberDialog";
+import RemoveMemberDialog from "../dialogs/RemoveMemberDialog";
 
 type TeamMember = {
   id: number;

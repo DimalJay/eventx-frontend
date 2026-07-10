@@ -1,5 +1,5 @@
 import { request } from "@/lib/request";
-import { Response } from "./types";
+import { Response } from "@/types";
 
 export const getEventRegistrations = async ({ data: { eventId } }: { data: { eventId: string } }) => {
   const res: Response = await request("/registrations", {

@@ -2,7 +2,7 @@
 import { useAuth } from "../auth/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { getEvents } from "@/service/eventService";
-import { IEvent } from "@/service/types";
+import { IEvent } from "@/types";
 import EventCard from "../widgets/EventCard";
 import { useState, useEffect } from "react";
 import Link from "next/link";

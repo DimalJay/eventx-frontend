@@ -1,4 +1,4 @@
-import { IAgendaItem } from "@/service/types";
+import { IAgendaItem } from "@/types";
 
 export default function DeleteEventAgendaItem({
   setOpen,

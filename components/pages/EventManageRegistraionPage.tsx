@@ -5,10 +5,10 @@ import { useParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getEventRegistrations, updateRegistrationStatus } from "@/service/registrationService";
 import { getEventById } from "@/service/eventService";
-import { IRegistration, IEvent } from "@/service/types";
+import { IRegistration, IEvent } from "@/types";
 import { toast } from "sonner";
-import RegistrationStatusDialog from "../dialog/RegistrationStatusDialog";
-import CheckInDialog from "../dialog/CheckInDialog";
+import RegistrationStatusDialog from "../dialogs/RegistrationStatusDialog";
+import CheckInDialog from "../dialogs/CheckInDialog";
 
 const statusStyles: Record<string, string> = {
   GOING: "border-emerald-200 bg-emerald-50 text-emerald-800",

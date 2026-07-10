@@ -6,8 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createTaskRequest } from "@/service/taskService";
-import Select from "./widgets/Select";
-import { TeamMember } from "./pages/EventManageTasksPage";
+import Select from "../widgets/Select";
+import { TeamMember } from "@/types/team";
 
 
 type Props = {

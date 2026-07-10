@@ -1,6 +1,6 @@
 "use client";
 
-import { IRegistration } from "@/service/types";
+import { IRegistration } from "@/types";
 
 type Props = {
   reg: IRegistration;
