@@ -130,7 +130,6 @@ export default function LandingPage() {
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-black/40">
             Trusted by leading student organizations
           </p>
-          {/* සියල්ල එකම පේළියක දිස්වන සේ සකසා ඇත */}
           <div className="mt-6 flex flex-nowrap items-center justify-center gap-3 overflow-x-auto pb-4 w-full sm:gap-4 md:overflow-visible md:pb-0">
             {["IEEE Student Branch", "Gavel Club", "Rotaract Club", "Aero Society", "CS Student Union"].map((club, idx) => (
               <motion.div
@@ -175,13 +174,9 @@ export default function LandingPage() {
               {[1, 2, 3].map((n) => (
                 <div key={n} className="flex flex-col justify-between rounded-[24px] border border-black/5 bg-white/40 p-6 animate-pulse">
                   <div>
-                    {/* Image Area Skeleton */}
                     <div className="h-36 w-full rounded-[16px] bg-black/5" />
-                    {/* Title Skeleton */}
                     <div className="mt-4 h-6 w-3/4 rounded bg-black/5" />
-                    {/* Date/Location Skeleton */}
                     <div className="mt-2 h-4 w-1/2 rounded bg-black/5" />
-                    {/* Description Skeleton */}
                     <div className="mt-3 h-4 w-5/6 rounded bg-black/5" />
                   </div>
                   <div className="mt-6 h-10 w-full rounded-full bg-black/5" />

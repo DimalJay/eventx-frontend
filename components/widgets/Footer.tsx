@@ -9,26 +9,22 @@ const navGroups = [
     links: [
       { label: "Create event", href: "/event/create" },
       { label: "Dashboard", href: "/home" },
-      { label: "Event history", href: "/event-history" },
       { label: "Home", href: "/" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "About", href: "/about" },
-      { label: "Careers", href: "/careers" },
-      { label: "Press", href: "/press" },
-      { label: "Contact", href: "/contact" },
+      { label: "About", href: "/about-us" },
+      { label: "Contact", href: "/contact-us" },
     ],
   },
   {
     title: "Resources",
     links: [
-      { label: "Guides", href: "/guides" },
-      { label: "Support", href: "/support" },
-      { label: "Privacy", href: "/privacy" },
-      { label: "Terms", href: "/terms" },
+      { label: "FAQ", href: "/faq" },
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms & Conditions", href: "/terms" },
     ],
   },
 ];

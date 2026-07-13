@@ -24,14 +24,12 @@ const included = [
 export default function EventViewPage({ id }: { id?: string }) {
   const [registerOpen, setRegisterOpen] = useState(false);
 
-  // Fetching data from backend using React Query
   const { data: response, isLoading, isError } = useQuery({
     queryKey: ["event", id],
     queryFn: () => getEventById(id as string),
     enabled: !!id,
   });
 
-  // දත්ත එනකන් Loading State එක
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f7efe2]">
@@ -40,7 +38,6 @@ export default function EventViewPage({ id }: { id?: string }) {
     );
   }
 
-  // දත්ත ආවේ නැත්නම් හෝ වැරදි ID එකක් නම් පෙන්වන Error State එක
   if (isError || !response?.data) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f7efe2]">
@@ -74,10 +71,8 @@ export default function EventViewPage({ id }: { id?: string }) {
     cover: (() => {
       const coverPath = backendEvent.imageUrl || backendEvent.coverImage || "";
       if (!coverPath) return "";
-      // Image path එක already full URL එකක් නම් (e.g. http://...) එය කෙලින්ම යොදයි.
       if (coverPath.startsWith("http")) return coverPath;
 
-      // NEXT_PUBLIC_EVENTX_BACKEND_URL එකෙන් '/api/v1' කොටස ඉවත් කර Base URL එක ලබා ගනී (e.g. http://localhost/eventx)
       const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace("/api/v1", "");
       return `${backendBase}${coverPath}`;
     })(),
@@ -86,7 +81,6 @@ export default function EventViewPage({ id }: { id?: string }) {
     capacity: backendEvent.capacity || 0,
   };
 
-  // Parsing Agenda (assuming backend returns it as a JSON string)
   let agenda = [];
   try {
     agenda = backendEvent.agenda && typeof backendEvent.agenda === "string" ? JSON.parse(backendEvent.agenda) : [];
@@ -322,7 +316,7 @@ export default function EventViewPage({ id }: { id?: string }) {
             Register now
           </button>
         </section>
-      {id && (
+        {id && (
           <RegisterEventDialog
             eventId={id}
             open={registerOpen}
