@@ -99,9 +99,6 @@ export default function Footer() {
               Terms
             </Link>
 
-            <Link href="/cookies" className="transition hover:text-black">
-              Cookies
-            </Link>
           </div>
         </div>
 
