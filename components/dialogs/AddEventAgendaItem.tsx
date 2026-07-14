@@ -11,7 +11,6 @@ const agendaSchema = z.object({
 
 type AgendaFormValues = z.infer<typeof agendaSchema>;
 
-// 24-hour time format එක 12-hour AM/PM format එකට හැරවීම
 const formatTimeTo12Hour = (time24: string) => {
   if (!time24) return "";
   const [hoursStr, minutesStr] = time24.split(":");
@@ -19,7 +18,7 @@ const formatTimeTo12Hour = (time24: string) => {
   const minutes = minutesStr;
   const ampm = hours >= 12 ? "PM" : "AM";
   hours = hours % 12;
-  hours = hours ? hours : 12; // 0 hour එක 12 කරන්න
+  hours = hours ? hours : 12;
   const formattedHours = hours < 10 ? `0${hours}` : hours;
   return `${formattedHours}:${minutes} ${ampm}`;
 };
@@ -36,7 +35,6 @@ export default function AddEventAgendaItem({
   });
 
   const onSubmit = (data: AgendaFormValues) => {
-    // Start Time සහ End Time එකතු කර "09:00 AM - 10:00 AM" ලෙස සකසා ගනී
     const timeRange = `${formatTimeTo12Hour(data.startTime)} - ${formatTimeTo12Hour(data.endTime)}`;
     onAdd({
       task: data.task,
