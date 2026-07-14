@@ -82,7 +82,7 @@ export default function HomePage() {
     {
       label: "Events in flight",
       value: String(events.length),
-      delta: `${events.filter((e: IEvent) => !e.isPublic).length} in build mode`, // Draft/Private events ගණන
+      delta: `${events.filter((e: IEvent) => !e.isPublic).length} in build mode`,
     },
     {
       label: "Team tasks",

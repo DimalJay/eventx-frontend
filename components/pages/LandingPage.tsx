@@ -174,13 +174,9 @@ export default function LandingPage() {
               {[1, 2, 3].map((n) => (
                 <div key={n} className="flex flex-col justify-between rounded-3xl border border-black/5 bg-white/40 p-6 animate-pulse">
                   <div>
-                    {/* Image Area Skeleton */}
                     <div className="h-36 w-full rounded-2xl bg-black/5" />
-                    {/* Title Skeleton */}
                     <div className="mt-4 h-6 w-3/4 rounded bg-black/5" />
-                    {/* Date/Location Skeleton */}
                     <div className="mt-2 h-4 w-1/2 rounded bg-black/5" />
-                    {/* Description Skeleton */}
                     <div className="mt-3 h-4 w-5/6 rounded bg-black/5" />
                   </div>
                   <div className="mt-6 h-10 w-full rounded-full bg-black/5" />
