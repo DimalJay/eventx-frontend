@@ -90,7 +90,7 @@ export default function NotificationsMenu({ className }: { className?: string })
                     key={item.id}
                     className={cn(
                       "flex gap-3 px-4 py-3 transition hover:bg-black/5",
-                      !item.isRead && "bg-black/[0.03]"
+                      !item.isRead && "bg-black/3"
                     )}
                   >
                     <span

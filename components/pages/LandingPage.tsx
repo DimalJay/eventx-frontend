@@ -130,13 +130,12 @@ export default function LandingPage() {
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-black/40">
             Trusted by leading student organizations
           </p>
-          {/* සියල්ල එකම පේළියක දිස්වන සේ සකසා ඇත */}
           <div className="mt-6 flex flex-nowrap items-center justify-center gap-3 overflow-x-auto pb-4 w-full sm:gap-4 md:overflow-visible md:pb-0">
             {["IEEE Student Branch", "Gavel Club", "Rotaract Club", "Aero Society", "CS Student Union"].map((club, idx) => (
               <motion.div
                 key={idx}
                 whileHover={{ scale: 1.05, y: -2 }}
-                className="flex cursor-default whitespace-nowrap items-center justify-center rounded-full border border-black/5 bg-black/[0.03] px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-black/50 transition-all hover:border-black/15 hover:bg-white hover:text-black hover:shadow-sm"
+                className="flex cursor-default whitespace-nowrap items-center justify-center rounded-full border border-black/5 bg-black/3 px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-black/50 transition-all hover:border-black/15 hover:bg-white hover:text-black hover:shadow-sm"
               >
                 {club}
               </motion.div>
@@ -173,10 +172,10 @@ export default function LandingPage() {
           {isLoading ? (
             <div className="grid gap-6 sm:grid-cols-3">
               {[1, 2, 3].map((n) => (
-                <div key={n} className="flex flex-col justify-between rounded-[24px] border border-black/5 bg-white/40 p-6 animate-pulse">
+                <div key={n} className="flex flex-col justify-between rounded-3xl border border-black/5 bg-white/40 p-6 animate-pulse">
                   <div>
                     {/* Image Area Skeleton */}
-                    <div className="h-36 w-full rounded-[16px] bg-black/5" />
+                    <div className="h-36 w-full rounded-2xl bg-black/5" />
                     {/* Title Skeleton */}
                     <div className="mt-4 h-6 w-3/4 rounded bg-black/5" />
                     {/* Date/Location Skeleton */}
@@ -215,7 +214,7 @@ export default function LandingPage() {
                   <motion.div
                     variants={itemVariants}
                     key={event.id}
-                    className="group flex flex-col overflow-hidden rounded-[24px] border border-black/10 bg-white/70 shadow-[0_15px_40px_-25px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_25px_60px_-25px_rgba(0,0,0,0.3)]"
+                    className="group flex flex-col overflow-hidden rounded-3xl border border-black/10 bg-white/70 shadow-[0_15px_40px_-25px_rgba(0,0,0,0.2)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_25px_60px_-25px_rgba(0,0,0,0.3)]"
                   >
                     <div className="relative h-36 w-full overflow-hidden bg-black/5">
 
@@ -226,7 +225,7 @@ export default function LandingPage() {
                           className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-black/5 to-black/10 transition-transform duration-700 ease-out group-hover:scale-110">
+                        <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-black/5 to-black/10 transition-transform duration-700 ease-out group-hover:scale-110">
                           <span className="text-2xl font-bold tracking-[0.3em] text-black/10">EVENTX</span>
                         </div>
                       )}
@@ -331,7 +330,7 @@ export default function LandingPage() {
                       repeat: Infinity,
                       delay: idx,
                     }}
-                    className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-black/[0.04] blur-3xl"
+                    className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-black/4 blur-3xl"
                   />
 
                   <div className="relative z-10">
@@ -351,8 +350,8 @@ export default function LandingPage() {
 
                 {/* Connector */}
                 {idx !== 2 && (
-                  <div className="hidden lg:flex flex-1 items-center justify-center relative min-w-[140px] max-w-[240px]">
-                    <div className="w-full h-[2px] rounded-full bg-gradient-to-r from-black/5 via-black/15 to-black/5 relative overflow-hidden">
+                  <div className="hidden lg:flex flex-1 items-center justify-center relative min-w-35 max-w-60">
+                    <div className="w-full h-0.5 rounded-full bg-linear-to-r from-black/5 via-black/15 to-black/5 relative overflow-hidden">
 
                       <motion.div
                         animate={{
@@ -364,7 +363,7 @@ export default function LandingPage() {
                           ease: "easeInOut",
                           delay: idx * 0.6,
                         }}
-                        className="absolute top-0 bottom-0 left-0 w-[50px] bg-black rounded-full"
+                        className="absolute top-0 bottom-0 left-0 w-12.5 bg-black rounded-full"
                       />
                     </div>
                   </div>

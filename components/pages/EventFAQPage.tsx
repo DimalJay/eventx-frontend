@@ -271,7 +271,7 @@ export default function EventFAQPage() {
                     </div>
                     <ChevronDown
                       size={20}
-                      className={`ml-4 flex-shrink-0 transition-transform duration-300 ${openIndex === index ? "rotate-180" : ""
+                      className={`ml-4 shrink-0 transition-transform duration-300 ${openIndex === index ? "rotate-180" : ""
                         }`}
                     />
                   </button>

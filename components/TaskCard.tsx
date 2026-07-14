@@ -1,9 +1,12 @@
 import { ITask } from "@/types";
 import EventTaskUpdateDialog from "./dialogs/EventTaskUpdate";
 import { useState } from "react";
+import { TeamMember } from "@/types/team";
 
-export default function TaskCard({ task , users, eventId }: { task: ITask , users: any[], eventId: string }) {
+export default function TaskCard({ task , users, eventId }: { task: ITask , users: TeamMember[], eventId: string }) {
     const [open, setOpen] = useState(false);
+
+    const assignedUser = users.find((user) => String(user.id) == task.assignedTo);
 
     const formatDueDate = (dateString: string) => {
         const date = new Date(dateString);
@@ -33,10 +36,10 @@ export default function TaskCard({ task , users, eventId }: { task: ITask , user
             <div className="mt-4 flex items-center justify-between">
                 <span className="inline-flex items-center gap-2 text-xs text-black/60">
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black text-[10px] font-semibold uppercase text-white">
-                        {task.assignedTo}
+                        {assignedUser ? assignedUser.name.charAt(0) : "?"}
                     </span>
 
-                    {task.assignedTo}
+                    {assignedUser ? assignedUser.name : task.assignedTo}
                 </span>
 
                 <span className="text-xs font-semibold text-black/60">
