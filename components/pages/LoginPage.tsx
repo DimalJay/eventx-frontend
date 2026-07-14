@@ -154,7 +154,6 @@ export default function LoginPage() {
                                     size="large"
                                     shape="pill"
                                     text="continue_with"
-                                    width={500}
 
                                 />
                             </div>

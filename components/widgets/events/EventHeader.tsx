@@ -35,7 +35,7 @@ export default function EventHeader({ id }: EventHeaderProps) {
                         </p>
                     </div>
                 </div>
-                <Link href={`/event/${eventId}`} className="btn">
+                <Link href={`/event/${eventId}`} className="inline-flex h-10 items-center rounded-full border border-black/15 bg-white/80 px-5 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40">
                     View Event
                 </Link>
             </div>

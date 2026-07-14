@@ -292,7 +292,7 @@ export default function LandingPage() {
             </h2>
           </div>
 
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-2">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-2">
             {[
               {
                 step: "01",

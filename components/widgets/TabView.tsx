@@ -10,7 +10,7 @@ export function TabItem({ url, children, name }: { url: string, children: React.
 }
 export default function TabView({ children, defaultPage }: { children: React.ReactNode, defaultPage: string }) {
     return (
-        <div className="flex flex-row gap-4 max-w-6xl border-b border-black/10">
+        <div className="flex flex-row gap-4 max-w-6xl border-b border-black/10 overflow-x-auto">
             {children}
         </div>
     )

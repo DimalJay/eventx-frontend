@@ -29,18 +29,7 @@ export default function ViewTicketPage() {
       <div className="pointer-events-none absolute right-8 top-20 h-60 w-60 rounded-full bg-[#9fd3ff] opacity-35 blur-3xl" />
       <div className="pointer-events-none absolute bottom-10 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-[#ffe8a3] opacity-40 blur-3xl" />
 
-      <main className="relative flex w-full max-w-md flex-col gap-8 px-5 py-12 sm:px-6 sm:py-16">
-        <div className="flex items-center gap-3">
-          <Logo />
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-black/50">
-              EventX ticket
-            </p>
-            <p className="text-lg font-semibold tracking-tight text-black">
-              Your admission pass
-            </p>
-          </div>
-        </div>
+      <main className="relative flex w-full max-w-md flex-col gap-8 px-5 py-12 sm:px-6 sm:py-16 my-7">
 
         {/* Ticket */}
         <div className="relative overflow-hidden rounded-3xl border border-black/10 bg-white shadow-[0_30px_80px_-50px_rgba(0,0,0,0.5)]">
@@ -86,10 +75,10 @@ export default function ViewTicketPage() {
 
           {/* Bottom — QR + holder */}
           <div className="flex flex-col items-center gap-5 p-6 sm:p-7">
-            <div className="rounded-4xl border border-black/10">
+            <div className="rounded-3xl border border-black/10">
               <ReactQRCode
                 value={ticket.code}
-                size={255}
+                size={Math.min(255, typeof window !== "undefined" ? window.innerWidth - 96 : 255)}
                 dataModulesSettings={{
                   style: "rounded"
                 }}

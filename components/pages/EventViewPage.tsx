@@ -174,7 +174,7 @@ export default function EventViewPage({ id }: { id?: string }) {
               </button>
             </div>
 
-            <div className="mt-2 grid grid-cols-3 gap-3 sm:gap-4">
+            <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
               {highlights.map((item) => (
                 <div
                   key={item.label}

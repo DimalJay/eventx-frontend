@@ -68,7 +68,7 @@ export default function NotificationsMenu({ className }: { className?: string })
           />
           <div
             role="menu"
-            className="absolute right-0 top-full z-20 mt-2 w-80 overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_25px_70px_-35px_rgba(0,0,0,0.45)]"
+            className="absolute right-0 top-full z-20 mt-2 w-80 max-w-[90vw] overflow-hidden rounded-2xl border border-black/10 bg-white shadow-[0_25px_70px_-35px_rgba(0,0,0,0.45)]"
           >
             <div className="flex items-center justify-between border-b border-black/10 px-4 py-3">
               <p className="text-sm font-semibold text-black">Notifications</p>
