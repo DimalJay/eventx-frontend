@@ -198,7 +198,7 @@ export default function EventTaskUpdateDialog({
                       value={field.value}
                       onChange={field.onChange}
                       className="mt-2 w-full px-3 py-2.5"
-                      options={users.map((user) => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
+                      options={users.map((user) => ({ value: user.id.toString(), label: `${user.name}` }))}
                     />
                   )}
                 />
@@ -217,7 +217,7 @@ export default function EventTaskUpdateDialog({
                       value={field.value}
                       onChange={field.onChange}
                       className="mt-2 w-full px-3 py-2.5"
-                      options={users.map((user) => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
+                      options={users.map((user) => ({ value: user.id.toString(), label: `${user.name}` }))}
                     />
                   )}
                 />
