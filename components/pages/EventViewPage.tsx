@@ -61,7 +61,7 @@ export default function EventViewPage({ id }: { id?: string }) {
     tagline: backendEvent.description || "No description provided.",
     status: backendEvent.isPaid || backendEvent.ticketPrice > 0 ? "Tickets live" : "Free Event",
     date: startDateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }),
-    time: `${startDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – ${endDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+    time: `${startDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo', hour12: true })} – ${endDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo', hour12: true })}`,
     start: backendEvent.startDate || startDateObj.toISOString(),
     end: backendEvent.endDate || endDateObj.toISOString(),
     timezone: "Asia/Colombo",
