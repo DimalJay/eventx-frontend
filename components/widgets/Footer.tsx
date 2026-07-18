@@ -9,13 +9,15 @@ const navGroups = [
     links: [
       { label: "Create event", href: "/event/create" },
       { label: "Dashboard", href: "/home" },
-      { label: "Home", href: "/" },
+      { label: "Home", href: "/" }
     ],
   },
   {
     title: "Company",
     links: [
       { label: "Contact", href: "/contact-us" },
+      { label: "About", href: "/about-us" }
+
     ],
   },
   {
@@ -23,7 +25,7 @@ const navGroups = [
     links: [
       { label: "FAQ", href: "/faq" },
       { label: "Privacy Policy", href: "/privacy" },
-      { label: "Terms & Conditions", href: "/terms" },
+      { label: "Terms & Conditions", href: "/terms" }
     ],
   },
 ];
@@ -31,7 +33,7 @@ const navGroups = [
 const socials = [
   { label: "X", href: "#", Icon: SiX },
   { label: "LinkedIn", href: "#", Icon: FaLinkedinIn },
-  { label: "Instagram", href: "#", Icon: SiInstagram },
+  { label: "Instagram", href: "#", Icon: SiInstagram }
 ];
 
 export default function Footer() {
