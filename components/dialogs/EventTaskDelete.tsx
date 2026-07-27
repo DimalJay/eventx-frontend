@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { deleteTaskRequest } from "@/service/taskService";
-import { ITask } from "@/service/types";
+import { ITask } from "@/types";
 
 
 type Props = {

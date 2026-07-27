@@ -1,7 +1,26 @@
+'use client';
 import Link from "next/link";
 import Logo from "../Logo";
+import { useQuery } from "@tanstack/react-query";
+import { getEventById } from "@/service/eventService";
 
-export default function EventHeader({ id }: { id: string }) {
+interface EventHeaderProps {
+    id: string | string[] | undefined;
+}
+
+export default function EventHeader({ id }: EventHeaderProps) {
+    const eventId = id as string;
+
+    const { data: event } = useQuery({
+        queryKey: ['event', eventId],
+        queryFn: async () => {
+            if (!eventId) return null;
+            const res = await getEventById(eventId);
+            return res.data;
+        },
+        enabled: !!eventId,
+    });
+
     return (
         <header className="">
             <div className="flex flex-row justify-between">
@@ -12,11 +31,11 @@ export default function EventHeader({ id }: { id: string }) {
                             EventX live dashboard
                         </p>
                         <p className="text-2xl font-semibold tracking-tight text-black">
-                            Signal Summit 2026
+                            {event ? event.title : "Loading..."}
                         </p>
                     </div>
                 </div>
-                <Link href={`/event/${id}`} className="btn">
+                <Link href={`/event/${eventId}`} className="inline-flex h-10 items-center rounded-full border border-black/15 bg-white/80 px-5 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40">
                     View Event
                 </Link>
             </div>

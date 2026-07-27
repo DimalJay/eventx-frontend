@@ -4,6 +4,9 @@ import Link from "next/link";
 import AddToCalendar from "../widgets/AddToCalendar";
 import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
+import { toast } from "sonner";
+import { useState } from "react";
+import RegisterEventDialog from "../dialogs/RegisterEventDialog";
 
 const highlights = [
   { label: "Attending", value: "540" },
@@ -19,14 +22,14 @@ const included = [
 ];
 
 export default function EventViewPage({ id }: { id?: string }) {
-  // Fetching data from backend using React Query
+  const [registerOpen, setRegisterOpen] = useState(false);
+
   const { data: response, isLoading, isError } = useQuery({
     queryKey: ["event", id],
     queryFn: () => getEventById(id as string),
     enabled: !!id,
   });
 
-  // දත්ත එනකන් Loading State එක
   if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f7efe2]">
@@ -35,7 +38,6 @@ export default function EventViewPage({ id }: { id?: string }) {
     );
   }
 
-  // දත්ත ආවේ නැත්නම් හෝ වැරදි ID එකක් නම් පෙන්වන Error State එක
   if (isError || !response?.data) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f7efe2]">
@@ -59,7 +61,7 @@ export default function EventViewPage({ id }: { id?: string }) {
     tagline: backendEvent.description || "No description provided.",
     status: backendEvent.isPaid || backendEvent.ticketPrice > 0 ? "Tickets live" : "Free Event",
     date: startDateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }),
-    time: `${startDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} – ${endDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+    time: `${startDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo', hour12: true })} – ${endDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo', hour12: true })}`,
     start: backendEvent.startDate || startDateObj.toISOString(),
     end: backendEvent.endDate || endDateObj.toISOString(),
     timezone: "Asia/Colombo",
@@ -69,10 +71,8 @@ export default function EventViewPage({ id }: { id?: string }) {
     cover: (() => {
       const coverPath = backendEvent.imageUrl || backendEvent.coverImage || "";
       if (!coverPath) return "";
-      // Image path එක already full URL එකක් නම් (e.g. http://...) එය කෙලින්ම යොදයි.
       if (coverPath.startsWith("http")) return coverPath;
 
-      // NEXT_PUBLIC_EVENTX_BACKEND_URL එකෙන් '/api/v1' කොටස ඉවත් කර Base URL එක ලබා ගනී (e.g. http://localhost/eventx)
       const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace("/api/v1", "");
       return `${backendBase}${coverPath}`;
     })(),
@@ -81,7 +81,6 @@ export default function EventViewPage({ id }: { id?: string }) {
     capacity: backendEvent.capacity || 0,
   };
 
-  // Parsing Agenda (assuming backend returns it as a JSON string)
   let agenda = [];
   try {
     agenda = backendEvent.agenda && typeof backendEvent.agenda === "string" ? JSON.parse(backendEvent.agenda) : [];
@@ -151,9 +150,25 @@ export default function EventViewPage({ id }: { id?: string }) {
                 timezone={event.timezone}
                 className="w-full sm:w-auto"
               />
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success("Event link copied!");
+                }}
+                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-black/15 px-5 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black/40 sm:w-auto"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                  <path d="M6 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M16 6a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M16 18a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="m8.6 13.5 6.8 3.1M15.4 7.4 8.6 10.5" strokeLinecap="round" />
+                </svg>
+                Share
+              </button>
             </div>
 
-            <div className="mt-2 grid grid-cols-3 gap-3 sm:gap-4">
+            <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
               {highlights.map((item) => (
                 <div
                   key={item.label}
@@ -274,6 +289,7 @@ export default function EventViewPage({ id }: { id?: string }) {
               </div>
               <button
                 type="button"
+                onClick={() => setRegisterOpen(true)}
                 className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
               >
                 Register
@@ -292,13 +308,21 @@ export default function EventViewPage({ id }: { id?: string }) {
               Save your spot at {event.name}.
             </p>
           </div>
-          <Link
-            href="#tickets"
+          <button
+            type="button"
+            onClick={() => setRegisterOpen(true)}
             className="inline-flex h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-semibold uppercase tracking-widest text-black"
           >
             Register now
-          </Link>
+          </button>
         </section>
+        {id && (
+          <RegisterEventDialog
+            eventId={id}
+            open={registerOpen}
+            onClose={() => setRegisterOpen(false)}
+          />
+        )}
       </main>
     </div>
   );

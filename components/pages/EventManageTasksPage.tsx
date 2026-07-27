@@ -1,21 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import EventTaskCreateDialog from "../EventTaskCreateDialog";
+import EventTaskCreateDialog from "../dialogs/EventTaskCreateDialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getTeamMembers } from "@/service/teamService";
 import { getTasksRequest, updateTaskStatusRequest } from "@/service/taskService";
-import { ITask, TaskStatus } from "@/service/types";
+import { ITask, TaskStatus } from "@/types";
+import { TeamMember } from "@/types/team";
 import TaskCard from "../TaskCard";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 
-export interface TeamMember {
-  id: number;
-  firstName: string;
-  lastName: string;
-}
 interface StatusAttributes {
   label: string;
   color: string;

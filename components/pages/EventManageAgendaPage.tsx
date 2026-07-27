@@ -4,11 +4,11 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { IEvent } from "@/service/types";
+import { IEvent } from "@/types";
 import { getEventById, updateEventRequest } from "@/service/eventService";
-import AddEventAgendaItem from "../dialog/AddEventAgendaItem";
-import EditEventAgendaItem from "../dialog/EditEventAgendaItem";
-import DeleteEventAgendaItem from "../dialog/DeleteEventAgendaItem";
+import AddEventAgendaItem from "../dialogs/AddEventAgendaItem";
+import EditEventAgendaItem from "../dialogs/EditEventAgendaItem";
+import DeleteEventAgendaItem from "../dialogs/DeleteEventAgendaItem";
 import { EllipsisVertical } from "lucide-react";
 
 
@@ -173,7 +173,7 @@ export default function EventManageAgendaPage() {
                                         <EllipsisVertical/>
                                     </button>
                                     {menuOpenFor === item.id ? (
-                                        <div className="absolute right-0 top-11 z-10 w-40 rounded-2xl border border-black/10 bg-white p-2 shadow-[0_20px_40px_-30px_rgba(0,0,0,0.35)]">
+                                        <div className="absolute right-0 top-11 z-10 w-40 max-w-[90vw] rounded-2xl border border-black/10 bg-white p-2 shadow-[0_20px_40px_-30px_rgba(0,0,0,0.35)] sm:right-0">
                                             <button
                                                 type="button"
                                                 className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-widest text-black transition hover:bg-black/5"

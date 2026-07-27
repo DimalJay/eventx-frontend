@@ -1,26 +1,61 @@
+'use client';
 import Link from "next/link";
-
-const stats = [
-  { label: "Registrations", value: "1,284", delta: "+12% this week" },
-  { label: "Capacity filled", value: "64%", delta: "820 seats left" },
-  { label: "Revenue", value: "$48.2k", delta: "+$6.1k this week" },
-  { label: "Check-ins", value: "0", delta: "Opens on event day" },
-];
-
-const details = [
-  { label: "Date", value: "Jun 18, 2026" },
-  { label: "Time", value: "9:00 AM – 5:00 PM" },
-  { label: "Venue", value: "Brooklyn Expo Center" },
-  { label: "Location", value: "Brooklyn, NY" },
-];
-
-const activity = [
-  { title: "Registration email approved", meta: "2 hours ago · Comms" },
-  { title: "New sponsor deck uploaded", meta: "Yesterday · Marketing" },
-  { title: "Venue walkthrough scheduled", meta: "Mon · Ops" },
-];
+import { useParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { getEventById } from "@/service/eventService";
 
 export default function EventManageOverviewPage() {
+  const params = useParams();
+  const eventId = params.id as string;
+
+  const { data: event, isLoading } = useQuery({
+    queryKey: ['event', eventId],
+    queryFn: async () => {
+      if (!eventId) return null;
+      const res = await getEventById(eventId);
+      return res.data;
+    },
+    enabled: !!eventId,
+  });
+
+  if (isLoading) {
+    return <div className="p-8 text-center text-black/50">Loading event details...</div>;
+  }
+
+  if (!event) {
+    return <div className="p-8 text-center text-red-500">Failed to load event details.</div>;
+  }
+
+  const formattedDate = new Date(event.startDate).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+
+  const formattedTime = new Date(event.startDate).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "Asia/Colombo"
+  });
+
+  const isFree = event.ticketPrice === 0;
+
+  const stats = [
+    { label: "Registrations", value: "0", delta: "No data available" },
+    { label: "Capacity filled", value: `${event.capacity} seats`, delta: "Total spots available" },
+    { label: "Ticket Price", value: isFree ? "Free" : `$${event.ticketPrice}`, delta: isFree ? "No cost" : "Paid event" },
+    { label: "Check-ins", value: "0", delta: "Opens on event day" },
+  ];
+
+  const details = [
+    { label: "Date", value: formattedDate },
+    { label: "Time", value: formattedTime },
+    { label: "Location", value: event.location || "TBA" },
+    { label: "Visibility", value: event.isPublic ? "Public Event" : "Private Event" },
+  ];
+
+  const activity: any[] = [];
+
   return (
     <div className="flex flex-col gap-6">
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -46,11 +81,11 @@ export default function EventManageOverviewPage() {
                 Event details
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-black">
-                Astra Product Summit
+                {event.title}
               </h2>
             </div>
             <Link
-              href="#"
+              href={`/event/manage/${eventId}/edit`}
               className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
             >
               Edit
@@ -72,8 +107,7 @@ export default function EventManageOverviewPage() {
           </div>
 
           <p className="mt-6 text-sm leading-7 text-black/70">
-            A full-day summit bringing product, design, and engineering leaders
-            together for keynotes, hands-on sessions, and networking.
+            {event.description || "No description provided for this event."}
           </p>
         </div>
 
@@ -82,12 +116,14 @@ export default function EventManageOverviewPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
               Next milestone
             </p>
-            <p className="mt-3 text-2xl font-semibold">Finalize keynote line-up</p>
+            <p className="mt-3 text-2xl font-semibold">Event Status</p>
             <p className="mt-3 text-sm text-white/70">
-              3 speaker confirmations pending and 1 agenda slot left to fill.
+              {new Date(event.startDate) > new Date()
+                ? "This event is scheduled for the future. Prepare your agenda and invite speakers."
+                : "This event has already started or passed."}
             </p>
             <Link
-              href="#"
+              href={`/event/manage/${eventId}/agenda`}
               className="mt-5 inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-xs font-semibold uppercase tracking-widest text-black"
             >
               Review agenda
@@ -99,15 +135,19 @@ export default function EventManageOverviewPage() {
               Recent activity
             </p>
             <div className="mt-4 grid gap-4 text-sm text-black/70">
-              {activity.map((item) => (
-                <div
-                  key={item.title}
-                  className="rounded-2xl border border-black/5 bg-white px-4 py-3"
-                >
-                  <p className="font-semibold text-black">{item.title}</p>
-                  <p className="mt-1 text-xs text-black/50">{item.meta}</p>
-                </div>
-              ))}
+              {activity.length > 0 ? (
+                activity.map((item: any) => (
+                  <div
+                    key={item.title}
+                    className="rounded-2xl border border-black/5 bg-white px-4 py-3"
+                  >
+                    <p className="font-semibold text-black">{item.title}</p>
+                    <p className="mt-1 text-xs text-black/50">{item.meta}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-black/50 p-2">No recent activity recorded yet.</p>
+              )}
             </div>
           </div>
         </aside>

@@ -1,5 +1,5 @@
 import { request } from "@/lib/request";
-import { Response } from "./types";
+import { Response } from "@/types";
 
 // register request
 export const registerRequest = async (data: any) => {

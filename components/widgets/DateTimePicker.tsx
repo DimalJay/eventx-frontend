@@ -136,7 +136,7 @@ export default function DateTimePicker({
           <div
             role="dialog"
             className={cn(
-              "absolute top-full z-30 mt-2 w-72 rounded-2xl border border-black/10 bg-white p-3 shadow-[0_25px_70px_-35px_rgba(0,0,0,0.45)]",
+              "absolute top-full z-30 mt-2 w-72 max-w-[90vw] rounded-2xl border border-black/10 bg-white p-3 shadow-[0_25px_70px_-35px_rgba(0,0,0,0.45)]",
               align === "right" ? "right-0" : "left-0"
             )}
           >

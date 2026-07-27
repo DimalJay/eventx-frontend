@@ -6,8 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createTaskRequest } from "@/service/taskService";
-import Select from "./widgets/Select";
-import { TeamMember } from "./pages/EventManageTasksPage";
+import Select from "../widgets/Select";
+import { TeamMember } from "@/types/team";
 
 
 type Props = {
@@ -32,7 +32,7 @@ export default function EventTaskCreateDialog({ open, onClose, users, eventId }:
      const queryClient = useQueryClient();
     const { register, handleSubmit, control, reset, formState: { errors } } = useForm<EventTaskFormValues>({
         resolver: zodResolver(eventTaskSchema),
-        defaultValues: { eventId: eventId }
+        defaultValues: { eventId: eventId, assignedBy: "", assignedTo: "", title: "", description: "", dueDate: "" },
     });
 
     const mutation = useMutation({
@@ -105,7 +105,7 @@ export default function EventTaskCreateDialog({ open, onClose, users, eventId }:
                                         value={field.value}
                                         onChange={field.onChange}
                                         className="mt-2 w-full px-3 py-2.5"
-                                        options={users.map((user) => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
+                                        options={users.map((user) => ({ value: user.id.toString(), label: `${user.name}` }))}
                                     />
                                 )}
                             />
@@ -125,7 +125,7 @@ export default function EventTaskCreateDialog({ open, onClose, users, eventId }:
                                         value={field.value}
                                         onChange={field.onChange}
                                         className="mt-2 w-full px-3 py-2.5"
-                                        options={users.map((user) => ({ value: user.id.toString(), label: `${user.firstName} ${user.lastName}` }))}
+                                        options={users.map((user) => ({ value: user.id.toString(), label: `${user.name}` }))}
                                     />
                                 )}
                             />

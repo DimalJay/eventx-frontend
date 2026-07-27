@@ -21,7 +21,7 @@ export interface IEvent {
   capacity: number;
   ticketPrice: number;
   agenda: string,
-  registrationDeadline?: string; // YYYY-MM-DD HH:MM:SS
+  registrationDeadline?: string;
   waitlistEnabled?: boolean;
 }
 
@@ -52,4 +52,17 @@ export interface IAgendaItem {
   task: string;
   time: Date,
   location: string;
+}
+
+export interface IRegistration {
+  id: string;
+  eventId: string;
+  userId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  registeredAt: Date;
+  status: "GOING" | "WAITLIST" | "NOT_GOING" | "PENDING";
+  ticketCode: string;
+  checkingTime?: Date;
 }

@@ -5,9 +5,9 @@ import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getTeamMembers } from "@/service/teamService";
 import { EllipsisVertical } from "lucide-react";
-import RoleChangeDialog from "../dialog/RoleChangeDialog";
-import AddMemberDialog from "../dialog/AddMemberDialog";
-import RemoveMemberDialog from "../dialog/RemoveMemberDialog";
+import RoleChangeDialog from "../dialogs/RoleChangeDialog";
+import AddMemberDialog from "../dialogs/AddMemberDialog";
+import RemoveMemberDialog from "../dialogs/RemoveMemberDialog";
 
 type TeamMember = {
   id: number;
@@ -89,7 +89,7 @@ export default function EventTeamAccessSection() {
                     <EllipsisVertical/>
                   </button>
                   {menuOpenFor === member.email ? (
-                    <div className="absolute right-0 top-11 z-10 w-48 rounded-2xl border border-black/10 bg-white p-2 shadow-[0_20px_40px_-30px_rgba(0,0,0,0.35)]">
+                    <div className="absolute right-0 top-11 z-10 w-48 max-w-[90vw] rounded-2xl border border-black/10 bg-white p-2 shadow-[0_20px_40px_-30px_rgba(0,0,0,0.35)] sm:right-0">
                       <button
                         type="button"
                         className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-widest text-black transition hover:bg-black/5"
