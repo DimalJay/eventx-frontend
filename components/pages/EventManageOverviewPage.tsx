@@ -26,16 +26,26 @@ export default function EventManageOverviewPage() {
     return <div className="p-8 text-center text-red-500">Failed to load event details.</div>;
   }
 
-  const formattedDate = new Date(event.startDate).toLocaleDateString("en-US", {
+  const formattedStartDate = new Date(event.startDate).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric"
   });
 
-  const formattedTime = new Date(event.startDate).toLocaleTimeString("en-US", {
+  const formattedEndDate = new Date(event.endDate).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+
+  const formattedStartTime = new Date(event.startDate).toLocaleTimeString("en-US", {
     hour: "numeric",
-    minute: "2-digit",
-    timeZone: "Asia/Colombo"
+    minute: "2-digit"
+  });
+
+  const formattedEndTime = new Date(event.endDate).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit"
   });
 
   const isFree = event.ticketPrice === 0;
@@ -48,8 +58,10 @@ export default function EventManageOverviewPage() {
   ];
 
   const details = [
-    { label: "Date", value: formattedDate },
-    { label: "Time", value: formattedTime },
+    { label: "Start Date", value: formattedStartDate },
+    { label: "End Date", value: formattedEndDate },
+    { label: "Start Time", value: formattedStartTime },
+    { label: "End Time", value: formattedEndTime },
     { label: "Location", value: event.location || "TBA" },
     { label: "Visibility", value: event.isPublic ? "Public Event" : "Private Event" },
   ];

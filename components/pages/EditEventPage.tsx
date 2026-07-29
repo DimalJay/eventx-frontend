@@ -170,6 +170,11 @@ export default function EditEventPage() {
     return `${backendBase}${coverPath}`;
   }, [event]);
 
+  const toLocalISOString = (date: Date) => {
+    const pad = (num: number) => String(num).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+  };
+
   const mutation = useMutation({
     mutationFn: async (data: EventFormValues) => {
       let finalCoverImage = typeof data.coverImage === "string" ? data.coverImage : "";
@@ -183,8 +188,10 @@ export default function EditEventPage() {
 
       const payload = {
         ...eventData,
+        startDate: eventData.startDate ? toLocalISOString(eventData.startDate) : undefined,
+        endDate: eventData.endDate ? toLocalISOString(eventData.endDate) : undefined,
+        regDeadline: eventData.regDeadline ? toLocalISOString(eventData.regDeadline) : undefined,
         coverImage: finalCoverImage || undefined,
-        imageUrl: finalCoverImage || undefined,
       };
 
       const res = await updateEventRequest(eventId, payload);
