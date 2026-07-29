@@ -3,10 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
-export default function CoverImageUpload() {
+interface CoverImageUploadProps {
+  initialPreview?: string | null;
+}
+
+export default function CoverImageUpload({ initialPreview }: CoverImageUploadProps) {
   const { setValue, formState: { errors } } = useFormContext();
-  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(initialPreview || null);
   const coverUrlRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (initialPreview) {
+      setCoverPreview(initialPreview);
+    }
+  }, [initialPreview]);
 
   useEffect(() => {
     return () => {
