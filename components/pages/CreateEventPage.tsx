@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Select from "../widgets/Select";
 import DateTimePicker from "../widgets/DateTimePicker";
@@ -103,11 +103,11 @@ function pickerValueToDate(value: string) {
   return value ? new Date(value) : undefined;
 }
 
-const eventSchema = z.object({
-  title: z.string().min(1, "Event name is required"),
+const baseEventSchema = z.object({
+  title: z.string().min(1, "Event name is required").max(100, "Event name must be 100 characters or less"),
   description: z.string().optional(),
-  startDate: z.date().refine(date => date > new Date(), "Start date must be in the future"),
-  endDate: z.date().refine(date => date > new Date(), "End date must be in the future"),
+  startDate: z.date(),
+  endDate: z.date(),
   regDeadline: z.date().optional(),
   location: z.string().optional(),
   isPublic: z.enum(["true", "false"]),
@@ -117,14 +117,88 @@ const eventSchema = z.object({
   isPaid: z.enum(["free", "paid"]),
   whiteList: z.boolean().optional(),
   coverImage: z.instanceof(File)
+    .refine(file => !file || file.size <= 5 * 1024 * 1024, "Image must be 5MB or less")
     .refine(file => !file || ["image/jpeg", "image/png", "image/webp"].includes(file.type), "Only PNG, JPG, or WEBP images are allowed")
     .optional(),
 });
 
-type EventFormValues = z.infer<typeof eventSchema>;
+type EventFormValues = z.infer<typeof baseEventSchema>;
 
 export default function CreateEventPage() {
   const router = useRouter();
+  const [hasLimit, setHasLimit] = useState(false);
+
+  const eventSchema = useMemo(() => {
+    return baseEventSchema.superRefine((data, ctx) => {
+      const now = new Date();
+      if (data.startDate && data.startDate <= now) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Start date must be in the future",
+          path: ["startDate"],
+        });
+      }
+
+      if (data.endDate) {
+        if (data.endDate <= now) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "End date must be in the future",
+            path: ["endDate"],
+          });
+        }
+        if (data.startDate && data.endDate <= data.startDate) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "End date must be after start date",
+            path: ["endDate"],
+          });
+        }
+      }
+
+      if (data.regDeadline) {
+        if (data.regDeadline <= now) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Registration deadline must be in the future",
+            path: ["regDeadline"],
+          });
+        }
+        if (data.startDate && data.regDeadline > data.startDate) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "Registration deadline must be before or equal to start date",
+            path: ["regDeadline"],
+          });
+        }
+      }
+
+      if (data.eventType === "physical" && (!data.location || !data.location.trim())) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Location is required for physical events",
+          path: ["location"],
+        });
+      }
+
+      if (data.isPaid === "paid" && (data.ticketPrice === undefined || isNaN(data.ticketPrice) || data.ticketPrice <= 0)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Ticket price must be greater than 0",
+          path: ["ticketPrice"],
+        });
+      }
+
+      if (hasLimit && (data.capacity === undefined || isNaN(data.capacity) || data.capacity < 1)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Capacity must be at least 1",
+          path: ["capacity"],
+        });
+      }
+    });
+  }, [hasLimit]);
+
   const { register, control, handleSubmit, watch, setValue, formState: { errors } } = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
@@ -179,7 +253,6 @@ export default function CreateEventPage() {
   const eventType = watch("eventType");
   const isPhysical = eventType === "physical";
 
-  const [hasLimit, setHasLimit] = useState(false);
   const [waitlistEnabled, setWaitlistEnabled] = useState(false);
 
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
@@ -249,6 +322,7 @@ export default function CreateEventPage() {
                 </>
               )}
             </div>
+            {errors.coverImage && <span className="text-red-500 text-xs mt-1">{errors.coverImage.message}</span>}
 
             <div className="rounded-2xl border border-black/10 bg-white/80 p-4 backdrop-blur">
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/50">
@@ -294,14 +368,13 @@ export default function CreateEventPage() {
                   name="startDate"
                   control={control}
                   render={({ field }) => (
-                    <DateTimePicker
-                      name={field.name}
-                      ariaLabel="Event start date and time"
-                      value={dateToPickerValue(field.value)}
-                      onChange={(value) => field.onChange(pickerValueToDate(value))}
-                      className="flex-1"
-                    />
-
+                     <DateTimePicker
+                       name={field.name}
+                       ariaLabel="Event start date and time"
+                       value={dateToPickerValue(field.value)}
+                       onChange={(value) => field.onChange(pickerValueToDate(value))}
+                       className="flex-1"
+                     />
                   )}
                 />
                 {errors.startDate && <span className="text-red-500 text-xs mt-1">{errors.startDate.message}</span>}
@@ -346,8 +419,12 @@ export default function CreateEventPage() {
                     </>
                   )}
                 />
-
               </div>
+              {errors.regDeadline && (
+                <div className="px-4 pb-3 border-t border-black/5 pt-2">
+                  <span className="text-red-500 text-xs">{errors.regDeadline.message}</span>
+                </div>
+              )}
             </div>
 
             {/* Location */}
@@ -392,6 +469,11 @@ export default function CreateEventPage() {
                   </div>
                 </div>
               </div>
+              {errors.location && (
+                <div className="px-4 pb-3 border-t border-black/5 pt-2">
+                  <span className="text-red-500 text-xs">{errors.location.message}</span>
+                </div>
+              )}
             </div>
 
             {/* Description */}
@@ -451,6 +533,11 @@ export default function CreateEventPage() {
                       </div>
                     </div>
                   </div>
+                  {errors.ticketPrice && (
+                    <div className="px-4 pb-3 border-t border-black/5 pt-2">
+                      <span className="text-red-500 text-xs">{errors.ticketPrice.message}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Capacity */}
@@ -501,6 +588,11 @@ export default function CreateEventPage() {
                       </div>
                     </div>
                   </div>
+                  {errors.capacity && (
+                    <div className="px-4 pb-3 border-t border-black/5 pt-2">
+                      <span className="text-red-500 text-xs">{errors.capacity.message}</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
