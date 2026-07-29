@@ -230,95 +230,93 @@ export default function EditEventPage() {
 
   return (
     <FormProvider {...methods}>
-      <div className="flex flex-1 justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
-        <main className="w-full max-w-4xl px-5 py-12 sm:px-8">
-          <div className="mb-6">
-            <h1 className="text-2xl font-semibold text-black">Edit Event</h1>
-            <p className="text-sm text-black/60">Update details for "{event.title}"</p>
-          </div>
+      <div className="w-full">
+        <div className="mb-6">
+          <h1 className="text-2xl font-semibold text-black">Edit Event</h1>
+          <p className="text-sm text-black/60">Update details for "{event.title}"</p>
+        </div>
 
-          <form className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start lg:gap-8" onSubmit={handleSubmit(onSubmit, onErrors)}>
-            {/* Left: cover + visibility */}
-            <section className="flex flex-col gap-4 lg:sticky lg:top-24">
-              <CoverImageUpload initialPreview={initialCoverPreview} />
+        <form className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start lg:gap-8" onSubmit={handleSubmit(onSubmit, onErrors)}>
+          {/* Left: cover + visibility */}
+          <section className="flex flex-col gap-4 lg:sticky lg:top-24">
+            <CoverImageUpload initialPreview={initialCoverPreview} />
 
-              <div className="rounded-2xl border border-black/10 bg-white/80 p-4 backdrop-blur">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/50">
-                  Visibility
-                </span>
-                <Controller
-                  name="isPublic"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      name={field.name}
-                      ariaLabel="Event visibility"
-                      value={field.value}
-                      onChange={field.onChange}
-                      className="mt-2 w-full px-3 py-2.5"
-                      options={[
-                        { value: "true", label: "Public — anyone can find it" },
-                        { value: "false", label: "Private — invite only" },
-                      ]}
-                    />
-                  )}
-                />
-              </div>
-            </section>
-
-            {/* Right: form */}
-            <section className="flex flex-col gap-5 rounded-3xl border border-black/10 bg-white/80 p-5 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-7">
-              <input
-                type="text"
-                autoComplete="off"
-                placeholder="Event Name"
-                {...register("title")}
-                className="w-full bg-transparent text-3xl font-semibold tracking-tight text-black outline-none placeholder:text-black/25 sm:text-4xl"
+            <div className="rounded-2xl border border-black/10 bg-white/80 p-4 backdrop-blur">
+              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/50">
+                Visibility
+              </span>
+              <Controller
+                name="isPublic"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    name={field.name}
+                    ariaLabel="Event visibility"
+                    value={field.value}
+                    onChange={field.onChange}
+                    className="mt-2 w-full px-3 py-2.5"
+                    options={[
+                      { value: "true", label: "Public — anyone can find it" },
+                      { value: "false", label: "Private — invite only" },
+                    ]}
+                  />
+                )}
               />
-              {errors.title && <span className="text-red-500 text-xs mt-1">{errors.title.message}</span>}
+            </div>
+          </section>
 
-              {/* Date card */}
-              <DateTimeSection />
+          {/* Right: form */}
+          <section className="flex flex-col gap-5 rounded-3xl border border-black/10 bg-white/80 p-5 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-7">
+            <input
+              type="text"
+              autoComplete="off"
+              placeholder="Event Name"
+              {...register("title")}
+              className="w-full bg-transparent text-3xl font-semibold tracking-tight text-black outline-none placeholder:text-black/25 sm:text-4xl"
+            />
+            {errors.title && <span className="text-red-500 text-xs mt-1">{errors.title.message}</span>}
 
-              {/* Location */}
-              <LocationSection />
+            {/* Date card */}
+            <DateTimeSection />
 
-              {/* Description */}
-              <div className="rounded-2xl border border-black/10 bg-white px-4 py-3">
-                <div className="flex items-center gap-3 text-black/70">
-                  <TextIcon />
-                  <span className="text-sm font-medium text-black">Description</span>
-                </div>
-                <textarea
-                  {...register("description")}
-                  rows={3}
-                  placeholder="Describe the audience, goals, and main outcomes."
-                  className="mt-2 w-full resize-none bg-transparent text-sm text-black outline-none placeholder:text-black/35"
-                />
+            {/* Location */}
+            <LocationSection />
+
+            {/* Description */}
+            <div className="rounded-2xl border border-black/10 bg-white px-4 py-3">
+              <div className="flex items-center gap-3 text-black/70">
+                <TextIcon />
+                <span className="text-sm font-medium text-black">Description</span>
               </div>
+              <textarea
+                {...register("description")}
+                rows={3}
+                placeholder="Describe the audience, goals, and main outcomes."
+                className="mt-2 w-full resize-none bg-transparent text-sm text-black outline-none placeholder:text-black/35"
+              />
+            </div>
 
-              {/* Event Options */}
-              <EventOptionsSection hasLimit={hasLimit} setHasLimit={setHasLimit} />
+            {/* Event Options */}
+            <EventOptionsSection hasLimit={hasLimit} setHasLimit={setHasLimit} />
 
-              <div className="flex gap-4">
-                <button
-                  type="submit"
-                  disabled={mutation.isPending}
-                  className="flex-1 flex h-12 items-center justify-center rounded-2xl bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:bg-black/50"
-                >
-                  {mutation.isPending ? "Saving..." : "Save Changes"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => router.push(`/event/manage/${eventId}/overview`)}
-                  className="flex h-12 items-center justify-center rounded-2xl border border-black/10 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:bg-black/5"
-                >
-                  Cancel
-                </button>
-              </div>
-            </section>
-          </form>
-        </main>
+            <div className="flex gap-4">
+              <button
+                type="submit"
+                disabled={mutation.isPending}
+                className="flex-1 flex h-12 items-center justify-center rounded-2xl bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:bg-black/50"
+              >
+                {mutation.isPending ? "Saving..." : "Save Changes"}
+              </button>
+              <button
+                type="button"
+                onClick={() => router.push(`/event/manage/${eventId}/overview`)}
+                className="flex h-12 items-center justify-center rounded-2xl border border-black/10 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:bg-black/5"
+              >
+                Cancel
+              </button>
+            </div>
+          </section>
+        </form>
       </div>
     </FormProvider>
   );
