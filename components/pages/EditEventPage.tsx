@@ -152,7 +152,7 @@ export default function EditEventPage() {
       : undefined,
   });
 
-  const { register, control, handleSubmit, setValue, formState: { errors } } = methods;
+  const { register, control, handleSubmit, formState: { errors } } = methods;
 
   useEffect(() => {
     if (event && event.capacity > 0) {
