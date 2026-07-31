@@ -209,15 +209,6 @@ export default function EventViewPage({ id }: { id?: string }) {
           </aside>
         </section>
 
-        {/* About */}
-        <section className="rounded-3xl border border-black/10 bg-white/70 p-6 backdrop-blur sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-            About this event
-          </p>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-black/70 whitespace-pre-wrap">
-            {event.tagline}
-          </p>
-        </section>
 
         {/* Agenda */}
         {agenda && agenda.length > 0 && (
