@@ -166,7 +166,11 @@ export default function CreateEventPage() {
   });
 
   const onSubmit = (data: EventFormValues) => {
-    mutation.mutate(data);
+    const submissionData = { ...data };
+    if (!hasLimit) {
+      submissionData.capacity = 0;
+    }
+    mutation.mutate(submissionData);
   };
 
 

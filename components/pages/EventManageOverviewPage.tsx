@@ -61,7 +61,7 @@ export default function EventManageOverviewPage() {
 
   const stats = [
     { label: "Registrations", value: "0", delta: "No data available" },
-    { label: "Capacity filled", value: `${event.capacity} seats`, delta: "Total spots available" },
+    { label: "Capacity filled", value: event.capacity === 0 ? "Unlimited" : `${event.capacity} seats`, delta: "Total spots available" },
     { label: "Ticket Price", value: isFree ? "Free" : `$${event.ticketPrice}`, delta: isFree ? "No cost" : "Paid event" },
     { label: "Check-ins", value: "0", delta: "Opens on event day" },
   ];

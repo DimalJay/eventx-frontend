@@ -273,20 +273,28 @@ export default function EventViewPage({ id }: { id?: string }) {
               </ul>
             </div>
             <div className="flex flex-col items-stretch gap-3 lg:w-56">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
-                {event.seatsLeft} of {event.capacity} seats left
-              </p>
-              <div className="h-2 overflow-hidden rounded-full bg-black/10">
-                <div
-                  className="h-full rounded-full bg-black"
-                  style={{
-                    width: `${event.capacity > 0
-                      ? Math.round(((event.capacity - event.seatsLeft) / event.capacity) * 100)
-                      : 0
-                      }%`,
-                  }}
-                />
-              </div>
+              {event.capacity === 0 ? (
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
+                  Unlimited seats available
+                </p>
+              ) : (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
+                    {event.seatsLeft} of {event.capacity} seats left
+                  </p>
+                  <div className="h-2 overflow-hidden rounded-full bg-black/10">
+                    <div
+                      className="h-full rounded-full bg-black"
+                      style={{
+                        width: `${event.capacity > 0
+                          ? Math.round(((event.capacity - event.seatsLeft) / event.capacity) * 100)
+                          : 0
+                          }%`,
+                      }}
+                    />
+                  </div>
+                </>
+              )}
               <button
                 type="button"
                 onClick={() => setRegisterOpen(true)}

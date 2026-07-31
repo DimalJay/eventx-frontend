@@ -11,7 +11,7 @@ export default function EventCard({ event }: { event: IEvent }) {
   });
 
   const isFree = event.ticketPrice === 0;
-  const lowCapacity = event.capacity <= 10;
+  const lowCapacity = event.capacity > 0 && event.capacity <= 10;
 
   return (
     <article className="rounded-3xl border border-black/10 bg-white/90 p-5 shadow-[0_18px_50px_-35px_rgba(0,0,0,0.35)] backdrop-blur transition hover:-translate-y-0.5 hover:shadow-[0_22px_60px_-35px_rgba(0,0,0,0.4)]">
