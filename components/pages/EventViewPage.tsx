@@ -229,7 +229,7 @@ export default function EventViewPage({ id }: { id?: string }) {
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl lg:text-5xl">
               {event.name}
             </h1>
-            <p className="max-w-xl text-base leading-7 text-black/70 sm:text-lg sm:leading-8">
+            <p className="max-w-xl text-base leading-7 text-black/70 sm:text-lg sm:leading-8 text-justify">
               {event.tagline}
             </p>
 
