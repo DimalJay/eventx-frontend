@@ -119,6 +119,30 @@ export default function EventViewPage({ id }: { id?: string }) {
   const startDateObj = backendEvent.startDate ? new Date(backendEvent.startDate) : new Date();
   const endDateObj = backendEvent.endDate ? new Date(backendEvent.endDate) : new Date();
 
+  const formattedStartDate = startDateObj.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+
+  const formattedEndDate = endDateObj.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+
+  const formattedStartTime = startDateObj.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+
+  const formattedEndTime = endDateObj.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+
+  const visibilityText = backendEvent.isPublic ? "Public Event" : "Private Event";
+
   // Fetch registrations count
   const totalRegistered = registrationsResponse?.data?.length || 0;
   const capacityText = backendEvent.capacity === 0 ? "Unlimited" : String(backendEvent.capacity);
@@ -263,22 +287,33 @@ export default function EventViewPage({ id }: { id?: string }) {
             <CountdownTimer targetDate={backendEvent.startDate} />
 
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50 mb-3">
                 Event details
               </p>
-              <div className="mt-5 grid gap-5 text-sm sm:grid-cols-2 lg:grid-cols-1">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-black/40">Date</p>
-                  <p className="mt-1 font-semibold text-black">{event.date}</p>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">Start Date</p>
+                  <p className="mt-1 font-semibold text-black leading-none">{formattedStartDate}</p>
                 </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.18em] text-black/40">Time</p>
-                  <p className="mt-1 font-semibold text-black">{event.time}</p>
+                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">End Date</p>
+                  <p className="mt-1 font-semibold text-black leading-none">{formattedEndDate}</p>
                 </div>
-                <div className="sm:col-span-2 lg:col-span-1">
-                  <p className="text-xs uppercase tracking-[0.18em] text-black/40">Venue</p>
-                  <p className="mt-1 font-semibold text-black">{event.venue}</p>
-                  <p className="text-black/60">{event.location}</p>
+                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">Start Time</p>
+                  <p className="mt-1 font-semibold text-black leading-none">{formattedStartTime}</p>
+                </div>
+                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">End Time</p>
+                  <p className="mt-1 font-semibold text-black leading-none">{formattedEndTime}</p>
+                </div>
+                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3 col-span-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">Visibility</p>
+                  <p className="mt-1 font-semibold text-black leading-none">{visibilityText}</p>
+                </div>
+                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3 col-span-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">Venue</p>
+                  <p className="mt-1 font-semibold text-black">{event.location}</p>
                 </div>
               </div>
             </div>
