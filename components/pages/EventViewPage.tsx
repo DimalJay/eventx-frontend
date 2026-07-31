@@ -4,15 +4,73 @@ import Link from "next/link";
 import AddToCalendar from "../widgets/AddToCalendar";
 import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
+import { getEventRegistrations } from "@/service/registrationService";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RegisterEventDialog from "../dialogs/RegisterEventDialog";
 
-const highlights = [
-  { label: "Attending", value: "540" },
-  { label: "Sessions", value: "18" },
-  { label: "Speakers", value: "24" },
-];
+function CountdownTimer({ targetDate }: { targetDate: string | Date }) {
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const difference = +new Date(targetDate) - +new Date();
+      if (difference <= 0) {
+        return null;
+      }
+      return {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      };
+    };
+
+    setTimeLeft(calculateTimeLeft());
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  if (!timeLeft) {
+    return (
+      <div className="rounded-2xl border border-black/10 bg-black text-white px-4 py-3 text-center text-xs font-semibold tracking-wider uppercase">
+        Event Started or Passed
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-black/10 bg-black text-white px-4 py-3.5 shadow-sm">
+      <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50 mb-2">
+        Event Starts In
+      </p>
+      <div className="flex justify-center gap-4 text-center">
+        <div>
+          <span className="text-xl font-bold">{timeLeft.days}</span>
+          <p className="text-[9px] uppercase tracking-wider text-white/40">Days</p>
+        </div>
+        <span className="text-xl font-bold text-white/30">:</span>
+        <div>
+          <span className="text-xl font-bold">{timeLeft.hours}</span>
+          <p className="text-[9px] uppercase tracking-wider text-white/40">Hours</p>
+        </div>
+        <span className="text-xl font-bold text-white/30">:</span>
+        <div>
+          <span className="text-xl font-bold">{timeLeft.minutes}</span>
+          <p className="text-[9px] uppercase tracking-wider text-white/40">Mins</p>
+        </div>
+        <span className="text-xl font-bold text-white/30">:</span>
+        <div>
+          <span className="text-xl font-bold">{timeLeft.seconds}</span>
+          <p className="text-[9px] uppercase tracking-wider text-white/40">Secs</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const included = [
   "Access to all sessions & keynotes",
@@ -27,6 +85,12 @@ export default function EventViewPage({ id }: { id?: string }) {
   const { data: response, isLoading, isError } = useQuery({
     queryKey: ["event", id],
     queryFn: () => getEventById(id as string),
+    enabled: !!id,
+  });
+
+  const { data: registrationsResponse } = useQuery({
+    queryKey: ["registrations", id],
+    queryFn: () => getEventRegistrations({ data: { eventId: id as string } }),
     enabled: !!id,
   });
 
@@ -55,6 +119,17 @@ export default function EventViewPage({ id }: { id?: string }) {
   const startDateObj = backendEvent.startDate ? new Date(backendEvent.startDate) : new Date();
   const endDateObj = backendEvent.endDate ? new Date(backendEvent.endDate) : new Date();
 
+  // Fetch registrations count
+  const totalRegistered = registrationsResponse?.data?.length || 0;
+  const capacityText = backendEvent.capacity === 0 ? "Unlimited" : String(backendEvent.capacity);
+  const seatsLeftText = backendEvent.capacity === 0 ? "Unlimited" : String(Math.max(0, backendEvent.capacity - totalRegistered));
+
+  const dynamicHighlights = [
+    { label: "Registered", value: String(totalRegistered) },
+    { label: "Total Seats", value: capacityText },
+    { label: "Seats Left", value: seatsLeftText },
+  ];
+
   // Mapping Backend Data to Frontend Variables
   const event = {
     name: backendEvent.title || "Untitled Event",
@@ -77,7 +152,7 @@ export default function EventViewPage({ id }: { id?: string }) {
       return `${backendBase}${coverPath}`;
     })(),
     price: backendEvent.ticketPrice && backendEvent.ticketPrice > 0 ? `$${backendEvent.ticketPrice}` : "Free",
-    seatsLeft: backendEvent.capacity || 0,
+    seatsLeft: backendEvent.capacity === 0 ? 999999 : Math.max(0, backendEvent.capacity - totalRegistered),
     capacity: backendEvent.capacity || 0,
   };
 
@@ -169,7 +244,7 @@ export default function EventViewPage({ id }: { id?: string }) {
             </div>
 
             <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-              {highlights.map((item) => (
+              {dynamicHighlights.map((item) => (
                 <div
                   key={item.label}
                   className="rounded-2xl border border-black/10 bg-white/70 px-3 py-3 backdrop-blur sm:px-4"
@@ -184,26 +259,30 @@ export default function EventViewPage({ id }: { id?: string }) {
           </div>
 
           {/* Details card */}
-          <aside className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-              Event details
-            </p>
-            <div className="mt-5 grid gap-5 text-sm sm:grid-cols-2 lg:grid-cols-1">
-              <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-black/40">Date</p>
-                <p className="mt-1 font-semibold text-black">{event.date}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-black/40">Time</p>
-                <p className="mt-1 font-semibold text-black">{event.time}</p>
-              </div>
-              <div className="sm:col-span-2 lg:col-span-1">
-                <p className="text-xs uppercase tracking-[0.18em] text-black/40">Venue</p>
-                <p className="mt-1 font-semibold text-black">{event.venue}</p>
-                <p className="text-black/60">{event.location}</p>
+          <aside className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur flex flex-col gap-5">
+            <CountdownTimer targetDate={backendEvent.startDate} />
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+                Event details
+              </p>
+              <div className="mt-5 grid gap-5 text-sm sm:grid-cols-2 lg:grid-cols-1">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-black/40">Date</p>
+                  <p className="mt-1 font-semibold text-black">{event.date}</p>
+                </div>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.18em] text-black/40">Time</p>
+                  <p className="mt-1 font-semibold text-black">{event.time}</p>
+                </div>
+                <div className="sm:col-span-2 lg:col-span-1">
+                  <p className="text-xs uppercase tracking-[0.18em] text-black/40">Venue</p>
+                  <p className="mt-1 font-semibold text-black">{event.venue}</p>
+                  <p className="text-black/60">{event.location}</p>
+                </div>
               </div>
             </div>
-            <div className="mt-6 flex h-32 items-center justify-center rounded-2xl border border-black/10 bg-[#f2f6ff] text-xs font-semibold uppercase tracking-[0.2em] text-black/40">
+            <div className="flex h-32 items-center justify-center rounded-2xl border border-black/10 bg-[#f2f6ff] text-xs font-semibold uppercase tracking-[0.2em] text-black/40">
               Map preview
             </div>
           </aside>
