@@ -36,36 +36,36 @@ function CountdownTimer({ targetDate }: { targetDate: string | Date }) {
 
   if (!timeLeft) {
     return (
-      <div className="rounded-2xl border border-black/10 bg-black text-white px-4 py-3 text-center text-xs font-semibold tracking-wider uppercase">
+      <div className="rounded-2xl border border-black/10 bg-white/40 text-black px-4 py-3 text-center text-xs font-semibold tracking-wider uppercase backdrop-blur-md">
         Event Started or Passed
       </div>
     );
   }
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-black text-white px-4 py-3.5 shadow-sm">
-      <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50 mb-2">
+    <div className="rounded-2xl border border-[#9fd3ff]/30 bg-[#f3f8ff]/85 text-black px-4 py-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] backdrop-blur-md">
+      <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-black/50 mb-2">
         Event Starts In
       </p>
       <div className="flex justify-center gap-4 text-center">
         <div>
-          <span className="text-xl font-bold">{timeLeft.days}</span>
-          <p className="text-[9px] uppercase tracking-wider text-white/40">Days</p>
+          <span className="text-xl font-bold text-black">{timeLeft.days}</span>
+          <p className="text-[9px] uppercase tracking-wider text-black/40">Days</p>
         </div>
-        <span className="text-xl font-bold text-white/30">:</span>
+        <span className="text-xl font-bold text-black/30">:</span>
         <div>
-          <span className="text-xl font-bold">{timeLeft.hours}</span>
-          <p className="text-[9px] uppercase tracking-wider text-white/40">Hours</p>
+          <span className="text-xl font-bold text-black">{timeLeft.hours}</span>
+          <p className="text-[9px] uppercase tracking-wider text-black/40">Hours</p>
         </div>
-        <span className="text-xl font-bold text-white/30">:</span>
+        <span className="text-xl font-bold text-black/30">:</span>
         <div>
-          <span className="text-xl font-bold">{timeLeft.minutes}</span>
-          <p className="text-[9px] uppercase tracking-wider text-white/40">Mins</p>
+          <span className="text-xl font-bold text-black">{timeLeft.minutes}</span>
+          <p className="text-[9px] uppercase tracking-wider text-black/40">Mins</p>
         </div>
-        <span className="text-xl font-bold text-white/30">:</span>
+        <span className="text-xl font-bold text-black/30">:</span>
         <div>
-          <span className="text-xl font-bold">{timeLeft.seconds}</span>
-          <p className="text-[9px] uppercase tracking-wider text-white/40">Secs</p>
+          <span className="text-xl font-bold text-black">{timeLeft.seconds}</span>
+          <p className="text-[9px] uppercase tracking-wider text-black/40">Secs</p>
         </div>
       </div>
     </div>
