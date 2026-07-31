@@ -74,8 +74,8 @@ function CountdownTimer({ targetDate }: { targetDate: string | Date }) {
 
 const included = [
   "Access to all sessions & keynotes",
-  "Hands-on workshops",
-  "Lunch & refreshments",
+  "Reserved Seating",
+  "Interactive Q&A Session",
   "Networking social",
 ];
 
