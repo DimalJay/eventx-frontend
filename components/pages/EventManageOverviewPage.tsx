@@ -34,7 +34,8 @@ export default function EventManageOverviewPage() {
 
   const formattedTime = new Date(event.startDate).toLocaleTimeString("en-US", {
     hour: "numeric",
-    minute: "2-digit"
+    minute: "2-digit",
+    timeZone: "Asia/Colombo"
   });
 
   const isFree = event.ticketPrice === 0;

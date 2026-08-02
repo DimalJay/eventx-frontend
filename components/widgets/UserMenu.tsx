@@ -65,15 +65,14 @@ export default function UserMenu({ className }: { className?: string }) {
               <FiUser className="h-4 w-4" />
               Dashboard
             </Link>
-            <Link
+            <span
               role="menuitem"
-              href="/settings"
-              onClick={() => setOpen(false)}
-              className={itemClass}
+              aria-disabled="true"
+              className={cn(itemClass, "pointer-events-none opacity-50")}
             >
               <FiSettings className="h-4 w-4" />
               Settings
-            </Link>
+            </span>
             <button
               role="menuitem"
               type="button"
