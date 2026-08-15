@@ -8,11 +8,12 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const isAuthpage = pathname.startsWith("/login") || pathname.startsWith("/register");
   const isEventRoute = pathname.startsWith("/event/") && !pathname.startsWith("/event/manage/") && !pathname.startsWith("/event/create");
-    const publicPage = publicPages.includes(pathname);
+  const isFeedbackRoute = pathname.startsWith("/feedback");
+  const publicPage = publicPages.includes(pathname) || pathname === "/discover-events";
 
   if(hasToken && isAuthpage) {
     return NextResponse.redirect(new URL("/home", request.url));
-  }else if(!hasToken && !isAuthpage && !publicPage && !isEventRoute) {
+  }else if(!hasToken && !isAuthpage && !publicPage && !isEventRoute && !isFeedbackRoute) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
   return NextResponse.next();
