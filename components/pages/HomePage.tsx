@@ -213,6 +213,13 @@ export default function HomePage() {
                     <p className="mt-4 text-sm text-emerald-400 font-semibold">Event is happening now!</p>
                   )}
 
+                  <Link
+                    href={`/event/manage/${nextEvent.id}`}
+                    className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-full bg-white px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:bg-white/90"
+                  >
+                    Manage Event
+                  </Link>
+
                   {subsequentEvents.length > 0 && (
                     <div className="mt-5 border-t border-white/10 pt-4">
                       <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-white/40">Also coming up</p>
@@ -234,13 +241,6 @@ export default function HomePage() {
                       </div>
                     </div>
                   )}
-
-                  <Link
-                    href={`/event/manage/${nextEvent.id}`}
-                    className="mt-5 inline-flex h-10 w-full items-center justify-center rounded-full bg-white px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:bg-white/90"
-                  >
-                    Manage Event
-                  </Link>
                 </>
               ) : (
                 <>
