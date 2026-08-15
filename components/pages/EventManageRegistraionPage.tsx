@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getEventRegistrations, updateRegistrationStatus } from "@/service/registrationService";
 import { getEventById } from "@/service/eventService";
+import { sendFeedbackEmails } from "@/service/feedbackService";
 import { IRegistration, IEvent } from "@/types";
 import { toast } from "sonner";
 import RegistrationStatusDialog from "../dialogs/RegistrationStatusDialog";
@@ -68,6 +69,22 @@ export default function EventManageRegistraionPage() {
     },
     onError: (err: any) => {
       toast.error(err?.message || "Error updating status.");
+    },
+  });
+
+  const sendFeedbackMutation = useMutation({
+    mutationFn: async () => {
+      return sendFeedbackEmails(eventId);
+    },
+    onSuccess: (res) => {
+      if (res?.success) {
+        toast.success(`Sent ${res.data?.emailsSent || 0} feedback request emails.`);
+      } else {
+        toast.error(res?.message || "Failed to send feedback emails.");
+      }
+    },
+    onError: (err: any) => {
+      toast.error(err?.message || "Error sending feedback emails.");
     },
   });
 
@@ -151,18 +168,32 @@ export default function EventManageRegistraionPage() {
               Who&apos;s coming
             </h2>
           </div>
-          <button
-            type="button"
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
-            onClick={() => setCheckInOpen(true)}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
-              <rect x="3" y="3" width="18" height="18" rx="3" strokeLinejoin="round" />
-              <rect x="7" y="7" width="10" height="10" rx="1.5" strokeLinejoin="round" />
-              <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Check in
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40 disabled:opacity-50"
+              onClick={() => sendFeedbackMutation.mutate()}
+              disabled={sendFeedbackMutation.isPending}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                <path d="M21.5 12H16c-.7 2-2 3-4 3s-3.3-1-4-3H2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M5.5 5.1L2 12v6c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-6l-3.5-6.9C18.1 4.4 17.1 4 16 4H8c-1.1 0-2.1.4-2.5 1.1z" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              {sendFeedbackMutation.isPending ? "Sending..." : "Send Feedback"}
+            </button>
+            <button
+              type="button"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+              onClick={() => setCheckInOpen(true)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                <rect x="3" y="3" width="18" height="18" rx="3" strokeLinejoin="round" />
+                <rect x="7" y="7" width="10" height="10" rx="1.5" strokeLinejoin="round" />
+                <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              Check in
+            </button>
+          </div>
         </div>
 
         {registrations.length === 0 ? (
