@@ -89,7 +89,7 @@ export default function EventManageRegistraionPage() {
   });
 
   const total = registrations.length;
-  const checkedIn = registrations.filter((r) => !!r.checkingTime).length;
+  const checkedIn = registrations.filter((r) => !!r.chekingTime).length;
   const seatsLeft = event ? event.capacity - total : 0;
   const revenue = event && event.ticketPrice > 0 ? total * event.ticketPrice : 0;
 

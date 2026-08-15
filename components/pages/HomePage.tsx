@@ -8,6 +8,7 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Clock, Trophy, Users } from "lucide-react";
 import { getTasksRequest } from "@/service/taskService";
+import { getEventRegistrations } from "@/service/registrationService";
 
 
 
@@ -86,11 +87,21 @@ export default function HomePage() {
     enabled: !!nextEvent?.id,
   });
 
+  const { data: registrations = [] } = useQuery({
+    queryKey: ['registrations', nextEvent?.id],
+    queryFn: async () => {
+      if (!nextEvent?.id) return [];
+      const response = await getEventRegistrations({ data: { eventId: String(nextEvent.id) } });
+      return response.data || [];
+    },
+    enabled: !!nextEvent?.id,
+  });
+
   const highlights = [
     {
       label: "Registrations",
-      value: "0",
-      delta: "No active registrations",
+      value: nextEvent ? String(registrations.length) : "0",
+      delta: nextEvent ? `For: ${nextEvent.title}` : "No active registrations",
     },
     {
       label: "Events in flight",

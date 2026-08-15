@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
+import { getEventRegistrations } from "@/service/registrationService";
+import { IRegistration } from "@/types";
 
 export default function EventManageOverviewPage() {
   const params = useParams();
@@ -17,6 +19,18 @@ export default function EventManageOverviewPage() {
     },
     enabled: !!eventId,
   });
+
+  const { data: registrations = [] } = useQuery({
+    queryKey: ["manage-registrations", eventId],
+    queryFn: async () => {
+      const res = await getEventRegistrations({ data: { eventId } });
+      return (res.data || []) as IRegistration[];
+    },
+    enabled: !!eventId,
+  });
+
+  const totalRegs = registrations.length;
+  const checkedInCount = registrations.filter((r) => !!r.chekingTime).length;
 
   if (isLoading) {
     return <div className="p-8 text-center text-black/50">Loading event details...</div>;
@@ -60,10 +74,10 @@ export default function EventManageOverviewPage() {
   const isFree = event.ticketPrice === 0;
 
   const stats = [
-    { label: "Registrations", value: "0", delta: "No data available" },
+    { label: "Registrations", value: String(totalRegs), delta: `${totalRegs} registered` },
     { label: "Capacity filled", value: event.capacity === 0 ? "Unlimited" : `${event.capacity} seats`, delta: "Total spots available" },
     { label: "Ticket Price", value: isFree ? "Free" : `$${event.ticketPrice}`, delta: isFree ? "No cost" : "Paid event" },
-    { label: "Check-ins", value: "0", delta: "Opens on event day" },
+    { label: "Check-ins", value: String(checkedInCount), delta: checkedInCount === 0 ? "Opens on event day" : `${checkedInCount} checked in` },
   ];
 
   const details = [
