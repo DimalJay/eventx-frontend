@@ -82,9 +82,12 @@ const included = [
 export default function EventViewPage({ id }: { id?: string }) {
   const [registerOpen, setRegisterOpen] = useState(false);
 
-  const { data: response, isLoading, isError } = useQuery({
+  const { data: backendEvent, isLoading, isError } = useQuery({
     queryKey: ["event", id],
-    queryFn: () => getEventById(id as string),
+    queryFn: async () => {
+      const res = await getEventById(id as string);
+      return res.data;
+    },
     enabled: !!id,
   });
 
@@ -102,7 +105,7 @@ export default function EventViewPage({ id }: { id?: string }) {
     );
   }
 
-  if (isError || !response?.data) {
+  if (isError || !backendEvent) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f7efe2]">
         <div className="text-center">
@@ -112,8 +115,6 @@ export default function EventViewPage({ id }: { id?: string }) {
       </div>
     );
   }
-
-  const backendEvent = response.data;
 
   // Formatting Dates safely
   const startDateObj = backendEvent.startDate ? new Date(backendEvent.startDate) : new Date();

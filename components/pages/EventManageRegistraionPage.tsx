@@ -43,7 +43,7 @@ export default function EventManageRegistraionPage() {
   });
 
   const { data: registrations = [], isLoading, isError } = useQuery({
-    queryKey: ["registrations", eventId],
+    queryKey: ["manage-registrations", eventId],
     queryFn: async () => {
       const res = await getEventRegistrations({ data: { eventId } });
       return (res.data || []) as IRegistration[];
@@ -59,6 +59,7 @@ export default function EventManageRegistraionPage() {
     onSuccess: (res) => {
       if (res?.success) {
         setSelectedReg(null);
+        queryClient.invalidateQueries({ queryKey: ["manage-registrations", eventId] });
         queryClient.invalidateQueries({ queryKey: ["registrations", eventId] });
         toast.success("Registration status updated.");
       } else {
