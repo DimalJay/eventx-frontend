@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getEvents } from "@/service/eventService";
 import { IEvent } from "@/types";
 import EventCard from "../widgets/EventCard";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Clock, Trophy, Users } from "lucide-react";
 import { getTasksRequest } from "@/service/taskService";
@@ -37,6 +37,19 @@ export default function HomePage() {
   const subsequentEvents = upcomingEvents.slice(1, 3);
 
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
+  const [otherFilter, setOtherFilter] = useState<'all' | 'upcoming' | 'ended'>('all');
+  const workspaceEventsRef = useRef<HTMLDivElement>(null);
+
+  const scrollToWorkspaceEvents = () => {
+    workspaceEventsRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const otherEvents = events.filter((event: IEvent) => {
+    const isPast = event.startDate ? new Date(event.startDate) < new Date() : false;
+    if (otherFilter === 'upcoming') return !isPast;
+    if (otherFilter === 'ended') return isPast;
+    return true;
+  });
 
   useEffect(() => {
     if (!nextEvent) {
@@ -143,6 +156,7 @@ export default function HomePage() {
               </div>
               <button
                 type="button"
+                onClick={scrollToWorkspaceEvents}
                 className="text-xs font-semibold uppercase tracking-[0.2em] text-black/60 transition hover:text-black"
               >
                 View all
@@ -150,13 +164,13 @@ export default function HomePage() {
             </div>
 
             <div className="mt-6 grid gap-4">
-              {events.map((event: IEvent) => (
+              {events.slice(0, 5).map((event: IEvent) => (
                 <EventCard key={event.id} event={event} />
               ))}
             </div>
           </div>
 
-          <aside className="grid gap-4">
+          <aside className="flex flex-col gap-4">
 
             {/* 1. Next Upcoming Event & Countdown */}
             <div className="rounded-3xl border border-black/10 bg-black p-6 text-white shadow-[0_20px_50px_-30px_rgba(0,0,0,0.5)]">
@@ -284,6 +298,53 @@ export default function HomePage() {
 
           </aside>
         </section>
+
+        {/* All Other Events Section */}
+        {events.length > 0 && (
+          <section ref={workspaceEventsRef} className="mt-6">
+            <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+                  Workspace Events
+                </p>
+                <h2 className="mt-2 text-2xl font-semibold text-black">
+                  Explore all events in your workspace
+                </h2>
+              </div>
+              
+              {/* Filter controls */}
+              <div className="flex gap-1 bg-black/5 p-1 rounded-full w-fit border border-black/5">
+                {(['all', 'upcoming', 'ended'] as const).map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setOtherFilter(type)}
+                    className={`rounded-full px-4 py-1.5 text-xs font-medium uppercase tracking-[0.1em] transition-all ${
+                      otherFilter === type
+                        ? "bg-black text-white shadow-sm"
+                        : "text-black/60 hover:text-black hover:bg-black/5"
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {otherEvents.length > 0 ? (
+              <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {otherEvents.map((event: IEvent) => (
+                  <EventCard key={event.id} event={event} variant="vertical" />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-black/10 bg-white/40 p-12 text-center backdrop-blur-sm">
+                <p className="text-sm text-black/50 font-medium">
+                  No {otherFilter === 'all' ? '' : otherFilter} events found.
+                </p>
+              </div>
+            )}
+          </section>
+        )}
       </main>
     </div>
   );

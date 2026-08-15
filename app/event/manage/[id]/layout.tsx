@@ -2,11 +2,17 @@
 import EventHeader from "@/components/widgets/events/EventHeader";
 import TabView, { TabItem } from "@/components/widgets/TabView";
 import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function ManageLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
     const { id } = useParams();
     const eventId = id as string;
     const router = useRouter();
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [eventId]);
+
     if(!eventId) {
         // fall 404 page
         router.push("/404");
