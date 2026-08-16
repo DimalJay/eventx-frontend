@@ -10,6 +10,7 @@ import { IRegistration, IEvent } from "@/types";
 import { toast } from "sonner";
 import RegistrationStatusDialog from "../dialogs/RegistrationStatusDialog";
 import CheckInDialog from "../dialogs/CheckInDialog";
+import SendInvitationDialog from "../dialogs/SendInvitationDialog";
 
 const statusStyles: Record<string, string> = {
   GOING: "border-emerald-200 bg-emerald-50 text-emerald-800",
@@ -30,6 +31,7 @@ export default function EventManageRegistraionPage() {
   const queryClient = useQueryClient();
   const [selectedReg, setSelectedReg] = useState<IRegistration | null>(null);
   const [checkInOpen, setCheckInOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
@@ -184,6 +186,19 @@ export default function EventManageRegistraionPage() {
             <button
               type="button"
               className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+              onClick={() => setInviteOpen(true)}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="9" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="19" y1="8" x2="19" y2="14" strokeLinecap="round" strokeLinejoin="round"/>
+                <line x1="22" y1="11" x2="16" y2="11" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              Invite Guests
+            </button>
+            <button
+              type="button"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
               onClick={() => setCheckInOpen(true)}
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
@@ -195,6 +210,7 @@ export default function EventManageRegistraionPage() {
             </button>
           </div>
         </div>
+
 
         {registrations.length === 0 ? (
           <p className="mt-6 px-5 py-8 text-center text-sm text-black/50">
@@ -211,6 +227,17 @@ export default function EventManageRegistraionPage() {
                 className="h-10 w-full max-w-xs rounded-full border border-black/15 bg-white px-4 text-sm text-black outline-none transition placeholder:text-black/40 focus:border-black/40"
               />
               <div className="flex flex-wrap gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setStatusFilter(null)}
+                  className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wide transition ${
+                    statusFilter === null
+                      ? "border-black bg-black text-white"
+                      : "border-black/15 text-black/60 hover:border-black/40"
+                  }`}
+                >
+                  All
+                </button>
                 {["GOING", "WAITLIST", "NOT_GOING", "PENDING"].map((s) => (
                   <button
                     key={s}
@@ -258,10 +285,13 @@ export default function EventManageRegistraionPage() {
                         ? `$${event.ticketPrice}`
                         : "Free";
 
+                      const isSpeaker = reg.ticketCode?.startsWith("INVITE-GUEST_SPEAKER-");
+                      const isVip = reg.ticketCode?.startsWith("INVITE-VVIP_VIP-");
+
                       return (
                         <tr
                           key={reg.id}
-                          className="cursor-pointer rounded-2xl border border-black/5 bg-white transition hover:bg-gray-100 [&amp;:not(:last-child)>td]:border-b [&amp;>td]:border-black/5"
+                          className="cursor-pointer rounded-2xl border border-black/5 bg-white transition hover:bg-gray-100 [&:not(:last-child)>td]:border-b [&>td]:border-black/5"
                           onClick={() => setSelectedReg(reg)}
                         >
                           <td className="flex items-center gap-3 px-5 py-4">
@@ -269,7 +299,19 @@ export default function EventManageRegistraionPage() {
                               {name.charAt(0)}
                             </span>
                             <div className="min-w-0">
-                              <p className="text-sm font-semibold text-black truncate">{name}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-sm font-semibold text-black truncate">{name}</p>
+                                {isSpeaker && (
+                                  <span className="rounded-md bg-purple-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-purple-700">
+                                    Speaker
+                                  </span>
+                                )}
+                                {isVip && (
+                                  <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-700">
+                                    VIP
+                                  </span>
+                                )}
+                              </div>
                               <p className="text-sm text-black/60 truncate">{reg.email}</p>
                             </div>
                           </td>
@@ -319,6 +361,13 @@ export default function EventManageRegistraionPage() {
         }
         isPending={updateMutation.isPending}
       />
+
+      <SendInvitationDialog
+        eventId={eventId}
+        open={inviteOpen}
+        onClose={() => setInviteOpen(false)}
+      />
     </div>
   );
 }
+

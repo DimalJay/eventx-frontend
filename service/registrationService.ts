@@ -32,3 +32,11 @@ export const checkInRegistration = async (id: string) => {
   });
   return res;
 };
+
+export const sendInvitationsRequest = async (data: { eventId: string; role: string; emails: string[] }) => {
+  const res: Response = await request("/invitation/send", {
+    method: "POST",
+    data,
+  });
+  return res;
+};
