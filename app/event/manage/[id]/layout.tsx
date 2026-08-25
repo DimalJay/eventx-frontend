@@ -32,6 +32,7 @@ export default function ManageLayout({ children }: Readonly<{ children: React.Re
                     <TabItem url={`/event/manage/${eventId}/team`} name="team" >Team</TabItem>
                     <TabItem url={`/event/manage/${eventId}/tasks`} name="tasks" >Tasks</TabItem>
                     <TabItem url={`/event/manage/${eventId}/insights`} name="insights" >Insights</TabItem>
+                    <TabItem url={`/event/manage/${eventId}/settings`} name="settings" >Settings</TabItem>
                 </TabView>
                 {children}
             </div>

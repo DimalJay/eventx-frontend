@@ -22,7 +22,9 @@ export interface IEvent {
   ticketPrice: number;
   agenda: string,
   registrationDeadline?: string;
+  regDeadline?: string;
   waitlistEnabled?: boolean;
+  status?: string;
 }
 
 export interface IEventResponse extends WithID<IEvent> {

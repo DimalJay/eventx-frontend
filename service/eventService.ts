@@ -50,10 +50,25 @@ export const getEventById = async (eventId: string) => {
   return res;
 }
 
-export const updateEventRequest = async (eventId: string, data: any ) => { 
+export const updateEventRequest = async (eventId: string, data: any ) => {
   const res: Response = await request('/event', {
     method: 'PUT',
     data: { id: eventId, ...data },
+  });
+  return res;
+}
+
+export const updateEventStatusRequest = async (eventId: string, status: string) => {
+  const res: Response = await request('/event/status', {
+    method: 'PUT',
+    data: { id: eventId, status },
+  });
+  return res;
+}
+
+export const deleteEventRequest = async (eventId: string) => {
+  const res: Response = await request(`/event/${eventId}`, {
+    method: 'DELETE',
   });
   return res;
 }
