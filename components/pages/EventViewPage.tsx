@@ -4,29 +4,96 @@ import Link from "next/link";
 import AddToCalendar from "../widgets/AddToCalendar";
 import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
+import { getEventRegistrations } from "@/service/registrationService";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RegisterEventDialog from "../dialogs/RegisterEventDialog";
 
-const highlights = [
-  { label: "Attending", value: "540" },
-  { label: "Sessions", value: "18" },
-  { label: "Speakers", value: "24" },
-];
+function CountdownTimer({ targetDate }: { targetDate: string | Date }) {
+  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
+
+  useEffect(() => {
+    const calculateTimeLeft = () => {
+      const difference = +new Date(targetDate) - +new Date();
+      if (difference <= 0) {
+        return null;
+      }
+      return {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      };
+    };
+
+    setTimeLeft(calculateTimeLeft());
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  if (!timeLeft) {
+    return (
+      <div className="rounded-2xl border border-black/10 bg-white/40 text-black px-4 py-3 text-center text-xs font-semibold tracking-wider uppercase backdrop-blur-md">
+        Event Started or Passed
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border border-[#9fd3ff]/30 bg-[#f3f8ff]/85 text-black px-4 py-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] backdrop-blur-md">
+      <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-black/50 mb-2">
+        Event Starts In
+      </p>
+      <div className="flex justify-center gap-4 text-center">
+        <div>
+          <span className="text-xl font-bold text-black">{timeLeft.days}</span>
+          <p className="text-[9px] uppercase tracking-wider text-black/40">Days</p>
+        </div>
+        <span className="text-xl font-bold text-black/30">:</span>
+        <div>
+          <span className="text-xl font-bold text-black">{timeLeft.hours}</span>
+          <p className="text-[9px] uppercase tracking-wider text-black/40">Hours</p>
+        </div>
+        <span className="text-xl font-bold text-black/30">:</span>
+        <div>
+          <span className="text-xl font-bold text-black">{timeLeft.minutes}</span>
+          <p className="text-[9px] uppercase tracking-wider text-black/40">Mins</p>
+        </div>
+        <span className="text-xl font-bold text-black/30">:</span>
+        <div>
+          <span className="text-xl font-bold text-black">{timeLeft.seconds}</span>
+          <p className="text-[9px] uppercase tracking-wider text-black/40">Secs</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 const included = [
   "Access to all sessions & keynotes",
-  "Hands-on workshops",
-  "Lunch & refreshments",
+  "Reserved Seating",
+  "Interactive Q&A Session",
   "Networking social",
 ];
 
 export default function EventViewPage({ id }: { id?: string }) {
   const [registerOpen, setRegisterOpen] = useState(false);
 
-  const { data: response, isLoading, isError } = useQuery({
+  const { data: backendEvent, isLoading, isError } = useQuery({
     queryKey: ["event", id],
-    queryFn: () => getEventById(id as string),
+    queryFn: async () => {
+      const res = await getEventById(id as string);
+      return res.data;
+    },
+    enabled: !!id,
+  });
+
+  const { data: registrationsResponse } = useQuery({
+    queryKey: ["registrations", id],
+    queryFn: () => getEventRegistrations({ data: { eventId: id as string } }),
     enabled: !!id,
   });
 
@@ -38,7 +105,7 @@ export default function EventViewPage({ id }: { id?: string }) {
     );
   }
 
-  if (isError || !response?.data) {
+  if (isError || !backendEvent) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f7efe2]">
         <div className="text-center">
@@ -49,11 +116,44 @@ export default function EventViewPage({ id }: { id?: string }) {
     );
   }
 
-  const backendEvent = response.data;
-
   // Formatting Dates safely
   const startDateObj = backendEvent.startDate ? new Date(backendEvent.startDate) : new Date();
   const endDateObj = backendEvent.endDate ? new Date(backendEvent.endDate) : new Date();
+
+  const formattedStartDate = startDateObj.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+
+  const formattedEndDate = endDateObj.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+
+  const formattedStartTime = startDateObj.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+
+  const formattedEndTime = endDateObj.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit"
+  });
+
+  const visibilityText = backendEvent.isPublic ? "Public Event" : "Private Event";
+
+  // Fetch registrations count
+  const totalRegistered = registrationsResponse?.data?.length || 0;
+  const capacityText = backendEvent.capacity === 0 ? "Unlimited" : String(backendEvent.capacity);
+  const seatsLeftText = backendEvent.capacity === 0 ? "Unlimited" : String(Math.max(0, backendEvent.capacity - totalRegistered));
+
+  const dynamicHighlights = [
+    { label: "Registered", value: String(totalRegistered) },
+    { label: "Total Seats", value: capacityText },
+    { label: "Seats Left", value: seatsLeftText },
+  ];
 
   // Mapping Backend Data to Frontend Variables
   const event = {
@@ -77,7 +177,7 @@ export default function EventViewPage({ id }: { id?: string }) {
       return `${backendBase}${coverPath}`;
     })(),
     price: backendEvent.ticketPrice && backendEvent.ticketPrice > 0 ? `$${backendEvent.ticketPrice}` : "Free",
-    seatsLeft: backendEvent.capacity || 0,
+    seatsLeft: backendEvent.capacity === 0 ? 999999 : Math.max(0, backendEvent.capacity - totalRegistered),
     capacity: backendEvent.capacity || 0,
   };
 
@@ -130,7 +230,7 @@ export default function EventViewPage({ id }: { id?: string }) {
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl lg:text-5xl">
               {event.name}
             </h1>
-            <p className="max-w-xl text-base leading-7 text-black/70 sm:text-lg sm:leading-8">
+            <p className="max-w-xl text-base leading-7 text-black/70 sm:text-lg sm:leading-8 text-justify">
               {event.tagline}
             </p>
 
@@ -169,7 +269,7 @@ export default function EventViewPage({ id }: { id?: string }) {
             </div>
 
             <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-              {highlights.map((item) => (
+              {dynamicHighlights.map((item) => (
                 <div
                   key={item.label}
                   className="rounded-2xl border border-black/10 bg-white/70 px-3 py-3 backdrop-blur sm:px-4"
@@ -184,40 +284,46 @@ export default function EventViewPage({ id }: { id?: string }) {
           </div>
 
           {/* Details card */}
-          <aside className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-              Event details
-            </p>
-            <div className="mt-5 grid gap-5 text-sm sm:grid-cols-2 lg:grid-cols-1">
-              <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-black/40">Date</p>
-                <p className="mt-1 font-semibold text-black">{event.date}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-black/40">Time</p>
-                <p className="mt-1 font-semibold text-black">{event.time}</p>
-              </div>
-              <div className="sm:col-span-2 lg:col-span-1">
-                <p className="text-xs uppercase tracking-[0.18em] text-black/40">Venue</p>
-                <p className="mt-1 font-semibold text-black">{event.venue}</p>
-                <p className="text-black/60">{event.location}</p>
+          <aside className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur flex flex-col gap-5">
+            <CountdownTimer targetDate={backendEvent.startDate} />
+
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50 mb-3">
+                Event details
+              </p>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">Start Date</p>
+                  <p className="mt-1 font-semibold text-black leading-none">{formattedStartDate}</p>
+                </div>
+                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">End Date</p>
+                  <p className="mt-1 font-semibold text-black leading-none">{formattedEndDate}</p>
+                </div>
+                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">Start Time</p>
+                  <p className="mt-1 font-semibold text-black leading-none">{formattedStartTime}</p>
+                </div>
+                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">End Time</p>
+                  <p className="mt-1 font-semibold text-black leading-none">{formattedEndTime}</p>
+                </div>
+                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3 col-span-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">Visibility</p>
+                  <p className="mt-1 font-semibold text-black leading-none">{visibilityText}</p>
+                </div>
+                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3 col-span-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">Venue</p>
+                  <p className="mt-1 font-semibold text-black">{event.location}</p>
+                </div>
               </div>
             </div>
-            <div className="mt-6 flex h-32 items-center justify-center rounded-2xl border border-black/10 bg-[#f2f6ff] text-xs font-semibold uppercase tracking-[0.2em] text-black/40">
+            <div className="flex h-32 items-center justify-center rounded-2xl border border-black/10 bg-[#f2f6ff] text-xs font-semibold uppercase tracking-[0.2em] text-black/40">
               Map preview
             </div>
           </aside>
         </section>
 
-        {/* About */}
-        <section className="rounded-3xl border border-black/10 bg-white/70 p-6 backdrop-blur sm:p-7">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-            About this event
-          </p>
-          <p className="mt-4 max-w-3xl text-base leading-8 text-black/70 whitespace-pre-wrap">
-            {event.tagline}
-          </p>
-        </section>
 
         {/* Agenda */}
         {agenda && agenda.length > 0 && (
@@ -273,20 +379,28 @@ export default function EventViewPage({ id }: { id?: string }) {
               </ul>
             </div>
             <div className="flex flex-col items-stretch gap-3 lg:w-56">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
-                {event.seatsLeft} of {event.capacity} seats left
-              </p>
-              <div className="h-2 overflow-hidden rounded-full bg-black/10">
-                <div
-                  className="h-full rounded-full bg-black"
-                  style={{
-                    width: `${event.capacity > 0
-                      ? Math.round(((event.capacity - event.seatsLeft) / event.capacity) * 100)
-                      : 0
-                      }%`,
-                  }}
-                />
-              </div>
+              {event.capacity === 0 ? (
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
+                  Unlimited seats available
+                </p>
+              ) : (
+                <>
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
+                    {event.seatsLeft} of {event.capacity} seats left
+                  </p>
+                  <div className="h-2 overflow-hidden rounded-full bg-black/10">
+                    <div
+                      className="h-full rounded-full bg-black"
+                      style={{
+                        width: `${event.capacity > 0
+                          ? Math.round(((event.capacity - event.seatsLeft) / event.capacity) * 100)
+                          : 0
+                          }%`,
+                      }}
+                    />
+                  </div>
+                </>
+              )}
               <button
                 type="button"
                 onClick={() => setRegisterOpen(true)}

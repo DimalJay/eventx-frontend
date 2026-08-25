@@ -25,7 +25,12 @@ backend.interceptors.response.use(
     if (error.response?.status === 401) {
       if(typeof window !== "undefined") {
         const currentPath = window.location.pathname;
-        if (!currentPath.startsWith("/login") && !currentPath.startsWith("/register")) {
+        if (
+          !currentPath.startsWith("/login") &&
+          !currentPath.startsWith("/register") &&
+          !currentPath.startsWith("/invitation") &&
+          !currentPath.startsWith("/feedback")
+        ) {
           window.dispatchEvent(new CustomEvent("auth:unauthorized"));
         }
       }

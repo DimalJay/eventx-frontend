@@ -65,4 +65,5 @@ export interface IRegistration {
   status: "GOING" | "WAITLIST" | "NOT_GOING" | "PENDING";
   ticketCode: string;
   checkingTime?: Date;
+  chekingTime?: string | Date;
 }

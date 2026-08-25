@@ -3,6 +3,8 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
+import { getEventRegistrations } from "@/service/registrationService";
+import { IRegistration } from "@/types";
 
 export default function EventManageOverviewPage() {
   const params = useParams();
@@ -18,6 +20,18 @@ export default function EventManageOverviewPage() {
     enabled: !!eventId,
   });
 
+  const { data: registrations = [] } = useQuery({
+    queryKey: ["manage-registrations", eventId],
+    queryFn: async () => {
+      const res = await getEventRegistrations({ data: { eventId } });
+      return (res.data || []) as IRegistration[];
+    },
+    enabled: !!eventId,
+  });
+
+  const totalRegs = registrations.length;
+  const checkedInCount = registrations.filter((r) => !!r.chekingTime).length;
+
   if (isLoading) {
     return <div className="p-8 text-center text-black/50">Loading event details...</div>;
   }
@@ -26,30 +40,51 @@ export default function EventManageOverviewPage() {
     return <div className="p-8 text-center text-red-500">Failed to load event details.</div>;
   }
 
-  const formattedDate = new Date(event.startDate).toLocaleDateString("en-US", {
+  const coverUrl = (() => {
+    const coverPath = event.imageUrl || event.coverImage || "";
+    if (!coverPath) return "";
+    if (coverPath.startsWith("http")) return coverPath;
+
+    const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace("/api/v1", "");
+    return `${backendBase}${coverPath}`;
+  })();
+
+  const formattedStartDate = new Date(event.startDate).toLocaleDateString("en-US", {
     month: "short",
     day: "numeric",
     year: "numeric"
   });
 
-  const formattedTime = new Date(event.startDate).toLocaleTimeString("en-US", {
+  const formattedEndDate = new Date(event.endDate).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric"
+  });
+
+  const formattedStartTime = new Date(event.startDate).toLocaleTimeString("en-US", {
     hour: "numeric",
-    minute: "2-digit",
-    timeZone: "Asia/Colombo"
+    minute: "2-digit"
+  });
+
+  const formattedEndTime = new Date(event.endDate).toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit"
   });
 
   const isFree = event.ticketPrice === 0;
 
   const stats = [
-    { label: "Registrations", value: "0", delta: "No data available" },
-    { label: "Capacity filled", value: `${event.capacity} seats`, delta: "Total spots available" },
+    { label: "Registrations", value: String(totalRegs), delta: `${totalRegs} registered` },
+    { label: "Capacity filled", value: event.capacity === 0 ? "Unlimited" : `${event.capacity} seats`, delta: "Total spots available" },
     { label: "Ticket Price", value: isFree ? "Free" : `$${event.ticketPrice}`, delta: isFree ? "No cost" : "Paid event" },
-    { label: "Check-ins", value: "0", delta: "Opens on event day" },
+    { label: "Check-ins", value: String(checkedInCount), delta: checkedInCount === 0 ? "Opens on event day" : `${checkedInCount} checked in` },
   ];
 
   const details = [
-    { label: "Date", value: formattedDate },
-    { label: "Time", value: formattedTime },
+    { label: "Start Date", value: formattedStartDate },
+    { label: "End Date", value: formattedEndDate },
+    { label: "Start Time", value: formattedStartTime },
+    { label: "End Time", value: formattedEndTime },
     { label: "Location", value: event.location || "TBA" },
     { label: "Visibility", value: event.isPublic ? "Public Event" : "Private Event" },
   ];
@@ -112,22 +147,38 @@ export default function EventManageOverviewPage() {
         </div>
 
         <aside className="grid gap-4">
-          <div className="rounded-3xl border border-black/10 bg-black p-6 text-white">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
-              Next milestone
-            </p>
-            <p className="mt-3 text-2xl font-semibold">Event Status</p>
-            <p className="mt-3 text-sm text-white/70">
-              {new Date(event.startDate) > new Date()
-                ? "This event is scheduled for the future. Prepare your agenda and invite speakers."
-                : "This event has already started or passed."}
-            </p>
-            <Link
-              href={`/event/manage/${eventId}/agenda`}
-              className="mt-5 inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-xs font-semibold uppercase tracking-widest text-black"
-            >
-              Review agenda
-            </Link>
+          <div className="overflow-hidden rounded-3xl border border-black/10 bg-black text-white">
+            {coverUrl ? (
+              <div className="relative aspect-video w-full overflow-hidden bg-zinc-900">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={coverUrl}
+                  alt={event.title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="relative aspect-video w-full overflow-hidden bg-zinc-900 flex items-center justify-center text-white/35 text-xs font-medium">
+                No cover image
+              </div>
+            )}
+            <div className="p-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+                Next milestone
+              </p>
+              <p className="mt-3 text-2xl font-semibold">Event Status</p>
+              <p className="mt-3 text-sm text-white/70">
+                {new Date(event.startDate) > new Date()
+                  ? "This event is scheduled for the future. Prepare your agenda and invite speakers."
+                  : "This event has already started or passed."}
+              </p>
+              <Link
+                href={`/event/manage/${eventId}/agenda`}
+                className="mt-5 inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-xs font-semibold uppercase tracking-widest text-black"
+              >
+                Review agenda
+              </Link>
+            </div>
           </div>
 
           <div className="rounded-3xl border border-black/10 bg-white/80 p-6">

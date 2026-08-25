@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { IRegistration } from "@/types";
 
 type Props = {
@@ -17,7 +18,20 @@ const dialogOptions = [
 ];
 
 export default function RegistrationStatusDialog({ reg, open, onClose, onUpdateStatus, isPending }: Props) {
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isPending) {
+      setUpdatingStatus(null);
+    }
+  }, [isPending]);
+
   if (!open) return null;
+
+  const handleUpdate = (status: string) => {
+    setUpdatingStatus(status);
+    onUpdateStatus(reg.id, status);
+  };
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
@@ -38,15 +52,17 @@ export default function RegistrationStatusDialog({ reg, open, onClose, onUpdateS
               key={opt.value}
               type="button"
               disabled={isPending}
-              className={`flex w-full items-center justify-between rounded-2xl border px-5 py-3 text-left text-sm font-semibold transition ${
+              className={`flex w-full items-center justify-between rounded-2xl border px-5 py-3 text-left text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed ${
                 reg.status === opt.value
                   ? "border-black/30 bg-black/5 text-black"
                   : "border-black/10 bg-white text-black/70 hover:border-black/30"
               }`}
-              onClick={() => onUpdateStatus(reg.id, opt.value)}
+              onClick={() => handleUpdate(opt.value)}
             >
-              {opt.label}
-              {reg.status === opt.value ? (
+              <div className="flex items-center gap-2">
+                {isPending && updatingStatus === opt.value ? "Updating..." : opt.label}
+              </div>
+              {reg.status === opt.value && (!isPending || updatingStatus !== opt.value) ? (
                 <span className="text-xs text-black/40">Current</span>
               ) : null}
             </button>
