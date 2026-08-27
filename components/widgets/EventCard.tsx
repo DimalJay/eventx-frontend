@@ -1,6 +1,7 @@
 import { IEvent } from "@/types";
 import { CalendarCheck, MapPin } from "lucide-react";
 import Link from "next/link";
+import { formatPrice } from "@/lib/utils";
 
 interface EventCardProps {
   event: IEvent;
@@ -65,7 +66,7 @@ export default function EventCard({ event, variant = "horizontal" }: EventCardPr
                 isFree ? "text-emerald-600" : "text-black"
               }`}
             >
-              {isFree ? "Free" : `$${event.ticketPrice}`}
+              {formatPrice(event.ticketPrice)}
             </p>
           </div>
 
@@ -128,7 +129,7 @@ export default function EventCard({ event, variant = "horizontal" }: EventCardPr
                 isFree ? "text-emerald-600" : "text-black"
               }`}
             >
-              {isFree ? "Free" : `$${event.ticketPrice}`}
+              {formatPrice(event.ticketPrice)}
             </p>
           </div>
 
