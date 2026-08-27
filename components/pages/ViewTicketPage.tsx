@@ -15,7 +15,7 @@ const ticket = {
   type: "General admission",
   code: "EVX-7F3K-2208",
   orderId: "#10482",
-  price: "$49",
+  price: "LKR 49,000",
   // Machine-readable times for the calendar link
   start: "2026-06-18T09:00:00",
   end: "2026-06-18T17:00:00",

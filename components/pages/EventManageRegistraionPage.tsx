@@ -7,6 +7,7 @@ import { getEventRegistrations, updateRegistrationStatus } from "@/service/regis
 import { getEventById } from "@/service/eventService";
 import { sendFeedbackEmails } from "@/service/feedbackService";
 import { IRegistration, IEvent } from "@/types";
+import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
 import RegistrationStatusDialog from "../dialogs/RegistrationStatusDialog";
 import CheckInDialog from "../dialogs/CheckInDialog";
@@ -108,8 +109,8 @@ export default function EventManageRegistraionPage() {
     },
     {
       label: "Revenue",
-      value: event?.ticketPrice ? `$${revenue.toLocaleString()}` : "Free",
-      delta: event?.ticketPrice ? `${total} × $${event.ticketPrice}` : "Free event",
+      value: formatPrice(revenue),
+      delta: event?.ticketPrice ? `${total} × ${formatPrice(event.ticketPrice)}` : "Free event",
     },
     {
       label: "Seats left",
@@ -282,7 +283,7 @@ export default function EventManageRegistraionPage() {
                         : "\u2014";
                       const statusLabel = statusLabels[reg.status] || reg.status;
                       const amount = event?.ticketPrice && event.ticketPrice > 0
-                        ? `$${event.ticketPrice}`
+                        ? formatPrice(event.ticketPrice)
                         : "Free";
 
                       const isSpeaker = reg.ticketCode?.startsWith("INVITE-GUEST_SPEAKER-");

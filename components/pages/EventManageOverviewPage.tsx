@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
 import { getEventRegistrations } from "@/service/registrationService";
 import { IRegistration } from "@/types";
+import { formatPrice } from "@/lib/utils";
 
 export default function EventManageOverviewPage() {
   const params = useParams();
@@ -76,7 +77,7 @@ export default function EventManageOverviewPage() {
   const stats = [
     { label: "Registrations", value: String(totalRegs), delta: `${totalRegs} registered` },
     { label: "Capacity filled", value: event.capacity === 0 ? "Unlimited" : `${event.capacity} seats`, delta: "Total spots available" },
-    { label: "Ticket Price", value: isFree ? "Free" : `$${event.ticketPrice}`, delta: isFree ? "No cost" : "Paid event" },
+    { label: "Ticket Price", value: formatPrice(event.ticketPrice), delta: isFree ? "No cost" : "Paid event" },
     { label: "Check-ins", value: String(checkedInCount), delta: checkedInCount === 0 ? "Opens on event day" : `${checkedInCount} checked in` },
   ];
 

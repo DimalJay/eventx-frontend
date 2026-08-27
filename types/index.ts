@@ -69,3 +69,20 @@ export interface IRegistration {
   checkingTime?: Date;
   chekingTime?: string | Date;
 }
+
+export interface StripeAccountInfo {
+  accountId: string;
+  email: string;
+  chargesEnabled: boolean | null;
+  payoutsEnabled: boolean | null;
+  detailsSubmitted: boolean | null;
+  country: string | null;
+  defaultCurrency: string | null;
+  businessName: string | null;
+}
+
+export interface StripeConnectStatus {
+  connected: boolean;
+  pending: boolean;
+  account: StripeAccountInfo | null;
+}
