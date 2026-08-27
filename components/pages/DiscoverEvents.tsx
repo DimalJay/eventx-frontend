@@ -110,60 +110,61 @@ export default function DiscoverEvents() {
   const handleResetFilters = () => {
     setSearchQuery("");
     setDateFilter("all");
-    priceFilter !== "all" && setPriceFilter("all");
+    if (priceFilter !== "all") setPriceFilter("all");
     setSortBy("date-asc");
   };
 
   return (
-    <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f5f1ea]">
+    <div className="relative flex flex-1 justify-center overflow-hidden bg-[#0b0a09] text-[#f5f2ec]">
       {/* Decorative blurred backdrop elements */}
-      <div className="pointer-events-none absolute -left-28 top-12 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-40 blur-3xl" />
-      <div className="pointer-events-none absolute right-10 top-24 h-64 w-64 rounded-full bg-[#9fd3ff] opacity-35 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-10 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[#ffe8a3] opacity-45 blur-3xl" />
+      <div className="pointer-events-none absolute -left-28 top-12 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-20 blur-3xl" />
+      <div className="pointer-events-none absolute right-10 top-24 h-64 w-64 rounded-full bg-[#9fd3ff] opacity-[0.15] blur-3xl" />
+      <div className="pointer-events-none absolute bottom-10 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[#ffe8a3] opacity-[0.18] blur-3xl" />
 
       <main className="relative flex w-full max-w-6xl flex-col gap-10 px-6 py-20 sm:px-10 sm:py-24">
         {/* Header section */}
         <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <Logo />
+              <Logo variant="inverted" />
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-black/50">
+                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-white/45">
                   Explore events
                 </p>
-                <p className="text-2xl font-semibold tracking-tight text-black">
+                <p className="text-2xl font-semibold tracking-tight text-white">
                   Discover Events
                 </p>
               </div>
             </div>
-            <p className="max-w-2xl text-base leading-7 text-black/70">
+            <p className="max-w-2xl text-base leading-7 text-white/65">
               Find and register for workshops, summits, and experiences near you or online.
             </p>
           </div>
         </header>
 
         {/* Filter controls panel */}
-        <section className="relative z-10 flex flex-col gap-4 rounded-3xl border border-black/10 bg-white/85 p-5 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur xl:flex-row xl:items-center">
+        <section className="relative z-10 flex flex-col gap-4 rounded-3xl border border-white/10 bg-[#141311] p-5 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] xl:flex-row xl:items-center">
           {/* Search bar */}
           <div className="relative flex-1">
-            <FiSearch className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40" />
+            <FiSearch className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40" />
             <input
               type="text"
               placeholder="Search by title, description or location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-11 rounded-xl border border-black/10 bg-white py-2 pl-11 pr-4 text-sm text-black outline-none transition focus:border-black/40 focus:ring-2 focus:ring-black/5 placeholder:text-black/35"
+              className="w-full h-11 rounded-xl border border-white/15 bg-white/5 py-2 pl-11 pr-4 text-sm text-white outline-none transition focus:border-amber-400/60 focus:ring-2 focus:ring-amber-400/10 placeholder:text-white/30"
             />
           </div>
 
           {/* Filtering and Sorting dropdowns */}
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-black/45">Date</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-white/45">Date</span>
               <Select
                 value={dateFilter}
                 onChange={setDateFilter}
                 className="px-3 py-2 h-11 min-w-[130px] rounded-xl"
+                variant="onDark"
                 options={[
                   { value: "all", label: "All Dates" },
                   { value: "today", label: "Today" },
@@ -175,11 +176,12 @@ export default function DiscoverEvents() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-black/45">Price</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-white/45">Price</span>
               <Select
                 value={priceFilter}
                 onChange={priceFilter => setPriceFilter(priceFilter)}
                 className="px-3 py-2 h-11 min-w-[130px] rounded-xl"
+                variant="onDark"
                 options={[
                   { value: "all", label: "All Prices" },
                   { value: "free", label: "Free" },
@@ -189,11 +191,12 @@ export default function DiscoverEvents() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-black/45">Sort By</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-white/45">Sort By</span>
               <Select
                 value={sortBy}
                 onChange={setSortBy}
                 className="px-3 py-2 h-11 min-w-[170px] rounded-xl"
+                variant="onDark"
                 options={[
                   { value: "date-asc", label: "Date: Soonest first" },
                   { value: "date-desc", label: "Date: Latest first" },
@@ -209,7 +212,7 @@ export default function DiscoverEvents() {
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="ml-auto text-xs font-semibold uppercase tracking-wider text-black/60 hover:text-black transition underline underline-offset-4 xl:ml-2"
+                className="ml-auto text-xs font-semibold uppercase tracking-wider text-white/60 hover:text-white transition underline underline-offset-4 xl:ml-2"
               >
                 Reset
               </button>
@@ -224,29 +227,29 @@ export default function DiscoverEvents() {
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className="animate-pulse rounded-3xl border border-black/10 bg-white/80 p-5 flex flex-col gap-4 shadow-[0_15px_40px_-25px_rgba(0,0,0,0.15)]"
+                  className="animate-pulse rounded-3xl border border-white/10 bg-[#141311] p-5 flex flex-col gap-4 shadow-[0_15px_40px_-25px_rgba(0,0,0,0.15)]"
                 >
-                  <div className="h-44 w-full rounded-2xl bg-black/5" />
-                  <div className="h-6 w-3/4 rounded-md bg-black/5" />
-                  <div className="h-4 w-1/2 rounded-md bg-black/5" />
-                  <div className="h-4 w-full rounded-md bg-black/5" />
-                  <div className="h-9 w-full rounded-full bg-black/5 mt-auto" />
+                  <div className="h-44 w-full rounded-2xl bg-white/5" />
+                  <div className="h-6 w-3/4 rounded-md bg-white/5" />
+                  <div className="h-4 w-1/2 rounded-md bg-white/5" />
+                  <div className="h-4 w-full rounded-md bg-white/5" />
+                  <div className="h-9 w-full rounded-full bg-white/5 mt-auto" />
                 </div>
               ))}
             </div>
           )}
 
           {isError && (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-black/10 bg-white/85 p-12 text-center backdrop-blur shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)]">
+            <div className="flex flex-col items-center justify-center rounded-3xl border border-white/10 bg-[#141311] p-12 text-center shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)]">
               <FiInfo className="h-10 w-10 text-red-500/80 mb-4" />
-              <h3 className="text-lg font-semibold text-black">Failed to load events</h3>
-              <p className="mt-2 text-sm text-black/60 max-w-sm">
+              <h3 className="text-lg font-semibold text-white">Failed to load events</h3>
+              <p className="mt-2 text-sm text-white/60 max-w-sm">
                 There was an error communicating with the backend. Please try again.
               </p>
               <button
                 type="button"
                 onClick={() => refetch()}
-                className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-black px-6 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+                className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-amber-400 px-6 text-xs font-semibold uppercase tracking-widest text-[#17130e] transition hover:bg-amber-300"
               >
                 Retry
               </button>
@@ -254,18 +257,18 @@ export default function DiscoverEvents() {
           )}
 
           {!isLoading && !isError && sortedEvents.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-black/10 bg-white/85 p-12 text-center backdrop-blur shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)]">
-              <div className="rounded-full bg-black/5 p-4 mb-4">
-                <FiSearch className="h-8 w-8 text-black/45" />
+            <div className="flex flex-col items-center justify-center rounded-3xl border border-white/10 bg-[#141311] p-12 text-center shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)]">
+              <div className="rounded-full bg-white/10 p-4 mb-4">
+                <FiSearch className="h-8 w-8 text-white/50" />
               </div>
-              <h3 className="text-lg font-semibold text-black">No events found</h3>
-              <p className="mt-2 text-sm text-black/60 max-w-sm">
+              <h3 className="text-lg font-semibold text-white">No events found</h3>
+              <p className="mt-2 text-sm text-white/60 max-w-sm">
                 We couldn&apos;t find any events matching your current search query or filter selection.
               </p>
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-black px-6 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+                className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-amber-400 px-6 text-xs font-semibold uppercase tracking-widest text-[#17130e] transition hover:bg-amber-300"
               >
                 Reset Filters
               </button>
@@ -275,7 +278,7 @@ export default function DiscoverEvents() {
           {!isLoading && !isError && sortedEvents.length > 0 && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {sortedEvents.map((event) => {
-                const eventId = (event as any).id || event._id;
+                const eventId = event.id || event._id;
                 const isFree = Number(event.ticketPrice) === 0 || !event.ticketPrice;
                 const displayPrice = isFree ? "Free" : `$${event.ticketPrice}`;
 
@@ -292,7 +295,7 @@ export default function DiscoverEvents() {
                   event.location?.toLowerCase().includes("http");
 
                 // Get cover image path from database or mockup
-                const rawImg = (event as any).coverImage || event.imageUrl;
+                const rawImg = (event as IEvent & { coverImage?: string }).coverImage || event.imageUrl;
                 const backendBaseUrl = process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL?.replace("/api/v1", "") || "";
                 const imageUrl = (rawImg && rawImg !== "null" && rawImg !== "undefined" && rawImg.trim() !== "")
                   ? (rawImg.startsWith("http") ? rawImg : `${backendBaseUrl}${rawImg}`)
@@ -301,7 +304,7 @@ export default function DiscoverEvents() {
                 return (
                   <article
                     key={eventId}
-                    className="group relative flex flex-col overflow-hidden rounded-3xl border border-black/10 bg-white shadow-[0_15px_40px_-25px_rgba(0,0,0,0.25)] transition duration-300 hover:-translate-y-1 hover:border-black/20 hover:shadow-[0_20px_50px_-30px_rgba(0,0,0,0.3)]"
+                    className="group relative flex flex-col overflow-hidden rounded-3xl border border-white/10 bg-[#141311] shadow-[0_15px_40px_-25px_rgba(0,0,0,0.25)] transition duration-300 hover:-translate-y-1 hover:border-white/25 hover:shadow-[0_20px_50px_-30px_rgba(255,180,84,0.2)]"
                   >
                     {/* Event image or stylized gradient placeholder */}
                     <div className="relative h-44 w-full overflow-hidden bg-linear-to-br from-[#ffe8a3] via-[#ffc9a7] to-[#9fd3ff]">
@@ -313,7 +316,7 @@ export default function DiscoverEvents() {
                           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase tracking-[0.3em] text-black/35 select-none">
+                        <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase tracking-[0.3em] text-[#17130e]/40 select-none">
                           {event.title.charAt(0)}
                         </div>
                       )}
@@ -321,7 +324,7 @@ export default function DiscoverEvents() {
                       {/* Price Badge */}
                       <div className="absolute left-3 top-3">
                         <span
-                          className={`inline-flex items-center rounded-full px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase shadow-xs ${isFree ? "bg-emerald-500 text-white" : "bg-black text-white"
+                          className={`inline-flex items-center rounded-full px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase shadow-xs ${isFree ? "bg-white/90 text-[#17130e]" : "bg-amber-400 text-[#17130e]"
                             }`}
                         >
                           {displayPrice}
@@ -331,7 +334,7 @@ export default function DiscoverEvents() {
                       {/* Online vs Offline Badge */}
                       {event.location && (
                         <div className="absolute right-3 top-3">
-                          <span className="inline-flex items-center rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-black shadow-xs backdrop-blur-xs">
+                          <span className="inline-flex items-center rounded-full bg-black/60 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-white shadow-xs backdrop-blur-sm">
                             {isOnline ? "Online" : "In Person"}
                           </span>
                         </div>
@@ -340,38 +343,38 @@ export default function DiscoverEvents() {
 
                     {/* Card Content details */}
                     <div className="flex flex-1 flex-col p-5 gap-3">
-                      <h3 className="text-lg font-semibold leading-tight text-black group-hover:text-black/80 transition line-clamp-1">
+                      <h3 className="text-lg font-semibold leading-tight text-white group-hover:text-white/80 transition line-clamp-1">
                         {event.title}
                       </h3>
 
                       {event.description && (
-                        <p className="text-xs leading-relaxed text-black/60 line-clamp-2">
+                        <p className="text-xs leading-relaxed text-white/60 line-clamp-2">
                           {event.description}
                         </p>
                       )}
 
-                      <div className="mt-2 flex flex-col gap-2 text-xs text-black/70">
+                      <div className="mt-2 flex flex-col gap-2 text-xs text-white/65">
                         <div className="flex items-center gap-2">
-                          <FiCalendar className="h-4 w-4 shrink-0 text-black/40" />
+                          <FiCalendar className="h-4 w-4 shrink-0 text-white/45" />
                           <span>{displayDate}</span>
                         </div>
                         {event.location && (
                           <div className="flex items-center gap-2">
-                            <FiMapPin className="h-4 w-4 shrink-0 text-black/40" />
+                            <FiMapPin className="h-4 w-4 shrink-0 text-white/45" />
                             <span className="truncate">{event.location}</span>
                           </div>
                         )}
                       </div>
 
                       {/* Capacity details and CTA */}
-                      <div className="mt-auto flex items-center justify-between border-t border-black/5 pt-4">
+                      <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-4">
                         <div>
                           {event.capacity > 0 ? (
-                            <span className="text-[10px] font-semibold uppercase tracking-wider text-black/45">
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-white/45">
                               Cap: {event.capacity}
                             </span>
                           ) : (
-                            <span className="text-[10px] font-semibold uppercase tracking-wider text-black/45">
+                            <span className="text-[10px] font-semibold uppercase tracking-wider text-white/45">
                               Open spots
                             </span>
                           )}
@@ -379,7 +382,7 @@ export default function DiscoverEvents() {
 
                         <Link
                           href={`/event/${eventId}`}
-                          className="inline-flex h-9 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+                          className="inline-flex h-9 items-center justify-center rounded-full bg-white/10 px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-white hover:text-[#17130e]"
                         >
                           View details
                         </Link>

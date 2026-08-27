@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ChevronDown, Search, MessageCircle, ThumbsUp, ThumbsDown } from "lucide-react";
+import { ChevronDown, Search, ThumbsUp, ThumbsDown } from "lucide-react";
 
 const faqItems = [
   {
@@ -158,21 +158,6 @@ const categories = [
   "Technical",
 ];
 
-const highlights = [
-  {
-    title: "Instant Answers",
-    body: "Find answers to common questions in seconds.",
-  },
-  {
-    title: "24/7 Support",
-    body: "Our support team is available around the clock.",
-  },
-  {
-    title: "Detailed Guides",
-    body: "Step-by-step instructions for every feature.",
-  },
-];
-
 export default function EventFAQPage() {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
@@ -190,8 +175,6 @@ export default function EventFAQPage() {
     });
   }, [search, activeCategory]);
 
-  const currentFaq = openIndex !== null ? filteredFaqs[openIndex] : null;
-
   return (
     <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
       <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
@@ -202,7 +185,7 @@ export default function EventFAQPage() {
 
         <div className=" gap-10 lg:items-start">
           {/* Section: FAQ Content */}
-          <section className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-8">
+          <section className="rounded-3xl border border-black/10 bg-white/85 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] sm:p-8">
             <div className="flex flex-col gap-3 mb-8">
               <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl">
                 Frequently Asked Questions
@@ -223,7 +206,7 @@ export default function EventFAQPage() {
                 placeholder="Search questions..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-2xl border border-black/10 bg-white text-sm text-black outline-none transition focus:border-black/30"
+                className="w-full pl-12 pr-4 py-3 rounded-2xl border border-black/10 bg-white text-sm text-black outline-none transition focus:border-black/30 placeholder:text-black/35"
               />
             </div>
 
@@ -283,13 +266,13 @@ export default function EventFAQPage() {
                       }`}
                   >
                     <div className="overflow-hidden">
-                      <div className="border-t border-black/5 px-4 py-4 sm:px-5">
+                      <div className="border-t border-black/10 px-4 py-4 sm:px-5">
                         <p className="text-sm leading-6 text-black/70 mb-4">
                           {faq.answer}
                         </p>
 
                         {/* Helpful Feedback */}
-                        <div className="flex items-center gap-3 pt-4 border-t border-black/5">
+                        <div className="flex items-center gap-3 pt-4 border-t border-black/10">
                           <span className="text-xs text-black/60">Was this helpful?</span>
                           <button
                             onClick={() =>
@@ -299,7 +282,7 @@ export default function EventFAQPage() {
                               }))
                             }
                             className={`p-1.5 rounded-lg transition ${helpful[faq.id] === true
-                                ? "bg-black/10 text-black"
+                                ? "bg-black/5 text-black"
                                 : "text-black/40 hover:text-black"
                               }`}
                           >
@@ -313,7 +296,7 @@ export default function EventFAQPage() {
                               }))
                             }
                             className={`p-1.5 rounded-lg transition ${helpful[faq.id] === false
-                                ? "bg-black/10 text-black"
+                                ? "bg-black/5 text-black"
                                 : "text-black/40 hover:text-black"
                               }`}
                           >
@@ -323,7 +306,7 @@ export default function EventFAQPage() {
 
                         {/* Related Questions */}
                         {faq.relatedIds && faq.relatedIds.length > 0 && (
-                          <div className="mt-4 pt-4 border-t border-black/5">
+                          <div className="mt-4 pt-4 border-t border-black/10">
                             <p className="text-xs font-semibold text-black/60 mb-2">
                               Related Questions:
                             </p>

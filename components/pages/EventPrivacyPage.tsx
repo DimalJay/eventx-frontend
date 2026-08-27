@@ -88,7 +88,7 @@ export default function EventPrivacyPage() {
         </div>
 
         {/* Main Document */}
-        <section className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-8">
+        <section className="rounded-3xl border border-black/10 bg-white/85 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] sm:p-8">
           {/* Document Header */}
           <div className="mb-8 flex flex-col gap-3">
 

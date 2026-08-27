@@ -26,7 +26,7 @@ function timeAgo(dateString: string): string {
   });
 }
 
-export default function NotificationsMenu({ className }: { className?: string }) {
+export default function NotificationsMenu({ className, variant = "default" }: { className?: string; variant?: "default" | "onDark" }) {
   const [open, setOpen] = useState(false);
 
   const { data } = useQuery({
@@ -49,7 +49,12 @@ export default function NotificationsMenu({ className }: { className?: string })
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Notifications"
-        className="relative flex items-center text-black/60 transition hover:text-black"
+        className={cn(
+          "relative flex items-center transition",
+          variant === "onDark"
+            ? "text-white/60 hover:text-white"
+            : "text-black/60 hover:text-black"
+        )}
       >
         {unreadCount > 0 && (
           <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-red-500" />

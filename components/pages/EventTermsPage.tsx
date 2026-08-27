@@ -84,7 +84,7 @@ export default function EventTermsPage() {
         </div>
 
         {/* Document Info */}
-        <section className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-8">
+        <section className="rounded-3xl border border-black/10 bg-white/85 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] sm:p-8">
           <div className="flex flex-col gap-3 mb-8">
 
             <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl">
@@ -98,7 +98,7 @@ export default function EventTermsPage() {
           {/* Introduction */}
           <div className="mb-8 pb-8 border-b border-black/10">
             <p className="text-base leading-7 text-black/80">
-              These Terms and Conditions ("Terms") govern your access to and use of the EventX platform, website, mobile applications, and all related services (collectively, the "Platform"). By accessing or using EventX, you acknowledge that you have read, understood, and agree to be bound by these Terms. If you do not agree to any part of these Terms, please do not use the Platform.
+              These Terms and Conditions (&quot;Terms&quot;) govern your access to and use of the EventX platform, website, mobile applications, and all related services (collectively, the &quot;Platform&quot;). By accessing or using EventX, you acknowledge that you have read, understood, and agree to be bound by these Terms. If you do not agree to any part of these Terms, please do not use the Platform.
             </p>
           </div>
 

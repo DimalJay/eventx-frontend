@@ -3,10 +3,10 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Logo from "@/components/widgets/Logo";
-import { 
-  Users, Target, Shield, Compass, Calendar, Sparkles, Heart, Rocket, 
-  CheckCircle, Zap, Star, BarChart3, LayoutDashboard, BrainCircuit,
-  Lightbulb, Activity, Globe
+import {
+  Users, Target, Shield, Compass, Calendar, Sparkles, Heart, Rocket,
+  CheckCircle, Zap, Star, LayoutDashboard, BrainCircuit,
+  Lightbulb, Activity
 } from "lucide-react";
 
 export default function AboutUsPage() {
@@ -135,7 +135,7 @@ export default function AboutUsPage() {
   }, []);
 
   return (
-    <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
+    <div className="flex flex-1 items-center justify-center bg-[#0b0a09] text-[#f5f2ec]">
       <style>{`
         @keyframes float-slow {
           0%, 100% { transform: translate(-50%, -50%) translateY(0px); }
@@ -147,19 +147,19 @@ export default function AboutUsPage() {
         
         <section className="grid items-center gap-12 lg:grid-cols-2">
           <div className="flex flex-col items-start gap-6 text-left">
-            <p className="inline-flex w-fit items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-black shadow-sm">
+            <p className="inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-[#141311] px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white shadow-sm">
               <Sparkles className="h-4 w-4" /> About EventX
             </p>
-            <h1 className="text-4xl font-bold leading-tight tracking-tight text-black sm:text-5xl lg:text-6xl">
+            <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
               What is EventX?
             </h1>
-            <p className="text-base leading-7 text-black/70 text-justify">
+            <p className="text-base leading-7 text-white/65 text-justify">
               EventX is a modern, centralized web-based University Event Management System designed to revolutionize how universities organize and manage events. We bring together administrators, organizers, and participants on a single unified platform.
             </p>
             <div className="mt-4 flex gap-4">
               <Link
                 href="/discover-events"
-                className="rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-black/85 hover:scale-105"
+                className="rounded-full bg-amber-400 px-6 py-3 text-sm font-semibold text-[#17130e] transition-all hover:bg-amber-300 hover:scale-105"
               >
                 Explore Platform
               </Link>
@@ -169,18 +169,18 @@ export default function AboutUsPage() {
           <div className="relative flex justify-center lg:justify-end">
             <div 
               ref={containerRef}
-              className="relative w-full max-w-md aspect-square overflow-hidden rounded-[2.5rem] border border-black/10 bg-white/40 shadow-sm backdrop-blur-xs flex items-center justify-center"
+              className="relative w-full max-w-md aspect-square overflow-hidden rounded-[2.5rem] border border-white/10 bg-[#141311] shadow-sm flex items-center justify-center"
             >
               <div className="absolute inset-0 bg-[radial-gradient(rgba(0,0,0,0.06)_1px,transparent_1px)] [background-size:20px_20px] opacity-75" />
               
-              <div className="absolute h-56 w-56 rounded-full bg-linear-to-tr from-[#f7efe2]/50 via-white/20 to-[#e5f4ff]/50 blur-3xl opacity-80" />
+              <div className="absolute h-56 w-56 rounded-full bg-linear-to-tr from-[#f7efe2]/50 via-white/20 to-[#e5f4ff]/50 blur-3xl opacity-15" />
 
-              <div className="absolute top-1/2 left-1/2 z-10 p-6 w-[150px] rounded-[2rem] border border-black/10 bg-white shadow-xl flex flex-col items-center justify-center gap-3 transition-transform hover:scale-105 duration-500 group animate-float-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white border border-black/5 shadow-inner">
-                  <Logo className="h-8 w-8" />
+              <div className="absolute top-1/2 left-1/2 z-10 p-6 w-[150px] rounded-[2rem] border border-white/10 bg-[#141311] shadow-xl flex flex-col items-center justify-center gap-3 transition-transform hover:scale-105 duration-500 group animate-float-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#141311] border border-white/10 shadow-inner">
+                  <Logo className="h-8 w-8" variant="inverted" />
                 </div>
-                <span className="text-xs font-bold tracking-wider text-black">EventX Core</span>
-                <span className="text-[9px] uppercase tracking-widest text-black/40">Centralized System</span>
+                <span className="text-xs font-bold tracking-wider text-white">EventX Core</span>
+                <span className="text-[9px] uppercase tracking-widest text-white/45">Centralized System</span>
               </div>
 
               {[
@@ -194,7 +194,7 @@ export default function AboutUsPage() {
                 <div 
                   key={index}
                   id={`particle-${item.id}`}
-                  className="absolute p-3 rounded-2xl border border-black/10 bg-white/95 shadow-md flex items-center justify-center cursor-pointer transition-shadow hover:shadow-lg select-none"
+                  className="absolute p-3 rounded-2xl border border-white/10 bg-[#141311] shadow-md flex items-center justify-center cursor-pointer transition-shadow hover:shadow-lg select-none"
                   style={{
                     width: "48px",
                     height: "48px",
@@ -203,7 +203,7 @@ export default function AboutUsPage() {
                     transform: "translate(0px, 0px)"
                   }}
                 >
-                  <item.Icon className="h-5 w-5 text-black/70" />
+                  <item.Icon className="h-5 w-5 text-white/65" />
                 </div>
               ))}
             </div>
@@ -211,47 +211,47 @@ export default function AboutUsPage() {
         </section>
 
         <div className="grid gap-8 lg:grid-cols-2">
-          <section className="group rounded-3xl border border-black/10 bg-white/80 p-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] backdrop-blur-md flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black/5 text-black border border-black/5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white group-hover:-translate-y-0.5">
+          <section className="group rounded-3xl border border-white/10 bg-[#141311] p-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white border border-white/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white/20 group-hover:-translate-y-0.5">
               <Users className="h-6 w-6" />
             </div>
-            <h2 className="text-2xl font-semibold text-black tracking-tight">Who We Are</h2>
-            <p className="text-base leading-7 text-black/70 text-justify">
+            <h2 className="text-2xl font-semibold text-white tracking-tight">Who We Are</h2>
+            <p className="text-base leading-7 text-white/65 text-justify">
               EventX is built for modern universities. We streamline the entire event workflow from planning to execution and analysis, eliminating the chaos of scattered tools like spreadsheets and temporary websites.
             </p>
           </section>
 
-          <section className="group rounded-3xl border border-black/10 bg-white/80 p-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] backdrop-blur-md flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black/5 text-black border border-black/5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white group-hover:-translate-y-0.5">
+          <section className="group rounded-3xl border border-white/10 bg-[#141311] p-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] flex flex-col gap-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white border border-white/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white/20 group-hover:-translate-y-0.5">
               <Compass className="h-6 w-6" />
             </div>
-            <h2 className="text-2xl font-semibold text-black tracking-tight">Our Story</h2>
-            <p className="text-base leading-7 text-black/70 text-justify">
+            <h2 className="text-2xl font-semibold text-white tracking-tight">Our Story</h2>
+            <p className="text-base leading-7 text-white/65 text-justify">
               We observed the pain points of fragmented event management. Our team recognized the need for a comprehensive, reusable solution. Today, EventX transforms how universities handle their event ecosystem.
             </p>
           </section>
         </div>
 
         <div className="grid gap-8 lg:grid-cols-2">
-          <section className="group rounded-3xl border border-black/10 bg-white/80 p-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] backdrop-blur-md flex flex-col gap-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg sm:p-10">
+          <section className="group rounded-3xl border border-white/10 bg-[#141311] p-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] flex flex-col gap-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg sm:p-10">
             <div className="flex flex-col gap-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black/5 text-black border border-black/5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white group-hover:-translate-y-0.5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white border border-white/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white/20 group-hover:-translate-y-0.5">
                 <Target className="h-6 w-6" />
               </div>
-              <h3 className="text-2xl font-semibold tracking-tight text-black">Our Mission</h3>
-              <p className="text-base leading-7 text-black/70 text-justify">
+              <h3 className="text-2xl font-semibold tracking-tight text-white">Our Mission</h3>
+              <p className="text-base leading-7 text-white/65 text-justify">
                 To empower universities with an intelligent, scalable platform that streamlines coordination, enhances engagement, and enables data-driven decision-making.
               </p>
             </div>
           </section>
 
-          <section className="group rounded-3xl border border-black/10 bg-white/80 p-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] backdrop-blur-md flex flex-col gap-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg sm:p-10">
+          <section className="group rounded-3xl border border-white/10 bg-[#141311] p-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] flex flex-col gap-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg sm:p-10">
             <div className="flex flex-col gap-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-black/5 text-black border border-black/5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white group-hover:-translate-y-0.5">
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 text-white border border-white/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white/20 group-hover:-translate-y-0.5">
                 <Rocket className="h-6 w-6" />
               </div>
-              <h3 className="text-2xl font-semibold tracking-tight text-black">Our Vision</h3>
-              <p className="text-base leading-7 text-black/70 text-justify">
+              <h3 className="text-2xl font-semibold tracking-tight text-white">Our Vision</h3>
+              <p className="text-base leading-7 text-white/65 text-justify">
                 To become the trusted centerpiece of university event management globally, where events are seamlessly created, executed, and analyzed through a single system.
               </p>
             </div>
@@ -260,8 +260,8 @@ export default function AboutUsPage() {
 
         <section className="flex flex-col gap-8">
           <div className="text-center sm:text-left">
-            <h2 className="text-3xl font-semibold tracking-tight text-black sm:text-4xl">What We Offer</h2>
-            <p className="mt-3 text-sm leading-6 text-black/60">The core pillars of our event management solution.</p>
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">What We Offer</h2>
+            <p className="mt-3 text-sm leading-6 text-white/60">The core pillars of our event management solution.</p>
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -273,22 +273,22 @@ export default function AboutUsPage() {
               { icon: Target, title: "Team Coordination", desc: "Assign tasks and track organizing team progress seamlessly." },
               { icon: BrainCircuit, title: "Feedback & Analytics", desc: "Collect ratings with AI sentiment analysis and detailed reports." },
             ].map((feature, i) => (
-              <div key={i} className="group rounded-3xl border border-black/10 bg-white/60 p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] backdrop-blur-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-md">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-black/5 text-black border border-black/5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white group-hover:-translate-y-0.5">
+              <div key={i} className="group rounded-3xl border border-white/10 bg-[#141311] p-6 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all duration-300 hover:-translate-y-1.5 hover:shadow-md">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white border border-white/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white/20 group-hover:-translate-y-0.5">
                   <feature.icon className="h-5 w-5" />
                 </div>
-                <h4 className="mb-2 text-base font-semibold text-black">{feature.title}</h4>
-                <p className="text-sm leading-6 text-black/70 text-justify">{feature.desc}</p>
+                <h4 className="mb-2 text-base font-semibold text-white">{feature.title}</h4>
+                <p className="text-sm leading-6 text-white/65 text-justify">{feature.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="rounded-3xl border border-black/10 bg-white/80 p-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] backdrop-blur-md sm:p-12">
+        <section className="rounded-3xl border border-white/10 bg-[#141311] p-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] sm:p-12">
           <div className="flex flex-col gap-10">
             <div className="text-center sm:text-left">
-              <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">Why Choose EventX</h2>
-              <p className="mt-2 text-sm text-black/60">Designed to be simple, robust, and reliable.</p>
+              <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Why Choose EventX</h2>
+              <p className="mt-2 text-sm text-white/60">Designed to be simple, robust, and reliable.</p>
             </div>
             <div className="grid gap-8 sm:grid-cols-2">
               {[
@@ -298,12 +298,12 @@ export default function AboutUsPage() {
                 { icon: Users, title: "Role-Based Access", desc: "Secure permission management ensures each user sees only what they need." }
               ].map((reason, i) => (
                 <div key={i} className="group flex items-start gap-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-black/5 text-black border border-black/5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white group-hover:-translate-y-0.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/10 text-white border border-white/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white/20 group-hover:-translate-y-0.5">
                     <reason.icon className="h-5 w-5" />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <h4 className="text-base font-semibold text-black">{reason.title}</h4>
-                    <p className="text-sm leading-6 text-black/60 text-justify">{reason.desc}</p>
+                    <h4 className="text-base font-semibold text-white">{reason.title}</h4>
+                    <p className="text-sm leading-6 text-white/60 text-justify">{reason.desc}</p>
                   </div>
                 </div>
               ))}
@@ -311,11 +311,11 @@ export default function AboutUsPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-black/10 bg-white/80 p-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] backdrop-blur-md sm:p-12">
+        <section className="rounded-3xl border border-white/10 bg-[#141311] p-8 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] sm:p-12">
           <div className="flex flex-col gap-10">
             <div className="text-center sm:text-left">
-              <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">Core Features</h2>
-              <p className="mt-2 text-sm text-black/60">Capabilities that power your events seamlessly.</p>
+              <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Core Features</h2>
+              <p className="mt-2 text-sm text-white/60">Capabilities that power your events seamlessly.</p>
             </div>
             
             <div className="grid gap-6 sm:grid-cols-2">
@@ -327,11 +327,11 @@ export default function AboutUsPage() {
                 { title: "Team Collaboration", desc: "Assign roles and track organizing team progress in real-time." },
                 { title: "Google Calendar Sync", desc: "Seamless integration for participants to manage schedules." }
               ].map((feature, i) => (
-                <div key={i} className="group flex gap-4 rounded-2xl border border-black/10 bg-white/60 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-                  <CheckCircle className="h-5 w-5 shrink-0 text-black/40 mt-0.5 transition-all duration-300 group-hover:scale-110 group-hover:text-black" />
+                <div key={i} className="group flex gap-4 rounded-2xl border border-white/10 bg-[#141311] p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                  <CheckCircle className="h-5 w-5 shrink-0 text-white/45 mt-0.5 transition-all duration-300 group-hover:scale-110 group-hover:text-white" />
                   <div className="flex flex-col gap-1">
-                    <h4 className="text-sm font-semibold text-black">{feature.title}</h4>
-                    <p className="text-xs leading-5 text-black/60 text-justify">{feature.desc}</p>
+                    <h4 className="text-sm font-semibold text-white">{feature.title}</h4>
+                    <p className="text-xs leading-5 text-white/60 text-justify">{feature.desc}</p>
                   </div>
                 </div>
               ))}
@@ -341,8 +341,8 @@ export default function AboutUsPage() {
 
         <section className="flex flex-col gap-8">
           <div className="text-center sm:text-left">
-            <h2 className="text-3xl font-semibold tracking-tight text-black sm:text-4xl">Our Values</h2>
-            <p className="mt-3 text-sm leading-6 text-black/60">Principles that guide our platform development.</p>
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">Our Values</h2>
+            <p className="mt-3 text-sm leading-6 text-white/60">Principles that guide our platform development.</p>
           </div>
           
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -354,36 +354,36 @@ export default function AboutUsPage() {
               { icon: Shield, title: "Reliability", desc: "24/7 availability & data security." },
               { icon: Users, title: "Collaboration", desc: "Fostering teamwork effortlessly." },
             ].map((value, i) => (
-              <div key={i} className="group flex flex-col gap-3 rounded-3xl border border-black/10 bg-white/60 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-md">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black/5 text-black border border-black/5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white group-hover:-translate-y-0.5">
+              <div key={i} className="group flex flex-col gap-3 rounded-3xl border border-white/10 bg-[#141311] p-6 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-md">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 text-white border border-white/10 transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_15px_rgba(0,0,0,0.1)] group-hover:bg-white/20 group-hover:-translate-y-0.5">
                   <value.icon className="h-5 w-5" />
                 </div>
-                <h4 className="text-base font-semibold text-black">{value.title}</h4>
-                <p className="text-sm leading-6 text-black/70 text-justify">{value.desc}</p>
+                <h4 className="text-base font-semibold text-white">{value.title}</h4>
+                <p className="text-sm leading-6 text-white/65 text-justify">{value.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="rounded-3xl border border-black/10 bg-white/80 p-10 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] backdrop-blur-md sm:p-14">
+        <section className="rounded-3xl border border-white/10 bg-[#141311] p-10 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.1)] sm:p-14">
           <div className="text-center mb-10">
-            <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">EventX by the Numbers</h2>
+            <h2 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">EventX by the Numbers</h2>
           </div>
-          <div className="grid gap-10 text-center sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-black/10">
+          <div className="grid gap-10 text-center sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-white/10">
             <div className="flex flex-col gap-2 sm:px-6">
-              <span className="text-4xl font-semibold tracking-tight text-black">5</span>
-              <span className="text-xs font-semibold uppercase tracking-widest text-black/60">User Roles</span>
-              <p className="mt-2 text-xs leading-5 text-black/50 text-justify">Admin, Organizer, Coordinator, Team Member, Participant.</p>
+              <span className="text-4xl font-semibold tracking-tight text-white">5</span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-white/60">User Roles</span>
+              <p className="mt-2 text-xs leading-5 text-white/55 text-justify">Admin, Organizer, Coordinator, Team Member, Participant.</p>
             </div>
             <div className="flex flex-col gap-2 pt-10 sm:px-6 sm:pt-0">
-              <span className="text-4xl font-semibold tracking-tight text-black">10+</span>
-              <span className="text-xs font-semibold uppercase tracking-widest text-black/60">Core Modules</span>
-              <p className="mt-2 text-xs leading-5 text-black/50 text-justify">Comprehensive features for every aspect of events.</p>
+              <span className="text-4xl font-semibold tracking-tight text-white">10+</span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-white/60">Core Modules</span>
+              <p className="mt-2 text-xs leading-5 text-white/55 text-justify">Comprehensive features for every aspect of events.</p>
             </div>
             <div className="flex flex-col gap-2 pt-10 sm:px-6 sm:pt-0">
-              <span className="text-4xl font-semibold tracking-tight text-black">24/7</span>
-              <span className="text-xs font-semibold uppercase tracking-widest text-black/60">Analytics</span>
-              <p className="mt-2 text-xs leading-5 text-black/50 text-justify">Instant insights into attendance and engagement.</p>
+              <span className="text-4xl font-semibold tracking-tight text-white">24/7</span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-white/60">Analytics</span>
+              <p className="mt-2 text-xs leading-5 text-white/55 text-justify">Instant insights into attendance and engagement.</p>
             </div>
           </div>
         </section>
@@ -398,7 +398,7 @@ export default function AboutUsPage() {
           <div className="flex shrink-0 flex-wrap gap-4">
             <Link
               href="/discover-events"
-              className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition-colors hover:bg-white/90"
+              className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#17130e] transition-colors hover:bg-white/90"
             >
               Explore Events
             </Link>

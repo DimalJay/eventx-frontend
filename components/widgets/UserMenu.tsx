@@ -9,7 +9,7 @@ import { FiUser, FiSettings, FiLogOut } from "react-icons/fi";
 const itemClass =
   "flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-black transition hover:bg-black/5";
 
-export default function UserMenu({ className }: { className?: string }) {
+export default function UserMenu({ className, variant = "default" }: { className?: string; variant?: "default" | "onDark" }) {
   const { user, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -30,7 +30,12 @@ export default function UserMenu({ className }: { className?: string }) {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Account menu"
-        className="flex h-9 w-9 items-center justify-center rounded-full bg-black text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+        className={cn(
+          "flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold uppercase tracking-widest transition",
+          variant === "onDark"
+            ? "bg-white text-[#17130e] hover:bg-white/90"
+            : "bg-black text-white hover:bg-black/90"
+        )}
       >
         {initial}
       </button>
