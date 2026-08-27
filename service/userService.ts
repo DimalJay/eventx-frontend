@@ -39,6 +39,55 @@ export const getUser = async () => {
   return res;
 };
 
+// update profile
+export const updateProfile = async (data: {
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+  profilePicture?: string;
+}) => {
+  const res: Response = await request("/user", {
+    method: "PUT",
+    data,
+  });
+
+  if (res && !res.success) {
+    throw new Error(res.message || "Could not update your profile.");
+  }
+
+  return res.data;
+};
+
+// change password
+export const changePassword = async (data: {
+  currentPassword: string;
+  newPassword: string;
+}) => {
+  const res: Response = await request("/auth/change-password", {
+    method: "POST",
+    data,
+  });
+
+  if (res && !res.success) {
+    throw new Error(res.message || "Could not change your password.");
+  }
+
+  return res.data;
+};
+
+// delete account
+export const deleteAccount = async () => {
+  const res: Response = await request("/user", {
+    method: "DELETE",
+  });
+
+  if (res && !res.success) {
+    throw new Error(res.message || "Could not delete your account.");
+  }
+
+  return res.data;
+};
+
 // logout request
 export const logoutRequest = async () => {
   const res: Response = await request("/auth/logout", {

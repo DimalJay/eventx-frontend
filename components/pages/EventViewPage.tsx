@@ -7,7 +7,9 @@ import { getEventById } from "@/service/eventService";
 import { getEventRegistrations } from "@/service/registrationService";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { formatPrice } from "@/lib/utils";
 import RegisterEventDialog from "../dialogs/RegisterEventDialog";
+import PaymentCheckoutDialog from "../dialogs/PaymentCheckoutDialog";
 
 function CountdownTimer({ targetDate }: { targetDate: string | Date }) {
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
@@ -81,6 +83,19 @@ const included = [
 
 export default function EventViewPage({ id }: { id?: string }) {
   const [registerOpen, setRegisterOpen] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const payment = params.get("payment");
+    if (payment === "success") {
+      toast.success("Payment received. Check your email for the confirmation.");
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (payment === "cancelled") {
+      toast.info("Payment cancelled.");
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
 
   const { data: backendEvent, isLoading, isError } = useQuery({
     queryKey: ["event", id],
@@ -176,7 +191,7 @@ export default function EventViewPage({ id }: { id?: string }) {
       const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace("/api/v1", "");
       return `${backendBase}${coverPath}`;
     })(),
-    price: backendEvent.ticketPrice && backendEvent.ticketPrice > 0 ? `$${backendEvent.ticketPrice}` : "Free",
+    price: formatPrice(backendEvent.ticketPrice),
     seatsLeft: backendEvent.capacity === 0 ? 999999 : Math.max(0, backendEvent.capacity - totalRegistered),
     capacity: backendEvent.capacity || 0,
   };
@@ -188,6 +203,8 @@ export default function EventViewPage({ id }: { id?: string }) {
   } catch (e) {
     agenda = [];
   }
+
+  const isPaid = backendEvent.isPaid || backendEvent.ticketPrice > 0;
 
   return (
     <div className="relative flex flex-1 justify-center overflow-hidden bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
@@ -403,10 +420,10 @@ export default function EventViewPage({ id }: { id?: string }) {
               )}
               <button
                 type="button"
-                onClick={() => setRegisterOpen(true)}
+                onClick={() => (isPaid ? setCheckoutOpen(true) : setRegisterOpen(true))}
                 className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
               >
-                Register
+                {isPaid ? "Register & pay" : "Register"}
               </button>
             </div>
           </div>
@@ -424,18 +441,30 @@ export default function EventViewPage({ id }: { id?: string }) {
           </div>
           <button
             type="button"
-            onClick={() => setRegisterOpen(true)}
+            onClick={() => (isPaid ? setCheckoutOpen(true) : setRegisterOpen(true))}
             className="inline-flex h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-semibold uppercase tracking-widest text-black"
           >
-            Register now
+            {isPaid ? "Register & pay" : "Register now"}
           </button>
         </section>
         {id && (
-          <RegisterEventDialog
-            eventId={id}
-            open={registerOpen}
-            onClose={() => setRegisterOpen(false)}
-          />
+          isPaid ? (
+            <PaymentCheckoutDialog
+              eventId={id}
+              title={backendEvent.title || "Untitled Event"}
+              price={backendEvent.ticketPrice || 0}
+              seatsLeft={event.seatsLeft}
+              capacity={backendEvent.capacity || 0}
+              open={checkoutOpen}
+              onClose={() => setCheckoutOpen(false)}
+            />
+          ) : (
+            <RegisterEventDialog
+              eventId={id}
+              open={registerOpen}
+              onClose={() => setRegisterOpen(false)}
+            />
+          )
         )}
       </main>
     </div>

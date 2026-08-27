@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
+import { useQuery } from "@tanstack/react-query";
 import Select from "../../widgets/Select";
+import ConnectStripeDialog from "../../dialogs/ConnectStripeDialog";
+import { getConnectStatus } from "../../../service/paymentService";
 import { OptionRow, TicketIcon, UsersIcon } from "./Icons";
 
 const inputBase =
@@ -19,6 +22,14 @@ export default function EventOptionsSection({
 }: EventOptionsSectionProps) {
   const { register, control, watch, formState: { errors } } = useFormContext();
   const [waitlistEnabled, setWaitlistEnabled] = useState(false);
+  const [connectStripeOpen, setConnectStripeOpen] = useState(false);
+
+  const { data: connectStatus } = useQuery({
+    queryKey: ["stripe-connect-status"],
+    queryFn: () => getConnectStatus(),
+    retry: false,
+  });
+  const isStripeConnected = connectStatus?.connected ?? false;
 
   return (
     <div>
@@ -37,7 +48,12 @@ export default function EventOptionsSection({
                   name={field.name}
                   ariaLabel="Ticket price type"
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(next) => {
+                    field.onChange(next);
+                    if (next === "paid" && !isStripeConnected) {
+                      setConnectStripeOpen(true);
+                    }
+                  }}
                   align="right"
                   className="px-3 py-1.5 z-10"
                   options={[
@@ -53,14 +69,32 @@ export default function EventOptionsSection({
               }`}
           >
             <div className="overflow-hidden">
-              <div className="px-4 pb-3.5">
+              <div className="flex flex-col gap-3 px-4 pb-3.5 sm:flex-row sm:items-center">
                 <input
                   type="number"
-                  placeholder="Ticket price ($)"
-                  className={`${inputBase} h-11`}
+                  placeholder="Ticket price (LKR)"
+                  className={`${inputBase} h-11 sm:flex-1`}
                   {...register("ticketPrice", { valueAsNumber: true })}
                 />
+                {!isStripeConnected && (
+                  <button
+                    type="button"
+                    onClick={() => setConnectStripeOpen(true)}
+                    className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-full border border-[#635bff]/30 bg-[#635bff]/5 px-4 text-xs font-semibold uppercase tracking-widest text-[#635bff] transition hover:border-[#635bff]/60 hover:bg-[#635bff]/10"
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+                      <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.639 15.703 0 13.15 0 7.886 0 3.381 2.821 3.381 7.06c0 4.212 3.567 5.64 7.13 6.838 2.609.872 3.455 1.635 3.455 2.771 0 .927-.81 1.424-2.219 1.424-1.663 0-4.907-.965-7.05-2.041l-.955 5.96c1.972.995 4.975 1.643 6.174 1.643 5.318 0 9.372-2.858 9.372-7.311 0-4.448-3.393-5.81-7.312-6.783Z" />
+                    </svg>
+                    Connect Stripe
+                  </button>
+                )}
               </div>
+              {!isStripeConnected && (
+                <p className="px-4 pb-3.5 text-[11px] leading-5 text-black/40">
+                  Paid events need a connected Stripe account to accept
+                  payments.
+                </p>
+              )}
             </div>
           </div>
           {errors.ticketPrice && (
@@ -128,6 +162,12 @@ export default function EventOptionsSection({
           )}
         </div>
       </div>
+
+      <ConnectStripeDialog
+        open={connectStripeOpen}
+        onClose={() => setConnectStripeOpen(false)}
+        connected={isStripeConnected}
+      />
     </div>
   );
 }

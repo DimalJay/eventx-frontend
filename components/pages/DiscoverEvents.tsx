@@ -7,6 +7,7 @@ import { getPublicEvents } from "@/service/eventService";
 import { IEvent, WithID } from "@/types";
 import Select from "../widgets/Select";
 import Logo from "../widgets/Logo";
+import { formatPrice } from "@/lib/utils";
 import { FiSearch, FiCalendar, FiMapPin, FiInfo } from "react-icons/fi";
 
 export default function DiscoverEvents() {
@@ -277,7 +278,7 @@ export default function DiscoverEvents() {
               {sortedEvents.map((event) => {
                 const eventId = (event as any).id || event._id;
                 const isFree = Number(event.ticketPrice) === 0 || !event.ticketPrice;
-                const displayPrice = isFree ? "Free" : `$${event.ticketPrice}`;
+                const displayPrice = formatPrice(event.ticketPrice);
 
                 const eventDate = new Date(event.startDate);
                 const displayDate = eventDate.toLocaleDateString("en-US", {

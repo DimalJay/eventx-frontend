@@ -16,6 +16,7 @@ export type AuthUser = {
   role: string;
   profilePicture?: string;
   accountStatus: string;
+  phoneNumber?: string;
   createdAt: string;
   updatedAt: string;
   lastLogin: string;

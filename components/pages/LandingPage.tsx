@@ -5,6 +5,7 @@ import { useAuth } from "../auth/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicEvents } from "@/service/eventService";
 import { IEvent } from "@/types";
+import { formatPrice } from "@/lib/utils";
 import { motion } from "framer-motion";
 
 export default function LandingPage() {
@@ -228,7 +229,7 @@ export default function LandingPage() {
 
                       <div className="absolute right-4 top-4">
                         <span className="inline-flex items-center rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-black shadow-sm backdrop-blur-md">
-                          {isFree ? "Free Entry" : `$${event.ticketPrice} Ticket`}
+                          {isFree ? "Free Entry" : `${formatPrice(event.ticketPrice)} Ticket`}
                         </span>
                       </div>
                     </div>
