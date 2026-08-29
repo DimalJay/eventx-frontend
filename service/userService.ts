@@ -108,3 +108,43 @@ export const googleLoginRequest = async (credential: string) => {
 
   return res;
 };
+
+// verify email address
+export const verifyEmail = async (token: string) => {
+  const res: Response = await request("/auth/verify-email", {
+    method: "POST",
+    data: { token },
+  });
+  return res;
+};
+
+// resend verification email
+export const resendVerification = async (email: string) => {
+  const res: Response = await request("/auth/resend-verification", {
+    method: "POST",
+    data: { email },
+  });
+  return res;
+};
+
+// forgot password (request reset link)
+export const forgotPasswordRequest = async (email: string) => {
+  const res: Response = await request("/auth/forgot-password", {
+    method: "POST",
+    data: { email },
+  });
+  return res;
+};
+
+// reset password
+export const resetPasswordRequest = async (data: {
+  token: string;
+  email: string;
+  newPassword: string;
+}) => {
+  const res: Response = await request("/auth/reset-password", {
+    method: "POST",
+    data,
+  });
+  return res;
+};

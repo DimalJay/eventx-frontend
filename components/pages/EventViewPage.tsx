@@ -14,6 +14,7 @@ import AuroraShader from "../widgets/AuroraShader";
 import ShareButton from "../widgets/ShareButton";
 import RegisterEventDialog from "../dialogs/RegisterEventDialog";
 import PaymentCheckoutDialog from "../dialogs/PaymentCheckoutDialog";
+import LoginPromptDialog from "../dialogs/LoginPromptDialog";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -86,6 +87,7 @@ export default function EventViewPage({ id }: { id?: string }) {
   const reduce = useReducedMotion();
   const [registerOpen, setRegisterOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [loginPromptOpen, setLoginPromptOpen] = useState(false);
   const [joinedEmail, setJoinedEmail] = useState<string | null>(() => {
     if (typeof window === "undefined" || !id) return null;
     try {
@@ -231,6 +233,18 @@ export default function EventViewPage({ id }: { id?: string }) {
         (r: IRegistration) =>
           String(r.email ?? "").toLowerCase() === joinedEmail.toLowerCase(),
       ));
+
+  const openTicket = () => {
+    if (isPaid && !user) {
+      setLoginPromptOpen(true);
+      return;
+    }
+    if (isPaid) {
+      setCheckoutOpen(true);
+    } else {
+      setRegisterOpen(true);
+    }
+  };
 
   return (
     <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f7efe2]">
@@ -406,7 +420,7 @@ export default function EventViewPage({ id }: { id?: string }) {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => (isPaid ? setCheckoutOpen(true) : setRegisterOpen(true))}
+                    onClick={openTicket}
                     className="inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 active:scale-[0.98]"
                   >
                     {isPaid ? "Register & pay" : "Register"}
@@ -436,6 +450,11 @@ export default function EventViewPage({ id }: { id?: string }) {
             />
           )
         )}
+        <LoginPromptDialog
+          eventName={event.name}
+          open={loginPromptOpen}
+          onClose={() => setLoginPromptOpen(false)}
+        />
       </main>
     </div>
   );

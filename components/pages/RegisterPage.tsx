@@ -42,9 +42,9 @@ export default function RegisterPage() {
         mutationFn: async (data: RegisterFormValues) => {
             return registerRequest(data);
         },
-        onSuccess: () => {
-            toast.success("Registration Successfull!")         
-            router.push("/login");
+        onSuccess: (_data, variables) => {
+            toast.success("Account created! Check your email to verify your account.");
+            router.push(`/check-email?email=${encodeURIComponent(variables.email)}`);
         },
         onError: (error: any) => {
             const message = error?.response?.data?.message || error?.message || "Registration failed. Please try again.";
