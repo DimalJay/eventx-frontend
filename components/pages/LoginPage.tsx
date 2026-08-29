@@ -47,6 +47,11 @@ export default function LoginPage() {
             router.replace("/home");
         },
         onError: (error: any) => {
+            if (error?.response?.data?.unverified && error?.response?.data?.email) {
+                toast.error(error?.response?.data?.message || "Please verify your email address.");
+                router.push(`/check-email?email=${encodeURIComponent(error.response.data.email)}`);
+                return;
+            }
             const message = error?.response?.data?.message || error?.message || "Login failed. Please try again.";
             toast.error(message);
         },
@@ -129,6 +134,12 @@ export default function LoginPage() {
                                 />
                                 {errors.password && <span className="text-red-500 text-xs font-normal">{errors.password.message}</span>}
                             </label>
+
+                            <div className="flex justify-end -mt-1">
+                                <Link className="text-xs font-semibold text-black/70 hover:text-black" href="/forgot-password">
+                                    Forgot password?
+                                </Link>
+                            </div>
 
                             <button
                                 type="submit"

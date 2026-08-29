@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const publicPages = ["/", "/terms", "/privacy", "/login", "/register"];
+const publicPages = [
+  "/",
+  "/terms",
+  "/privacy",
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/verify",
+  "/check-email",
+];
 export async function proxy(request: NextRequest) {
   const token = request.cookies.get("auth_token")?.value;
   const hasToken = !!token;

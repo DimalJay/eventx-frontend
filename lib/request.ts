@@ -29,7 +29,11 @@ backend.interceptors.response.use(
           !currentPath.startsWith("/login") &&
           !currentPath.startsWith("/register") &&
           !currentPath.startsWith("/invitation") &&
-          !currentPath.startsWith("/feedback")
+          !currentPath.startsWith("/feedback") &&
+          !currentPath.startsWith("/check-email") &&
+          !currentPath.startsWith("/verify") &&
+          !currentPath.startsWith("/forgot-password") &&
+          !currentPath.startsWith("/reset-password")
         ) {
           window.dispatchEvent(new CustomEvent("auth:unauthorized"));
         }
