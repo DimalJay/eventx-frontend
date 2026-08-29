@@ -11,6 +11,7 @@ type Props = {
   eventId: string;
   open: boolean;
   onClose: () => void;
+  onRegistered?: (email: string) => void;
 };
 
 const schema = z.object({
@@ -21,7 +22,7 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export default function RegisterEventDialog({ eventId, open, onClose }: Props) {
+export default function RegisterEventDialog({ eventId, open, onClose, onRegistered }: Props) {
   const {
     register,
     handleSubmit,
@@ -37,13 +38,18 @@ export default function RegisterEventDialog({ eventId, open, onClose }: Props) {
     mutationFn: async (data: FormValues) => {
       return registerForEvent({ eventId, ...data });
     },
-    onSuccess: (res) => {
+    onSuccess: (res, variables) => {
+      const email = variables.email.toLowerCase().trim();
       if (res?.success) {
         onClose();
         reset();
         queryClient.invalidateQueries({ queryKey: ["event", eventId] });
+        onRegistered?.(email);
         toast.success("Successfully registered for the event!");
       } else {
+        if (typeof res?.message === "string" && /already registered/i.test(res.message)) {
+          onRegistered?.(email);
+        }
         toast.error(res?.message || "Registration failed.");
       }
     },
@@ -82,31 +88,33 @@ export default function RegisterEventDialog({ eventId, open, onClose }: Props) {
             )}
           </label>
 
-          <label className="mt-4 grid gap-2 text-sm font-semibold text-black">
-            First name
-            <input
-              type="text"
-              placeholder="John"
-              {...register("firstName")}
-              className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
-            />
-            {errors.firstName && (
-              <p className="text-xs text-rose-600">{errors.firstName.message}</p>
-            )}
-          </label>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <label className="grid min-w-0 gap-2 text-sm font-semibold text-black">
+              First name
+              <input
+                type="text"
+                placeholder="John"
+                {...register("firstName")}
+                className="h-11 w-full min-w-0 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
+              />
+              {errors.firstName && (
+                <p className="text-xs text-rose-600">{errors.firstName.message}</p>
+              )}
+            </label>
 
-          <label className="mt-4 grid gap-2 text-sm font-semibold text-black">
-            Last name
-            <input
-              type="text"
-              placeholder="Doe"
-              {...register("lastName")}
-              className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
-            />
-            {errors.lastName && (
-              <p className="text-xs text-rose-600">{errors.lastName.message}</p>
-            )}
-          </label>
+            <label className="grid min-w-0 gap-2 text-sm font-semibold text-black">
+              Last name
+              <input
+                type="text"
+                placeholder="Doe"
+                {...register("lastName")}
+                className="h-11 w-full min-w-0 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
+              />
+              {errors.lastName && (
+                <p className="text-xs text-rose-600">{errors.lastName.message}</p>
+              )}
+            </label>
+          </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
             <button

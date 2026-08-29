@@ -90,6 +90,55 @@ export default function PaymentSettingsPage() {
     },
   ];
 
+  if (isLoading) {
+    return (
+      <>
+        <section className="rounded-3xl border border-black/10 bg-white/85 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-4">
+              <div className="h-12 w-12 animate-pulse rounded-2xl bg-black/10" />
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="text-lg font-semibold text-black">Stripe</p>
+                  <div className="h-5 w-24 animate-pulse rounded-full bg-black/10" />
+                </div>
+                <div className="mt-1.5 h-3.5 w-52 animate-pulse rounded bg-black/5" />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 h-3.5 w-full animate-pulse rounded bg-black/5" />
+          <div className="mt-2 h-3.5 w-3/4 animate-pulse rounded bg-black/5" />
+
+          <div className="mt-6 flex gap-3">
+            <div className="h-11 w-48 animate-pulse rounded-full bg-black/10" />
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-black/10 bg-white/85 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">
+          <div className="h-4 w-20 animate-pulse rounded bg-black/10" />
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div className="h-20 animate-pulse rounded-2xl bg-black/5" />
+            <div className="h-20 animate-pulse rounded-2xl bg-black/5" />
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-black/10 bg-white/85 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">
+          <div className="h-4 w-24 animate-pulse rounded bg-black/10" />
+          <div className="mt-5 grid gap-4 sm:grid-cols-3">
+            {[1, 2, 3].map((n) => (
+              <div key={n} className="rounded-2xl border border-black/5 px-5 py-4">
+                <div className="h-3 w-14 animate-pulse rounded bg-black/10" />
+                <div className="mt-2 h-3.5 w-28 animate-pulse rounded bg-black/5" />
+                <div className="mt-1.5 h-3 w-full animate-pulse rounded bg-black/5" />
+              </div>
+            ))}
+          </div>
+        </section>
+      </>
+    );
+  }
+
   return (
     <>
       <section className="rounded-3xl border border-black/10 bg-white/85 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">

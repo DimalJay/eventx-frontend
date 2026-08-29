@@ -1,15 +1,31 @@
 "use client";
 
-import Link from "next/link";
+import { useAuth } from "../auth/AuthContext";
 import AddToCalendar from "../widgets/AddToCalendar";
 import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
 import { getEventRegistrations } from "@/service/registrationService";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { formatPrice } from "@/lib/utils";
+import { IRegistration } from "@/types";
+import AuroraShader from "../widgets/AuroraShader";
+import ShareButton from "../widgets/ShareButton";
 import RegisterEventDialog from "../dialogs/RegisterEventDialog";
 import PaymentCheckoutDialog from "../dialogs/PaymentCheckoutDialog";
+
+const EASE = [0.16, 1, 0.3, 1] as const;
+
+const coverContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.08 } },
+};
+
+const coverItem = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
+};
 
 function CountdownTimer({ targetDate }: { targetDate: string | Date }) {
   const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
@@ -37,38 +53,22 @@ function CountdownTimer({ targetDate }: { targetDate: string | Date }) {
   }, [targetDate]);
 
   if (!timeLeft) {
-    return (
-      <div className="rounded-2xl border border-black/10 bg-white/40 text-black px-4 py-3 text-center text-xs font-semibold tracking-wider uppercase backdrop-blur-md">
-        Event Started or Passed
-      </div>
-    );
+    return null;
   }
 
   return (
-    <div className="rounded-2xl border border-[#9fd3ff]/30 bg-[#f3f8ff]/85 text-black px-4 py-3.5 shadow-[0_8px_30px_rgba(0,0,0,0.02)] backdrop-blur-md">
-      <p className="text-center text-[10px] font-semibold uppercase tracking-[0.2em] text-black/50 mb-2">
-        Event Starts In
-      </p>
-      <div className="flex justify-center gap-4 text-center">
-        <div>
-          <span className="text-xl font-bold text-black">{timeLeft.days}</span>
-          <p className="text-[9px] uppercase tracking-wider text-black/40">Days</p>
-        </div>
-        <span className="text-xl font-bold text-black/30">:</span>
-        <div>
-          <span className="text-xl font-bold text-black">{timeLeft.hours}</span>
-          <p className="text-[9px] uppercase tracking-wider text-black/40">Hours</p>
-        </div>
-        <span className="text-xl font-bold text-black/30">:</span>
-        <div>
-          <span className="text-xl font-bold text-black">{timeLeft.minutes}</span>
-          <p className="text-[9px] uppercase tracking-wider text-black/40">Mins</p>
-        </div>
-        <span className="text-xl font-bold text-black/30">:</span>
-        <div>
-          <span className="text-xl font-bold text-black">{timeLeft.seconds}</span>
-          <p className="text-[9px] uppercase tracking-wider text-black/40">Secs</p>
-        </div>
+    <div className="flex items-center gap-3 text-sm">
+      <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/50">
+        Starts in
+      </span>
+      <div className="flex items-center gap-1.5 font-semibold tracking-tight text-black">
+        <span className="tabular-nums">{timeLeft.days}d</span>
+        <span className="text-black/25">:</span>
+        <span className="tabular-nums">{timeLeft.hours}h</span>
+        <span className="text-black/25">:</span>
+        <span className="tabular-nums">{timeLeft.minutes}m</span>
+        <span className="text-black/25">:</span>
+        <span className="tabular-nums">{timeLeft.seconds}s</span>
       </div>
     </div>
   );
@@ -82,8 +82,31 @@ const included = [
 ];
 
 export default function EventViewPage({ id }: { id?: string }) {
+  const { user } = useAuth();
+  const reduce = useReducedMotion();
   const [registerOpen, setRegisterOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [joinedEmail, setJoinedEmail] = useState<string | null>(() => {
+    if (typeof window === "undefined" || !id) return null;
+    try {
+      const map = JSON.parse(localStorage.getItem("eventx_joined_emails") || "{}");
+      return typeof map[id] === "string" ? map[id] : null;
+    } catch {
+      return null;
+    }
+  });
+
+  const rememberJoined = (email: string) => {
+    if (!id) return;
+    setJoinedEmail(email);
+    try {
+      const map = JSON.parse(localStorage.getItem("eventx_joined_emails") || "{}");
+      map[id] = email;
+      localStorage.setItem("eventx_joined_emails", JSON.stringify(map));
+    } catch {
+      /* ignore */
+    }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -161,14 +184,7 @@ export default function EventViewPage({ id }: { id?: string }) {
 
   // Fetch registrations count
   const totalRegistered = registrationsResponse?.data?.length || 0;
-  const capacityText = backendEvent.capacity === 0 ? "Unlimited" : String(backendEvent.capacity);
   const seatsLeftText = backendEvent.capacity === 0 ? "Unlimited" : String(Math.max(0, backendEvent.capacity - totalRegistered));
-
-  const dynamicHighlights = [
-    { label: "Registered", value: String(totalRegistered) },
-    { label: "Total Seats", value: capacityText },
-    { label: "Seats Left", value: seatsLeftText },
-  ];
 
   // Mapping Backend Data to Frontend Variables
   const event = {
@@ -206,58 +222,96 @@ export default function EventViewPage({ id }: { id?: string }) {
 
   const isPaid = backendEvent.isPaid || backendEvent.ticketPrice > 0;
 
+  const hasRegistered =
+    (registrationsResponse?.data ?? []).some(
+      (r: IRegistration) => r.userId === String(user?.id),
+    ) ||
+    (!!joinedEmail &&
+      (registrationsResponse?.data ?? []).some(
+        (r: IRegistration) =>
+          String(r.email ?? "").toLowerCase() === joinedEmail.toLowerCase(),
+      ));
+
   return (
-    <div className="relative flex flex-1 justify-center overflow-hidden bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
-      <div className="pointer-events-none absolute -left-28 top-12 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-40 blur-3xl" />
-      <div className="pointer-events-none absolute right-10 top-24 h-64 w-64 rounded-full bg-[#9fd3ff] opacity-35 blur-3xl" />
+    <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f7efe2]">
+      <AuroraShader />
 
-      <main className="relative flex w-full max-w-5xl flex-col gap-10 px-5 py-12 sm:gap-12 sm:px-10 sm:py-16 lg:px-14">
-        {/* Cover */}
-        <section className="relative flex h-44 items-end overflow-hidden rounded-3xl border border-black/10 bg-linear-to-br from-[#1c1c1c] via-[#2d2d2d] to-[#444] shadow-[0_30px_80px_-50px_rgba(0,0,0,0.6)] sm:h-64 lg:h-72">
-          {event.cover ? (
-            <img src={event.cover} alt="Event Cover" className="absolute inset-0 h-full w-full object-cover" />
-          ) : (
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs font-semibold uppercase tracking-[0.3em] text-white/30">
-              Event cover
-            </div>
-          )}
-          <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
-          <div className="relative flex items-center gap-3 p-5 sm:p-6 z-10">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white text-sm font-semibold uppercase tracking-widest text-black">
-              {event.name.charAt(0)}
-            </span>
-            <span className="text-sm font-semibold uppercase tracking-[0.2em] text-white/80">
-              {event.organizer}
-            </span>
-          </div>
-        </section>
+      <main className="relative w-full max-w-6xl flex-1 px-5 py-12 sm:px-10 sm:py-16 lg:px-14">
+        {/* Hero — asymmetric split cover + title */}
+        <motion.section
+          className="grid items-center gap-10 lg:grid-cols-[minmax(0,400px)_1fr] lg:gap-16"
+          variants={coverContainer}
+          initial={reduce ? false : "hidden"}
+          animate="show"
+        >
+          {/* Cover — portrait 4:5 frame, matching the creation page */}
+          <motion.div
+            variants={coverItem}
+            className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] bg-linear-to-br from-[#1c1c1c] via-[#2d2d2d] to-[#444]"
+          >
+            {event.cover ? (
+              <img src={event.cover} alt={`${event.name} cover`} className="absolute inset-0 h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center px-8 text-center text-xs font-semibold uppercase tracking-[0.3em] text-white/40">
+                {event.name}
+              </div>
+            )}
+          </motion.div>
 
-        {/* Hero */}
-        <section className="grid gap-8 lg:grid-cols-[1.4fr_1fr] lg:items-start lg:gap-10">
-          <div className="flex flex-col gap-6">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800">
+          {/* Title block */}
+          <motion.div variants={coverItem} className="flex flex-col items-start gap-7">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1 text-xs font-bold text-black">
+                <span className={`h-1.5 w-1.5 rounded-full ${event.status === "Tickets live" ? "bg-emerald-500" : "bg-sky-500"}`} />
                 {event.status}
               </span>
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-                Hosted by {event.organizer}
-              </span>
+              <span className="text-sm font-medium text-black/55">{event.date}</span>
             </div>
 
-            <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl lg:text-5xl">
+            <h1 className="max-w-xl text-balance text-4xl font-semibold leading-[1.04] tracking-tight text-black sm:text-5xl lg:text-6xl">
               {event.name}
             </h1>
-            <p className="max-w-xl text-base leading-7 text-black/70 sm:text-lg sm:leading-8 text-justify">
+
+            <p className="line-clamp-3 max-w-xl text-base leading-7 text-black/65 sm:text-lg sm:leading-8">
               {event.tagline}
             </p>
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link
+            <CountdownTimer targetDate={backendEvent.startDate} />
+
+            {/* Facts — slim definition list, no boxes */}
+            <dl className="grid w-full grid-cols-2 gap-x-6 gap-y-6 border-t border-black/10 pt-7 sm:grid-cols-4">
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">Starts</dt>
+                <dd className="mt-1 text-sm font-semibold text-black">{formattedStartDate}</dd>
+                <dd className="text-sm text-black/60">{formattedStartTime}</dd>
+              </div>
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">Ends</dt>
+                <dd className="mt-1 text-sm font-semibold text-black">{formattedEndDate}</dd>
+                <dd className="text-sm text-black/60">{formattedEndTime}</dd>
+              </div>
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">Where</dt>
+                <dd className="mt-1 text-sm font-semibold text-black">{event.venue}</dd>
+                <dd className="text-sm text-black/60">{visibilityText}</dd>
+              </div>
+              <div>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">Capacity</dt>
+                <dd className="mt-1 text-sm font-semibold text-black">
+                  {backendEvent.capacity === 0 ? "Unlimited" : `${seatsLeftText} left`}
+                </dd>
+                <dd className="text-sm text-black/60">{totalRegistered} registered</dd>
+              </div>
+            </dl>
+
+            {/* Actions — one primary, two quiet utilities */}
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <a
                 href="#tickets"
-                className="inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 sm:w-auto"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-black px-7 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 active:scale-[0.98]"
               >
-                Get tickets
-              </Link>
+                {isPaid ? "Get your ticket" : "Register free"}
+              </a>
               <AddToCalendar
                 title={event.name}
                 description={event.tagline}
@@ -265,187 +319,102 @@ export default function EventViewPage({ id }: { id?: string }) {
                 start={event.start}
                 end={event.end}
                 timezone={event.timezone}
-                className="w-full sm:w-auto"
+                className="inline-flex h-12 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
               />
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  toast.success("Event link copied!");
-                }}
-                className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-black/15 px-5 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black/40 sm:w-auto"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
-                  <path d="M6 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M16 6a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="M16 18a3 3 0 1 0 6 0 3 3 0 0 0-6 0Z" strokeLinecap="round" strokeLinejoin="round" />
-                  <path d="m8.6 13.5 6.8 3.1M15.4 7.4 8.6 10.5" strokeLinecap="round" />
-                </svg>
-                Share
-              </button>
+              <ShareButton
+                title={event.name}
+                text={event.tagline}
+              />
             </div>
+          </motion.div>
+        </motion.section>
 
-            <div className="mt-2 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-              {dynamicHighlights.map((item) => (
-                <div
-                  key={item.label}
-                  className="rounded-2xl border border-black/10 bg-white/70 px-3 py-3 backdrop-blur sm:px-4"
-                >
-                  <p className="text-2xl font-semibold text-black">{item.value}</p>
-                  <p className="text-xs uppercase tracking-[0.18em] text-black/40">
-                    {item.label}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Details card */}
-          <aside className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur flex flex-col gap-5">
-            <CountdownTimer targetDate={backendEvent.startDate} />
-
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50 mb-3">
-                Event details
-              </p>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">Start Date</p>
-                  <p className="mt-1 font-semibold text-black leading-none">{formattedStartDate}</p>
-                </div>
-                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">End Date</p>
-                  <p className="mt-1 font-semibold text-black leading-none">{formattedEndDate}</p>
-                </div>
-                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">Start Time</p>
-                  <p className="mt-1 font-semibold text-black leading-none">{formattedStartTime}</p>
-                </div>
-                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">End Time</p>
-                  <p className="mt-1 font-semibold text-black leading-none">{formattedEndTime}</p>
-                </div>
-                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3 col-span-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">Visibility</p>
-                  <p className="mt-1 font-semibold text-black leading-none">{visibilityText}</p>
-                </div>
-                <div className="rounded-xl border border-black/5 bg-black/[0.01] p-3 col-span-2">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-black/40">Venue</p>
-                  <p className="mt-1 font-semibold text-black">{event.location}</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex h-32 items-center justify-center rounded-2xl border border-black/10 bg-[#f2f6ff] text-xs font-semibold uppercase tracking-[0.2em] text-black/40">
-              Map preview
-            </div>
-          </aside>
+        {/* About — generous editorial prose */}
+        <section className="mt-20 max-w-2xl">
+          <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">
+            About this event
+          </h2>
+          <p className="mt-5 text-base leading-8 text-black/70 sm:text-lg">{event.tagline}</p>
         </section>
 
-
-        {/* Agenda */}
+        {/* Agenda — ruled timeline, no cards */}
         {agenda && agenda.length > 0 && (
-          <section className="flex flex-col gap-5">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-                Agenda
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold text-black">
-                What the day looks like
-              </h2>
-            </div>
-            <div className="grid gap-3">
+          <section className="mt-20">
+            <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">Agenda</h2>
+            <ol className="mt-7 divide-y divide-black/10 border-y border-black/10">
               {agenda.map((slot: any, index: number) => (
-                <article
-                  key={index}
-                  className="grid gap-2 rounded-2xl border border-black/10 bg-white/80 px-5 py-4 sm:grid-cols-[160px_1fr_auto] sm:items-center"
-                >
-                  <span className="text-sm font-semibold text-black whitespace-nowrap">{slot.time}</span>
-                  <h3 className="text-base font-semibold text-black">{slot.title || slot.task}</h3>
-                  <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
+                <li key={index} className="grid gap-1 py-5 sm:grid-cols-[120px_1fr_auto] sm:items-baseline sm:gap-6">
+                  <span className="text-sm font-semibold tabular-nums text-black">{slot.time}</span>
+                  <span className="text-base font-medium text-black">{slot.title || slot.task}</span>
+                  <span className="text-xs font-semibold uppercase tracking-[0.16em] text-black/40 sm:text-right">
                     {slot.location || slot.track || "Main Session"}
                   </span>
-                </article>
+                </li>
               ))}
-            </div>
+            </ol>
           </section>
         )}
 
-        {/* Tickets */}
-        <section id="tickets" className="flex flex-col gap-5">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-              Tickets
-            </p>
-            <h2 className="mt-2 text-2xl font-semibold text-black">
-              Get your ticket
-            </h2>
-          </div>
-          <div className="grid gap-6 rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur sm:p-7 lg:grid-cols-[1fr_auto] lg:items-center">
-            <div className="flex flex-col gap-5">
-              <div className="flex items-end gap-2">
-                <span className="text-4xl font-semibold text-black sm:text-5xl">{event.price}</span>
-                <span className="pb-1 text-sm text-black/50">per ticket</span>
+        {/* Tickets — single focused feature card */}
+        <section id="tickets" className="mt-20">
+          <div className="relative overflow-hidden rounded-[1.75rem] border border-black/10 bg-white/80 p-7 backdrop-blur sm:p-10">
+            <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-12">
+              <div className="flex flex-col gap-6">
+                <div className="flex items-end gap-3">
+                  <span className="text-5xl font-semibold tracking-tight text-black sm:text-6xl">
+                    {isPaid ? event.price : "Free"}
+                  </span>
+                  {isPaid && <span className="pb-1.5 text-sm text-black/50">per ticket</span>}
+                </div>
+                <ul className="grid gap-x-8 gap-y-3 text-sm text-black/70 sm:grid-cols-2">
+                  {included.map((item) => (
+                    <li key={item} className="flex items-start gap-2.5">
+                      <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </div>
-              <ul className="grid gap-3 text-sm text-black/70 sm:grid-cols-2">
-                {included.map((item) => (
-                  <li key={item} className="flex items-start gap-2">
-                    <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-black" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="flex flex-col items-stretch gap-3 lg:w-56">
-              {event.capacity === 0 ? (
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
-                  Unlimited seats available
-                </p>
-              ) : (
-                <>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-black/40">
-                    {event.seatsLeft} of {event.capacity} seats left
-                  </p>
-                  <div className="h-2 overflow-hidden rounded-full bg-black/10">
-                    <div
-                      className="h-full rounded-full bg-black"
-                      style={{
-                        width: `${event.capacity > 0
-                          ? Math.round(((event.capacity - event.seatsLeft) / event.capacity) * 100)
-                          : 0
-                          }%`,
-                      }}
-                    />
-                  </div>
-                </>
-              )}
-              <button
-                type="button"
-                onClick={() => (isPaid ? setCheckoutOpen(true) : setRegisterOpen(true))}
-                className="mt-2 inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
-              >
-                {isPaid ? "Register & pay" : "Register"}
-              </button>
-            </div>
-          </div>
-        </section>
 
-        {/* Register CTA */}
-        <section className="flex flex-col items-start gap-3 rounded-3xl border border-black/10 bg-black px-6 py-8 text-white sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
-              Don&apos;t miss it
-            </p>
-            <p className="mt-2 text-2xl font-semibold">
-              Save your spot at {event.name}.
-            </p>
+              <div className="flex w-full flex-col items-stretch gap-4 lg:w-60">
+                {event.capacity === 0 ? (
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-black/45">
+                    Unlimited seats available
+                  </p>
+                ) : (
+                  <>
+                    <p className="text-xs font-bold uppercase tracking-[0.16em] text-black/45">
+                      {event.seatsLeft} of {event.capacity} seats left
+                    </p>
+                    <div className="h-1.5 overflow-hidden rounded-full bg-black/10">
+                      <div
+                        className="h-full rounded-full bg-black"
+                        style={{
+                          width: `${event.capacity > 0
+                            ? Math.round(((event.capacity - event.seatsLeft) / event.capacity) * 100)
+                            : 0
+                            }%`,
+                        }}
+                      />
+                    </div>
+                  </>
+                )}
+                {hasRegistered ? (
+                  <span className="inline-flex h-12 w-full items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-6 text-sm font-semibold uppercase tracking-widest text-emerald-700">
+                    You&apos;re registered
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => (isPaid ? setCheckoutOpen(true) : setRegisterOpen(true))}
+                    className="inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 active:scale-[0.98]"
+                  >
+                    {isPaid ? "Register & pay" : "Register"}
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={() => (isPaid ? setCheckoutOpen(true) : setRegisterOpen(true))}
-            className="inline-flex h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-semibold uppercase tracking-widest text-black"
-          >
-            {isPaid ? "Register & pay" : "Register now"}
-          </button>
         </section>
         {id && (
           isPaid ? (
@@ -463,6 +432,7 @@ export default function EventViewPage({ id }: { id?: string }) {
               eventId={id}
               open={registerOpen}
               onClose={() => setRegisterOpen(false)}
+              onRegistered={rememberJoined}
             />
           )
         )}

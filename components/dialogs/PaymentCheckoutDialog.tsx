@@ -46,9 +46,15 @@ export default function PaymentCheckoutDialog({
 
   const mutation = useMutation({
     mutationFn: (data: FormValues) =>
-      createCheckoutSession({ eventId, email: data.email }),
+      createCheckoutSession({
+        eventId,
+        email: data.email,
+        firstName: data.firstName,
+        lastName: data.lastName,
+      }),
     onSuccess: (url) => {
-      window.location.href = url;
+      window.open(url, "_blank", "noopener,noreferrer");
+      onClose();
     },
     onError: (err: Error) => {
       toast.error(err?.message || "Could not start payment. Please try again.");
@@ -69,7 +75,8 @@ export default function PaymentCheckoutDialog({
           Buy your ticket
         </h3>
         <p className="mt-2 text-sm text-black/60">
-          Enter your details and pay for your ticket.
+          Buy your ticket without logging in — we&apos;ll save it to your account by
+          email.
         </p>
 
         {/* Order summary */}
@@ -105,26 +112,26 @@ export default function PaymentCheckoutDialog({
           </label>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <label className="grid gap-2 text-sm font-semibold text-black">
+            <label className="grid min-w-0 gap-2 text-sm font-semibold text-black">
               First name
               <input
                 type="text"
                 placeholder="John"
                 {...register("firstName")}
-                className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
+                className="h-11 w-full min-w-0 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
               />
               {errors.firstName && (
                 <p className="text-xs text-rose-600">{errors.firstName.message}</p>
               )}
             </label>
 
-            <label className="grid gap-2 text-sm font-semibold text-black">
+            <label className="grid min-w-0 gap-2 text-sm font-semibold text-black">
               Last name
               <input
                 type="text"
                 placeholder="Doe"
                 {...register("lastName")}
-                className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
+                className="h-11 w-full min-w-0 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
               />
               {errors.lastName && (
                 <p className="text-xs text-rose-600">{errors.lastName.message}</p>

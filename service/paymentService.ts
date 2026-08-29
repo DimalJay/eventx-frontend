@@ -4,6 +4,8 @@ import { Response, StripeConnectStatus } from "@/types";
 export const createCheckoutSession = async (data: {
   eventId: string;
   email: string;
+  firstName?: string;
+  lastName?: string;
   quantity?: number;
 }) => {
   const res: Response = await request("/payment/checkout-session", {
@@ -13,6 +15,8 @@ export const createCheckoutSession = async (data: {
       quantity: data.quantity ?? 1,
       currency: "lkr",
       email: data.email,
+      firstName: data.firstName,
+      lastName: data.lastName,
     },
   });
 
