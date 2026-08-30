@@ -2,34 +2,150 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #18181b;
+  --primary: #7c3aed;
+  --primary-strong: #6d28d9;
+  --primary-soft: #ede9fe;
+  --primary-faint: #f5f3ff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-faint: var(--primary-faint);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-display: var(--font-space-grotesk);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
+@layer utilities {
+  .btn {
+    @apply inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-primary-strong
+  }
 
-.btn {
-  @apply inline-flex h-11 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90
+  .btn-ghost {
+    @apply inline-flex h-11 items-center justify-center rounded-full border border-black/15 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-primary/50 hover:text-primary
+  }
+
+  .tab-item {
+    @apply data-[selected=true]:text-black text-black/55 font-medium data-[selected=true]:border-b-2 py-2
+  }
 }
 
-.tab-item {
-  @apply data-[selected=true]:text-black text-black/55 font-medium data-[selected=true]:border-b-2 py-2
+@keyframes marquee-x {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.taste-marquee-track {
+  animation: marquee-x 36s linear infinite;
+  will-change: transform;
+}
+
+.taste-shader {
+  background: radial-gradient(
+    70% 60% at 72% 0%,
+    var(--primary-faint),
+    transparent 70%
+  );
+}
+
+.taste-shader-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(88px);
+  opacity: 0.5;
+  will-change: transform;
+}
+
+.taste-shader-blob-a {
+  width: 42rem;
+  height: 42rem;
+  top: -16rem;
+  right: -10rem;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--primary) 16%, transparent),
+    transparent 70%
+  );
+  animation: taste-shader-drift-a 26s ease-in-out infinite alternate;
+}
+
+.taste-shader-blob-b {
+  width: 34rem;
+  height: 34rem;
+  top: 2rem;
+  left: -14rem;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--primary) 12%, transparent),
+    transparent 70%
+  );
+  animation: taste-shader-drift-b 31s ease-in-out infinite alternate;
+}
+
+.taste-shader-blob-c {
+  width: 26rem;
+  height: 26rem;
+  bottom: -10rem;
+  right: -6rem;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--primary) 10%, transparent),
+    transparent 72%
+  );
+  animation: taste-shader-drift-a 38s ease-in-out infinite alternate-reverse;
+}
+
+.taste-shader-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes taste-shader-drift-a {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-6rem, 3rem, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(4rem, -2rem, 0) scale(0.96);
+  }
+}
+
+@keyframes taste-shader-drift-b {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(5rem, -3rem, 0) scale(1.1);
+  }
+  100% {
+    transform: translate3d(-4rem, 2rem, 0) scale(0.95);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .taste-marquee-track {
+    animation: none;
+  }
+
+  .taste-shader-blob,
+  .taste-shader-blob-a,
+  .taste-shader-blob-b,
+  .taste-shader-blob-c {
+    animation: none;
+  }
 }
