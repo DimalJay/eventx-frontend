@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { ChevronDown, Search, MessageCircle, ThumbsUp, ThumbsDown } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ChevronDown, Search, ThumbsUp, ThumbsDown } from "lucide-react";
+import ShaderBackground from "@/components/landing/ShaderBackground";
 
 const faqItems = [
   {
@@ -150,30 +152,10 @@ const faqItems = [
   },
 ];
 
-const categories = [
-  "All",
-  "Registration",
-  "Payments",
-  "Events",
-  "Technical",
-];
-
-const highlights = [
-  {
-    title: "Instant Answers",
-    body: "Find answers to common questions in seconds.",
-  },
-  {
-    title: "24/7 Support",
-    body: "Our support team is available around the clock.",
-  },
-  {
-    title: "Detailed Guides",
-    body: "Step-by-step instructions for every feature.",
-  },
-];
+const categories = ["All", "Registration", "Payments", "Events", "Technical"];
 
 export default function EventFAQPage() {
+  const reduce = useReducedMotion();
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [openIndex, setOpenIndex] = useState<number | null>(0);
@@ -190,144 +172,166 @@ export default function EventFAQPage() {
     });
   }, [search, activeCategory]);
 
-  const currentFaq = openIndex !== null ? filteredFaqs[openIndex] : null;
-
   return (
-    <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
-      <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
-        <div className="flex items-center gap-3">
-          <div>
-          </div>
+    <main className="flex flex-1 flex-col">
+      <section className="relative overflow-hidden pt-12">
+        <ShaderBackground />
+
+        <div className="relative mx-auto w-full max-w-6xl px-6 pb-10 pt-20 md:pt-24 lg:pt-20">
+          <motion.header
+            className="max-w-3xl"
+            initial={reduce ? false : { opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
+              Help center
+            </p>
+            <h1 className="mt-4 font-display text-5xl font-medium leading-[1.02] tracking-tight text-zinc-900 sm:text-6xl">
+              Frequently asked questions
+            </h1>
+            <p className="mt-4 max-w-[56ch] text-lg leading-8 text-zinc-600">
+              Answers about registration, payments, events, and technical
+              issues. Anything missing? Write to support@eventx.com.
+            </p>
+          </motion.header>
         </div>
+      </section>
 
-        <div className=" gap-10 lg:items-start">
-          {/* Section: FAQ Content */}
-          <section className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-8">
-            <div className="flex flex-col gap-3 mb-8">
-              <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl">
-                Frequently Asked Questions
-              </h1>
-              <p className="text-sm leading-6 text-black/70">
-                Find answers to common questions about registration, payments, events, and technical issues.
-              </p>
-            </div>
+      <section className="bg-white">
+        <div className="mx-auto w-full max-w-3xl px-6 pb-24">
+          <div className="relative">
+            <Search
+              className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400"
+              strokeWidth={2}
+            />
+            <input
+              type="text"
+              placeholder="Search questions"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full rounded-xl border border-zinc-200 bg-white py-3 pl-11 pr-4 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-500 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
 
-            {/* Search Bar */}
-            <div className="mb-6 relative">
-              <Search
-                size={18}
-                className="absolute left-4 top-1/2 -translate-y-1/2 text-black/40"
-              />
-              <input
-                type="text"
-                placeholder="Search questions..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-2xl border border-black/10 bg-white text-sm text-black outline-none transition focus:border-black/30"
-              />
-            </div>
-
-            {/* Category Filter */}
-            <div className="mb-6 flex flex-wrap gap-2">
-              {categories.map((category) => (
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            {categories.map((category) => {
+              const active = activeCategory === category;
+              return (
                 <button
                   key={category}
                   onClick={() => setActiveCategory(category)}
-                  className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-widest transition ${activeCategory === category
-                      ? "bg-black text-white"
-                      : "border border-black/10 text-black hover:border-black/30 bg-white"
-                    }`}
+                  className={`rounded-full px-4 py-2 text-xs font-semibold transition active:scale-[0.98] ${
+                    active
+                      ? "bg-primary text-white"
+                      : "border border-zinc-200 bg-white text-zinc-600 hover:border-primary/50 hover:text-primary"
+                  }`}
                 >
                   {category}
                 </button>
-              ))}
-            </div>
+              );
+            })}
+          </div>
 
-            {/* FAQ Count */}
-            <p className="text-xs text-black/60 mb-4">
-              {filteredFaqs.length} of {faqItems.length} questions
-            </p>
+          <p className="mt-6 text-sm text-zinc-500">
+            {filteredFaqs.length} of {faqItems.length} questions
+          </p>
 
-            {/* FAQ Items */}
-            <div className="space-y-3">
-              {filteredFaqs.map((faq, index) => (
-                <div
+          <div className="mt-4 space-y-3">
+            {filteredFaqs.map((faq, index) => {
+              const isOpen = openIndex === index;
+              return (
+                <motion.div
                   key={faq.id}
-                  className="overflow-hidden rounded-2xl border border-black/10 bg-white transition hover:border-black/20"
+                  className={`overflow-hidden rounded-2xl border bg-white transition ${
+                    isOpen ? "border-zinc-300" : "border-zinc-200"
+                  }`}
+                  initial={reduce ? false : { opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{
+                    duration: 0.5,
+                    ease: [0.16, 1, 0.3, 1],
+                    delay: index * 0.03,
+                  }}
                 >
                   <button
-                    onClick={() =>
-                      setOpenIndex(openIndex === index ? null : index)
-                    }
-                    className="flex w-full items-center justify-between px-4 py-4 text-left sm:px-5"
+                    onClick={() => setOpenIndex(isOpen ? null : index)}
+                    className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left"
                   >
-                    <div className="flex-1">
-                      <span className="mb-2 inline-flex rounded-full bg-black/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-widest text-black/60">
+                    <div>
+                      <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
                         {faq.category}
                       </span>
-                      <h3 className="text-base font-semibold text-black">
+                      <h3 className="mt-1 text-base font-semibold text-zinc-900">
                         {faq.question}
                       </h3>
                     </div>
                     <ChevronDown
-                      size={20}
-                      className={`ml-4 shrink-0 transition-transform duration-300 ${openIndex === index ? "rotate-180" : ""
-                        }`}
+                      className={`h-5 w-5 shrink-0 text-zinc-400 transition-transform duration-300 ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                      strokeWidth={2}
                     />
                   </button>
 
                   <div
-                    className={`grid transition-all duration-300 ${openIndex === index
-                        ? "grid-rows-[1fr]"
-                        : "grid-rows-[0fr]"
-                      }`}
+                    className={`grid transition-all duration-300 ${
+                      isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+                    }`}
                   >
                     <div className="overflow-hidden">
-                      <div className="border-t border-black/5 px-4 py-4 sm:px-5">
-                        <p className="text-sm leading-6 text-black/70 mb-4">
+                      <div className="border-t border-zinc-100 px-5 pb-5 pt-4">
+                        <p className="text-sm leading-7 text-zinc-600">
                           {faq.answer}
                         </p>
 
-                        {/* Helpful Feedback */}
-                        <div className="flex items-center gap-3 pt-4 border-t border-black/5">
-                          <span className="text-xs text-black/60">Was this helpful?</span>
+                        <div className="mt-4 flex items-center gap-3 border-t border-zinc-100 pt-4">
+                          <span className="text-xs text-zinc-500">
+                            Was this helpful?
+                          </span>
                           <button
                             onClick={() =>
                               setHelpful((prev) => ({
                                 ...prev,
-                                [faq.id]: prev[faq.id] === true ? null : true,
+                                [faq.id]:
+                                  prev[faq.id] === true ? null : true,
                               }))
                             }
-                            className={`p-1.5 rounded-lg transition ${helpful[faq.id] === true
-                                ? "bg-black/10 text-black"
-                                : "text-black/40 hover:text-black"
-                              }`}
+                            className={`rounded-lg p-1.5 transition ${
+                              helpful[faq.id] === true
+                                ? "bg-primary-soft text-primary"
+                                : "text-zinc-400 hover:text-zinc-700"
+                            }`}
+                            aria-label="Mark as helpful"
                           >
-                            <ThumbsUp size={16} />
+                            <ThumbsUp className="h-4 w-4" strokeWidth={2} />
                           </button>
                           <button
                             onClick={() =>
                               setHelpful((prev) => ({
                                 ...prev,
-                                [faq.id]: prev[faq.id] === false ? null : false,
+                                [faq.id]:
+                                  prev[faq.id] === false ? null : false,
                               }))
                             }
-                            className={`p-1.5 rounded-lg transition ${helpful[faq.id] === false
-                                ? "bg-black/10 text-black"
-                                : "text-black/40 hover:text-black"
-                              }`}
+                            className={`rounded-lg p-1.5 transition ${
+                              helpful[faq.id] === false
+                                ? "bg-primary-soft text-primary"
+                                : "text-zinc-400 hover:text-zinc-700"
+                            }`}
+                            aria-label="Mark as not helpful"
                           >
-                            <ThumbsDown size={16} />
+                            <ThumbsDown className="h-4 w-4" strokeWidth={2} />
                           </button>
                         </div>
 
-                        {/* Related Questions */}
                         {faq.relatedIds && faq.relatedIds.length > 0 && (
-                          <div className="mt-4 pt-4 border-t border-black/5">
-                            <p className="text-xs font-semibold text-black/60 mb-2">
-                              Related Questions:
+                          <div className="mt-4 border-t border-zinc-100 pt-4">
+                            <p className="text-xs font-semibold text-zinc-700">
+                              Related questions
                             </p>
-                            <div className="space-y-1">
+                            <div className="mt-2 space-y-1.5">
                               {faq.relatedIds.map((relatedId) => {
                                 const relatedFaq = faqItems.find(
                                   (f) => f.id === relatedId
@@ -336,16 +340,17 @@ export default function EventFAQPage() {
                                   <button
                                     key={relatedId}
                                     onClick={() => {
-                                      const relatedIndex = filteredFaqs.findIndex(
-                                        (f) => f.id === relatedId
-                                      );
+                                      const relatedIndex =
+                                        filteredFaqs.findIndex(
+                                          (f) => f.id === relatedId
+                                        );
                                       if (relatedIndex !== -1) {
                                         setOpenIndex(relatedIndex);
                                       }
                                     }}
-                                    className="block text-xs text-black/60 hover:text-black transition text-left"
+                                    className="block text-left text-sm text-primary transition hover:text-primary-strong"
                                   >
-                                    • {relatedFaq.question}
+                                    {relatedFaq.question}
                                   </button>
                                 ) : null;
                               })}
@@ -355,24 +360,26 @@ export default function EventFAQPage() {
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                </motion.div>
+              );
+            })}
+          </div>
 
-            {filteredFaqs.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-black/60 mb-2">No questions found.</p>
-                <p className="text-xs text-black/50">
-                  Try adjusting your search or category filter.
-                </p>
+          {filteredFaqs.length === 0 && (
+            <div className="py-16 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary-soft">
+                <Search className="h-5 w-5 text-primary" strokeWidth={2} />
               </div>
-            )}
-          </section>
-
-          {/* Right Section: Quick Access & Resources */}
-
+              <p className="mt-4 font-medium text-zinc-900">
+                No questions found
+              </p>
+              <p className="mt-1 text-sm text-zinc-500">
+                Try adjusting your search or category filter.
+              </p>
+            </div>
+          )}
         </div>
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }

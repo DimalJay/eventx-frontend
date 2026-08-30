@@ -1,5 +1,7 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
+
 const sections = [
   {
     title: "1. Acceptance of Terms",
@@ -74,53 +76,67 @@ const sections = [
 ];
 
 export default function EventTermsPage() {
-  return (
-    <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
-      <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
-        <div className="flex items-center gap-3">
-          <div>
+  const reduce = useReducedMotion();
 
+  return (
+    <main className="flex flex-1 flex-col">
+      <section>
+        <div className="mx-auto w-full max-w-6xl px-6 pb-10 pt-20 md:pt-24 lg:pt-24">
+          <motion.header
+            className="max-w-3xl"
+            initial={reduce ? false : { opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
+              Legal
+            </p>
+            <h1 className="mt-4 font-display text-5xl font-medium leading-[1.02] tracking-tight text-zinc-900 sm:text-6xl">
+              Terms and conditions
+            </h1>
+            <p className="mt-4 max-w-[56ch] text-lg leading-8 text-zinc-600">
+              The agreement governing your use of the EventX platform.
+            </p>
+            <p className="mt-4 text-sm text-zinc-500">
+              Effective June 1, 2026 · Updated June 20, 2026
+            </p>
+          </motion.header>
+        </div>
+      </section>
+
+      <section>
+        <div className="mx-auto w-full max-w-6xl px-6 pb-24">
+          <div className="max-w-3xl">
+            <div className="border-t border-zinc-200 pt-8">
+              <p className="text-base leading-7 text-zinc-600">
+                These Terms and Conditions (&quot;Terms&quot;) govern your
+                access to and use of the EventX platform, website, mobile
+                applications, and all related services (collectively, the
+                &quot;Platform&quot;). By accessing or using EventX, you
+                acknowledge that you have read, understood, and agree to be
+                bound by these Terms. If you do not agree to any part of these
+                Terms, please do not use the Platform.
+              </p>
+            </div>
+
+            <div className="mt-8">
+              {sections.map((section, index) => (
+                <div
+                  key={index}
+                  className="scroll-mt-24 border-t border-zinc-200 py-8"
+                >
+                  <h2 className="text-lg font-semibold text-zinc-900">
+                    {section.title}
+                  </h2>
+                  <p className="mt-3 text-base leading-7 text-zinc-600">
+                    {section.content}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-
-        {/* Document Info */}
-        <section className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-8">
-          <div className="flex flex-col gap-3 mb-8">
-
-            <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl">
-              Terms and Conditions
-            </h1>
-            <p className="text-sm leading-6 text-black/70">
-              Effective Date: June 1, 2026 | Last Updated: June 20, 2026
-            </p>
-          </div>
-
-          {/* Introduction */}
-          <div className="mb-8 pb-8 border-b border-black/10">
-            <p className="text-base leading-7 text-black/80">
-              These Terms and Conditions ("Terms") govern your access to and use of the EventX platform, website, mobile applications, and all related services (collectively, the "Platform"). By accessing or using EventX, you acknowledge that you have read, understood, and agree to be bound by these Terms. If you do not agree to any part of these Terms, please do not use the Platform.
-            </p>
-          </div>
-
-          {/* Full Terms Content */}
-          <div className="space-y-8">
-            {sections.map((section, index) => (
-              <div key={index} className="pb-8 border-b border-black/10 last:border-b-0 last:pb-0">
-                <h2 className="mb-4 text-xl font-semibold text-black">
-                  {section.title}
-                </h2>
-                <p className="text-base leading-7 text-black/75">
-                  {section.content}
-                </p>
-              </div>
-            ))}
-          </div>
-
-
-        </section>
-
-
-      </main>
-    </div>
+      </section>
+    </main>
   );
 }

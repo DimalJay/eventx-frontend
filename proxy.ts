@@ -10,6 +10,9 @@ const publicPages = [
   "/reset-password",
   "/verify",
   "/check-email",
+  "/about-us",
+  "/contact-us",
+  "/faq",
 ];
 export async function proxy(request: NextRequest) {
   const token = request.cookies.get("auth_token")?.value;

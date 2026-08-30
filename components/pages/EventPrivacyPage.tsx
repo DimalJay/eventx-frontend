@@ -1,5 +1,7 @@
 "use client";
 
+import { motion, useReducedMotion } from "framer-motion";
+
 const sections = [
   {
     title: "1. Introduction and Commitment to Privacy",
@@ -79,67 +81,84 @@ const sections = [
 ];
 
 export default function EventPrivacyPage() {
+  const reduce = useReducedMotion();
+
   return (
-    <div className="flex flex-1 items-center justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
-      <main className="flex w-full max-w-5xl flex-col gap-10 px-8 py-20 sm:px-14">
-        <div className="flex items-center gap-3">
-          <div>
-          </div>
-        </div>
-
-        {/* Main Document */}
-        <section className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-8">
-          {/* Document Header */}
-          <div className="mb-8 flex flex-col gap-3">
-
-            <h1 className="text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl">
-              Privacy Policy
+    <main className="flex flex-1 flex-col">
+      <section>
+        <div className="mx-auto w-full max-w-6xl px-6 pb-10 pt-20 md:pt-24 lg:pt-24">
+          <motion.header
+            className="max-w-3xl"
+            initial={reduce ? false : { opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
+              Legal
+            </p>
+            <h1 className="mt-4 font-display text-5xl font-medium leading-[1.02] tracking-tight text-zinc-900 sm:text-6xl">
+              Privacy policy
             </h1>
-            <p className="text-sm leading-6 text-black/70">
-              Effective Date: June 1, 2026 | Last Updated: June 20, 2026
+            <p className="mt-4 max-w-[56ch] text-lg leading-8 text-zinc-600">
+              How EventX collects, uses, and protects your personal
+              information.
             </p>
-          </div>
-
-          {/* Introduction */}
-          <div className="mb-8 pb-8 border-b border-black/10">
-            <p className="text-base leading-7 text-black/80">
-              This Privacy Policy describes how EventX collects, uses, and protects your personal information. We are committed to maintaining the trust you place in us and being transparent about our data practices. This policy applies to all EventX services, websites, and applications.
+            <p className="mt-4 text-sm text-zinc-500">
+              Effective June 1, 2026 · Updated June 20, 2026
             </p>
-          </div>
+          </motion.header>
+        </div>
+      </section>
 
-          {/* Table of Contents */}
-          <div className="mb-8 pb-8 border-b border-black/10">
-            <h2 className="mb-4 text-lg font-semibold text-black">Quick Links</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <section>
+        <div className="mx-auto w-full max-w-6xl px-6 pb-24">
+          <div className="max-w-3xl">
+            <div className="rounded-2xl border border-zinc-200 bg-zinc-50/70 p-6">
+              <h2 className="text-sm font-semibold text-zinc-900">
+                Jump to a section
+              </h2>
+              <div className="mt-3 grid gap-x-6 gap-y-2 sm:grid-cols-2">
+                {sections.map((section, index) => (
+                  <a
+                    key={index}
+                    href={`#section-${index}`}
+                    className="truncate text-sm text-primary transition hover:text-primary-strong"
+                  >
+                    {section.title}
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-12 border-t border-zinc-200 pt-8">
+              <p className="text-base leading-7 text-zinc-600">
+                This Privacy Policy describes how EventX collects, uses, and
+                protects your personal information. We are committed to
+                maintaining the trust you place in us and being transparent
+                about our data practices. This policy applies to all EventX
+                services, websites, and applications.
+              </p>
+            </div>
+
+            <div className="mt-8">
               {sections.map((section, index) => (
-                <a
+                <div
                   key={index}
-                  href={`#section-${index}`}
-                  className="text-sm text-black/60 hover:text-black transition truncate"
+                  id={`section-${index}`}
+                  className="scroll-mt-24 border-t border-zinc-200 py-8"
                 >
-                  {section.title}
-                </a>
+                  <h2 className="text-lg font-semibold text-zinc-900">
+                    {section.title}
+                  </h2>
+                  <p className="mt-3 text-base leading-7 text-zinc-600">
+                    {section.content}
+                  </p>
+                </div>
               ))}
             </div>
           </div>
-
-          {/* Full Privacy Policy Content */}
-          <div className="space-y-8">
-            {sections.map((section, index) => (
-              <div key={index} id={`section-${index}`} className="pb-8 border-b border-black/10 last:border-b-0 last:pb-0">
-                <h2 className="mb-4 text-xl font-semibold text-black">
-                  {section.title}
-                </h2>
-                <p className="text-base leading-7 text-black/75">
-                  {section.content}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          
-        </section>       
-      </main>
-    </div>
+        </div>
+      </section>
+    </main>
   );
 }
