@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { IRegistration } from "@/types";
 import Dialog from "@/components/widgets/Dialog";
 
@@ -10,6 +9,7 @@ type Props = {
   onClose: () => void;
   onUpdateStatus: (id: string, status: string) => void;
   isPending: boolean;
+  pendingStatus: string | null;
 };
 
 const dialogOptions = [
@@ -18,19 +18,12 @@ const dialogOptions = [
   { value: "NOT_GOING", label: "Not going" },
 ];
 
-export default function RegistrationStatusDialog({ reg, open, onClose, onUpdateStatus, isPending }: Props) {
-  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!isPending) {
-      setUpdatingStatus(null);
-    }
-  }, [isPending]);
-
+export default function RegistrationStatusDialog({ reg, open, onClose, onUpdateStatus, isPending, pendingStatus }: Props) {
   const handleUpdate = (status: string) => {
-    setUpdatingStatus(status);
     onUpdateStatus(reg.id, status);
   };
+
+  if (!open || !reg) return null;
 
   return (
     <Dialog
@@ -54,9 +47,9 @@ export default function RegistrationStatusDialog({ reg, open, onClose, onUpdateS
               onClick={() => handleUpdate(opt.value)}
             >
               <div className="flex items-center gap-2">
-                {isPending && updatingStatus === opt.value ? "Updating..." : opt.label}
+                {isPending && pendingStatus === opt.value ? "Updating..." : opt.label}
               </div>
-              {reg.status === opt.value && (!isPending || updatingStatus !== opt.value) ? (
+              {reg.status === opt.value && (!isPending || pendingStatus !== opt.value) ? (
                 <span className="text-xs text-primary/70">Current</span>
               ) : null}
             </button>

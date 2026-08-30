@@ -21,9 +21,9 @@ export default function EventOptionsSection({
   hasLimit,
   setHasLimit,
 }: EventOptionsSectionProps) {
-  const { register, control, watch, formState: { errors } } = useFormContext();
-  const [waitlistEnabled, setWaitlistEnabled] = useState(false);
+  const { register, control, watch, setValue, formState: { errors } } = useFormContext();
   const [connectStripeOpen, setConnectStripeOpen] = useState(false);
+  const waitlistOn = Boolean(watch("whiteList"));
 
   const { data: connectStatus } = useQuery({
     queryKey: ["stripe-connect-status"],
@@ -115,7 +115,7 @@ export default function EventOptionsSection({
                 type="button"
                 onClick={() => {
                   setHasLimit(false);
-                  setWaitlistEnabled(false);
+                  setValue("whiteList", false);
                 }}
                 className="text-xs font-semibold uppercase text-zinc-500 underline underline-offset-4 transition hover:text-zinc-900"
               >
@@ -144,13 +144,20 @@ export default function EventOptionsSection({
                   className={`${inputBase} h-11 sm:flex-1`}
                 />
                 <div className="flex h-11 select-none items-center rounded-xl border border-zinc-200 bg-white transition hover:bg-zinc-50">
-                  <label className="flex h-full cursor-pointer items-center gap-2.5 px-3">
-                    <input
-                      type="checkbox"
-                      {...register("whiteList")}
-                      className="h-4.5 w-4.5 cursor-pointer rounded border-zinc-300 accent-primary"
-                    />
+                  <label className="flex h-full flex-1 cursor-pointer items-center justify-between gap-3 px-3.5">
                     <span className="text-sm font-medium text-zinc-900">Enable waitlist</span>
+                    <span
+                      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 ${
+                        waitlistOn ? "bg-primary" : "bg-zinc-200"
+                      }`}
+                    >
+                      <span
+                        className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                          waitlistOn ? "translate-x-6" : "translate-x-1"
+                        }`}
+                      />
+                    </span>
+                    <input type="checkbox" {...register("whiteList")} className="sr-only" />
                   </label>
                   <span className="pr-2">
                     <HelpTooltip text="If the event sells out, extra attendees join a waitlist and are offered tickets automatically when spots free up." side="bottom" />

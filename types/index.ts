@@ -70,6 +70,21 @@ export interface IRegistration {
   chekingTime?: string | Date;
 }
 
+export interface IFeedback {
+  id: string;
+  eventId: string;
+  participantId: string;
+  organizationRating: number;
+  contentRating: number;
+  experienceRating: number;
+  comment?: string;
+  sentiment: string;
+  createdAt: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+}
+
 export interface StripeAccountInfo {
   accountId: string;
   email: string;

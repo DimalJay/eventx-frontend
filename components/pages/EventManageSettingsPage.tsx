@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
+import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,11 +9,14 @@ import z from "zod";
 import { toast } from "sonner";
 import Select from "@/components/widgets/Select";
 import DateTimeSection from "@/components/pages/create-event/DateTimeSection";
+import EventOptionsSection from "@/components/pages/create-event/EventOptionsSection";
+import CoverImageUpload from "@/components/pages/create-event/CoverImageUpload";
 import CloseEventDialog from "@/components/dialogs/CloseEventDialog";
 import DeleteEventDialog from "@/components/dialogs/DeleteEventDialog";
 import {
   getEventById,
   updateEventRequest,
+  uploadEventCoverRequest,
 } from "@/service/eventService";
 import { HTTPError } from "@/lib/request";
 
@@ -62,6 +64,32 @@ const scheduleSchema = z
 
 type ScheduleValues = z.infer<typeof scheduleSchema>;
 
+const optionsSchema = z
+  .object({
+    eventType: z.enum(["online", "physical"]),
+    coverImage: z.union([z.instanceof(File), z.string()]).optional(),
+    isPaid: z.enum(["free", "paid"]),
+    ticketPrice: z.number().int().optional(),
+    capacity: z.number().int().optional(),
+    whiteList: z.boolean().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.isPaid === "paid" &&
+      (data.ticketPrice === undefined ||
+        Number.isNaN(data.ticketPrice) ||
+        data.ticketPrice <= 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Ticket price must be greater than 0",
+        path: ["ticketPrice"],
+      });
+    }
+  });
+
+type OptionsValues = z.infer<typeof optionsSchema>;
+
 function toLocalISOString(date: Date) {
   const pad = (num: number) => String(num).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
@@ -85,6 +113,64 @@ export default function EventManageSettingsPage() {
   });
 
   const isClosed = String(event?.status ?? "").toUpperCase() === "CLOSED";
+
+  const [limitOverride, setLimitOverride] = useState<boolean | null>(null);
+  const hasLimit =
+    limitOverride ?? (event?.capacity != null ? event.capacity > 0 : false);
+
+  const initialCoverPreview = useMemo(() => {
+    if (!event) return null;
+    const coverPath = event.coverImage || event.imageUrl || "";
+    if (!coverPath) return null;
+    if (coverPath.startsWith("http")) return coverPath;
+    const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace("/api/v1", "");
+    return `${backendBase}${coverPath}`;
+  }, [event]);
+
+  const optionsForm = useForm<OptionsValues>({
+    resolver: zodResolver(optionsSchema),
+    defaultValues: {
+      eventType: "online",
+      isPaid: "free",
+      capacity: 0,
+      ticketPrice: 0,
+      whiteList: false,
+    },
+    values: event
+      ? {
+          eventType: event.eventType || "online",
+          coverImage: event.coverImage || event.imageUrl || "",
+          isPaid: (event.ticketPrice ?? 0) > 0 ? "paid" : "free",
+          ticketPrice: event.ticketPrice || 0,
+          capacity: event.capacity || 0,
+          whiteList: event.whiteList || false,
+        }
+      : undefined,
+  });
+
+  const optionsMutation = useMutation({
+    mutationFn: async (data: OptionsValues) => {
+      let finalCoverImage = typeof data.coverImage === "string" ? data.coverImage : "";
+
+      if (data.coverImage instanceof File) {
+        const uploadRes = await uploadEventCoverRequest(data.coverImage);
+        finalCoverImage = uploadRes.data?.path || uploadRes.data?.url || uploadRes.data || "";
+      }
+
+      return updateEventRequest(eventId, {
+        eventType: data.eventType,
+        ticketPrice: data.ticketPrice,
+        capacity: data.capacity,
+        whiteList: data.whiteList,
+        coverImage: finalCoverImage || undefined,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event", eventId] });
+      toast.success("Event options updated successfully.");
+    },
+    onError: (error: HTTPError) => onError(error, "Failed to update event options."),
+  });
 
   const onUpdated = () => {
     queryClient.invalidateQueries({ queryKey: ["event", eventId] });
@@ -167,16 +253,10 @@ export default function EventManageSettingsPage() {
             <p className={labelClass}>General</p>
             <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">Update event</h2>
             <p className="mt-1 text-sm text-zinc-600">
-              Change the core details of your event. For the cover image, ticket options, and capacity, use
-              the full editor.
+              Change the core details of your event. The cover image, event type,
+              ticketing, and capacity live in the options below.
             </p>
           </div>
-          <Link
-            href={`/event/manage/${eventId}/edit`}
-            className="inline-flex h-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary"
-          >
-            Edit event
-          </Link>
         </div>
 
         <form
@@ -286,6 +366,61 @@ export default function EventManageSettingsPage() {
                 className="btn disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {scheduleMutation.isPending ? "Saving..." : "Save new schedule"}
+              </button>
+            </div>
+          </form>
+        </FormProvider>
+      </section>
+
+      {/* Cover & event options */}
+      <section className={cardClass}>
+        <p className={labelClass}>Options</p>
+        <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">Cover & event options</h2>
+        <p className="mt-1 text-sm text-zinc-600">
+          Set the cover image, event type, ticket price, and capacity for this event.
+        </p>
+
+        <FormProvider {...optionsForm}>
+          <form
+            className="mt-6 flex flex-col gap-4"
+            onSubmit={optionsForm.handleSubmit((data: OptionsValues) => optionsMutation.mutate(data))}
+          >
+            <div className="grid gap-5 lg:grid-cols-[240px_1fr]">
+              <CoverImageUpload initialPreview={initialCoverPreview} />
+              <div className="flex min-w-0 flex-col gap-4">
+                <div className="rounded-xl border border-zinc-200 bg-white p-4">
+                  <span className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
+                    Event type
+                  </span>
+                  <Controller
+                    name="eventType"
+                    control={optionsForm.control}
+                    render={({ field }) => (
+                      <Select
+                        name={field.name}
+                        ariaLabel="Event type"
+                        value={field.value}
+                        onChange={field.onChange}
+                        className="mt-2 h-11 w-full px-3"
+                        options={[
+                          { value: "online", label: "Online" },
+                          { value: "physical", label: "In person" },
+                        ]}
+                      />
+                    )}
+                  />
+                </div>
+                <EventOptionsSection hasLimit={hasLimit} setHasLimit={setLimitOverride} />
+              </div>
+            </div>
+
+            <div className="flex justify-end border-t border-zinc-200 pt-4">
+              <button
+                type="submit"
+                disabled={optionsMutation.isPending}
+                className="btn disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {optionsMutation.isPending ? "Saving..." : "Save options"}
               </button>
             </div>
           </form>

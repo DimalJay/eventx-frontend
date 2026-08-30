@@ -45,6 +45,7 @@ function FeedbackForm() {
         participantId,
         organizationRating: orgRating,
         contentRating: contentRating,
+        experienceRating: initialRating > 0 ? initialRating : undefined,
         comment,
         token,
       });
@@ -55,7 +56,7 @@ function FeedbackForm() {
       } else {
         toast.error(res.message || "Failed to submit feedback.");
       }
-    } catch (err) {
+    } catch {
       toast.error("An error occurred while submitting feedback.");
     } finally {
       setLoading(false);
@@ -65,16 +66,16 @@ function FeedbackForm() {
   if (isSubmitted) {
     return (
       <div className="text-center p-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 mb-6 animate-bounce">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success-soft text-success mb-6">
           <CheckCircle className="w-10 h-10" />
         </div>
-        <h2 className="text-3xl font-extrabold text-slate-800 mb-2">Thank You!</h2>
-        <p className="text-slate-600 mb-6 max-w-md mx-auto">
+        <h2 className="text-3xl font-extrabold text-foreground mb-2 font-display">Thank You!</h2>
+        <p className="text-muted-subtle mb-6 max-w-md mx-auto">
           Your feedback has been submitted successfully. We appreciate your time and comments to help us improve future events!
         </p>
         <button
           onClick={() => router.push(`/event/${eventId}`)}
-          className="px-6 py-3 bg-black hover:bg-slate-900 text-white rounded-xl font-semibold uppercase tracking-widest text-xs transition"
+          className="btn"
         >
           View Event
         </button>
@@ -83,19 +84,22 @@ function FeedbackForm() {
   }
 
   return (
-    <div className="w-full max-w-lg p-8 rounded-3xl border border-white/50 bg-white/80 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.2)] backdrop-blur-xl">
+    <div className="w-full max-w-lg p-8 rounded-card border border-border bg-surface shadow-card">
       <div className="text-center mb-6">
-        <h2 className="text-2xl font-extrabold text-slate-800">Complete Your Feedback</h2>
-        <p className="text-sm text-slate-600 mt-1">
-          Thank you! Your {initialRating}-star rating for Overall Experience has been recorded.
+        <span className="eyebrow block mb-2">Feedback</span>
+        <h2 className="text-2xl font-extrabold text-foreground font-display">Complete Your Feedback</h2>
+        <p className="text-sm text-muted-subtle mt-1">
+          {initialRating > 0
+            ? `You rated your overall experience ${initialRating} ${initialRating === 1 ? "star" : "stars"} in the email. Answer two quick questions to finish.`
+            : "Rate your experience and share a few details below."}
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Organization Rating */}
-        <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
-          <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3">
-            <Users className="w-4 h-4 text-blue-500" />
+        <div className="bg-surface-muted p-5 rounded-card border border-border">
+          <label className="flex items-center gap-2 text-sm font-bold text-muted mb-3">
+            <Users className="w-4 h-4 text-primary" />
             1. How organized was the event setup and logistics?
           </label>
           <div className="flex gap-2">
@@ -108,7 +112,7 @@ function FeedbackForm() {
               >
                 <Star
                   className={`w-8 h-8 ${
-                    star <= orgRating ? "fill-amber-400 text-amber-400" : "text-slate-300"
+                    star <= orgRating ? "fill-amber-400 text-amber-400" : "text-muted-subtle"
                   }`}
                 />
               </button>
@@ -117,9 +121,9 @@ function FeedbackForm() {
         </div>
 
         {/* Content Rating */}
-        <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
-          <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3">
-            <Award className="w-4 h-4 text-blue-500" />
+        <div className="bg-surface-muted p-5 rounded-card border border-border">
+          <label className="flex items-center gap-2 text-sm font-bold text-muted mb-3">
+            <Award className="w-4 h-4 text-primary" />
             2. How valuable was the content and sessions of the event?
           </label>
           <div className="flex gap-2">
@@ -132,7 +136,7 @@ function FeedbackForm() {
               >
                 <Star
                   className={`w-8 h-8 ${
-                    star <= contentRating ? "fill-amber-400 text-amber-400" : "text-slate-300"
+                    star <= contentRating ? "fill-amber-400 text-amber-400" : "text-muted-subtle"
                   }`}
                 />
               </button>
@@ -141,23 +145,23 @@ function FeedbackForm() {
         </div>
 
         {/* Written Comment */}
-        <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100">
-          <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-2">
-            <MessageSquareCode className="w-4 h-4 text-blue-500" />
+        <div className="bg-surface-muted p-5 rounded-card border border-border">
+          <label className="flex items-center gap-2 text-sm font-bold text-muted mb-2">
+            <MessageSquareCode className="w-4 h-4 text-primary" />
             3. Share more details about your experience (Optional)
           </label>
           <textarea
             placeholder="Tell us what you liked or how we can improve..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="w-full h-24 mt-2 p-3 text-sm rounded-xl border border-slate-200 bg-white outline-none focus:border-slate-400 transition resize-none text-slate-700"
+            className="w-full h-24 mt-2 p-3 text-sm rounded-input border border-border bg-surface outline-none focus:border-primary/60 focus:ring-2 focus:ring-ring transition resize-none text-foreground placeholder:text-muted-subtle"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading || !eventId}
-          className="w-full h-12 flex items-center justify-center rounded-2xl bg-black hover:bg-slate-900 text-white font-semibold uppercase tracking-widest text-xs transition disabled:opacity-40"
+          className="btn w-full disabled:opacity-60"
         >
           {loading ? "Submitting..." : "Submit Feedback"}
         </button>
@@ -168,10 +172,10 @@ function FeedbackForm() {
 
 export default function FeedbackPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-slate-100 via-sky-50 to-indigo-50 p-4">
+    <main className="min-h-screen flex items-center justify-center bg-surface-muted p-4">
       <Suspense fallback={
-        <div className="text-center p-8 bg-white/80 rounded-3xl border border-white/50 shadow-xl backdrop-blur-xl">
-          <p className="text-sm font-semibold text-slate-600">Loading Feedback Form...</p>
+        <div className="text-center p-8 rounded-card border border-border bg-surface shadow-card">
+          <p className="text-sm font-semibold text-muted-subtle">Loading Feedback Form...</p>
         </div>
       }>
         <FeedbackForm />

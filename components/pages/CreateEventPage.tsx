@@ -134,19 +134,18 @@ export default function CreateEventPage() {
 
   const mutation = useMutation({
     mutationFn: async (data: EventFormValues) => {
-      const { isPaid, coverImage, ...eventData } = data;
       const formData = new FormData();
       if (data.coverImage) {
         formData.append("coverImage", data.coverImage);
       }
 
-      Object.entries(eventData).forEach(([key, value]) => {
+      Object.entries(data).forEach(([key, value]) => {
+        if (key === "isPaid" || key === "coverImage") return;
         if (value instanceof Date) {
           formData.append(key, toLocalISOString(value));
-        } else
-          if (value !== undefined) {
-            formData.append(key, String(value));
-          }
+        } else if (value !== undefined) {
+          formData.append(key, String(value));
+        }
       });
       const res = await createEventRequest(formData);
       return res.data;
@@ -159,9 +158,8 @@ export default function CreateEventPage() {
         router.push(`/event/manage/${eventId}`);
       }
     },
-    onError: (error: any) => {
-      console.log("Validation Errors:", errors);
-      const message = error?.response?.data?.message || error?.message || "Event creation failed. Please try again.";
+    onError: (error: Error) => {
+      const message = error?.message || "Event creation failed. Please try again.";
       toast.error(message);
     },
   });
@@ -175,22 +173,17 @@ export default function CreateEventPage() {
   };
 
 
-  const onErrors = (errors: any) => {
-    console.log("Validation Errors:", errors);
-  };
-
-
   return (
     <FormProvider {...methods}>
-      <div className="flex flex-1 justify-center bg-linear-to-br from-[#f7efe2] via-white to-[#e5f4ff]">
+      <div className="flex flex-1 justify-center bg-white">
         <main className="w-full max-w-4xl px-5 py-24 sm:px-8 sm:py-28">
-          <form className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start lg:gap-8" onSubmit={handleSubmit(onSubmit, onErrors)}>
+          <form className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start lg:gap-8" onSubmit={handleSubmit(onSubmit)}>
             {/* Left: cover + visibility */}
             <section className="flex flex-col gap-4 lg:sticky lg:top-24">
               <CoverImageUpload />
 
-              <div className="rounded-2xl border border-black/10 bg-white/80 p-4 backdrop-blur">
-                <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/50">
+              <div className="card p-4">
+                <span className="eyebrow">
                   Visibility
                 </span>
                 <Controller
@@ -214,15 +207,15 @@ export default function CreateEventPage() {
             </section>
 
             {/* Right: form */}
-            <section className="flex flex-col gap-5 rounded-3xl border border-black/10 bg-white/80 p-5 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-7">
+            <section className="card flex flex-col gap-5 p-5 shadow-card sm:p-7">
               <input
                 type="text"
                 autoComplete="off"
                 placeholder="Event Name"
                 {...register("title")}
-                className="w-full bg-transparent text-3xl font-semibold tracking-tight text-black outline-none placeholder:text-black/25 sm:text-4xl"
+                className="w-full bg-transparent font-display text-3xl font-medium tracking-tight text-foreground outline-none placeholder:text-muted-subtle sm:text-4xl"
               />
-              {errors.title && <span className="text-red-500 text-xs mt-1">{errors.title.message}</span>}
+              {errors.title && <span className="mt-1 text-xs text-danger">{errors.title.message}</span>}
 
               {/* Date card */}
               <DateTimeSection />
@@ -231,17 +224,17 @@ export default function CreateEventPage() {
               <LocationSection />
 
               {/* Description */}
-              <div className="rounded-2xl border border-black/10 bg-white px-4 py-3">
-                <div className="flex items-center gap-3 text-black/70">
+              <div className="rounded-2xl border border-border bg-surface px-4 py-3">
+                <div className="flex items-center gap-3 text-muted">
                   <TextIcon />
-                  <span className="text-sm font-medium text-black">Description</span>
+                  <span className="text-sm font-medium text-foreground">Description</span>
                   <HelpTooltip text="Write a short description of your event - who it's for, what attendees will get, and any key outcomes." />
                 </div>
                 <textarea
                   {...register("description")}
                   rows={3}
                   placeholder="Describe the audience, goals, and main outcomes."
-                  className="mt-2 w-full resize-none bg-transparent text-sm text-black outline-none placeholder:text-black/35"
+                  className="mt-2 w-full resize-none bg-transparent text-sm text-foreground outline-none placeholder:text-muted-subtle"
                 />
               </div>
 
@@ -250,11 +243,11 @@ export default function CreateEventPage() {
 
               <button
                 type="submit"
-                className="flex h-12 items-center justify-center rounded-2xl bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+                className="btn w-full"
               >
                 Create Event
               </button>
-              <p className="text-center text-xs text-black/50">
+              <p className="text-center text-xs text-muted-subtle">
                 You can finalize ticketing and publish when the details are ready.
               </p>
             </section>

@@ -52,7 +52,7 @@ export default function RoleChangeDialog({ eventId, member, open, onClose }: Pro
         toast.error(res?.message || "Failed to update role.");
       }
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err?.message || "Error updating role.");
     },
   });

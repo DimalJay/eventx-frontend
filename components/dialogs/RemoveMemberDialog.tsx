@@ -35,10 +35,12 @@ export default function RemoveMemberDialog({ eventId, member, open, onClose }: P
         toast.error(res?.message || "Failed to remove member.");
       }
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err?.message || "Error removing member.");
     },
   });
+
+  if (!open || !member) return null;
 
   return (
     <Dialog
