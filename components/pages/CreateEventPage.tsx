@@ -15,6 +15,7 @@ import DateTimeSection from "./create-event/DateTimeSection";
 import LocationSection from "./create-event/LocationSection";
 import EventOptionsSection from "./create-event/EventOptionsSection";
 import { TextIcon } from "./create-event/Icons";
+import HelpTooltip from "../widgets/HelpTooltip";
 
 const baseEventSchema = z.object({
   title: z.string().min(1, "Event name is required").max(100, "Event name must be 100 characters or less"),
@@ -203,8 +204,8 @@ export default function CreateEventPage() {
                       onChange={field.onChange}
                       className="mt-2 w-full px-3 py-2.5"
                       options={[
-                        { value: "true", label: "Public — anyone can find it" },
-                        { value: "false", label: "Private — invite only" },
+                        { value: "true", label: "Public - anyone can find it" },
+                        { value: "false", label: "Private - invite only" },
                       ]}
                     />
                   )}
@@ -234,6 +235,7 @@ export default function CreateEventPage() {
                 <div className="flex items-center gap-3 text-black/70">
                   <TextIcon />
                   <span className="text-sm font-medium text-black">Description</span>
+                  <HelpTooltip text="Write a short description of your event - who it's for, what attendees will get, and any key outcomes." />
                 </div>
                 <textarea
                   {...register("description")}

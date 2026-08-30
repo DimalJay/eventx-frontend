@@ -1,4 +1,5 @@
 import SettingsSidebar from "@/components/settings/SettingsSidebar";
+import ShaderBackground from "@/components/landing/ShaderBackground";
 
 export default function SettingsLayout({
   children,
@@ -6,17 +7,18 @@ export default function SettingsLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f5f1ea]">
-      <div className="pointer-events-none absolute -left-28 top-12 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-40 blur-3xl" />
-      <div className="pointer-events-none absolute right-10 top-24 h-64 w-64 rounded-full bg-[#9fd3ff] opacity-35 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-10 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[#ffe8a3] opacity-45 blur-3xl" />
+    <div className="relative flex flex-1 justify-center overflow-hidden bg-white">
+      <ShaderBackground />
 
-      <main className="relative flex w-full max-w-5xl flex-col gap-8 px-8 py-16 sm:px-12">
+      <main className="relative z-10 flex w-full max-w-6xl flex-col gap-10 px-6 py-16 lg:py-20">
         <header>
-          <h1 className="text-3xl font-semibold tracking-tight text-black">
+          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-primary">
+            EventX account
+          </p>
+          <h1 className="mt-2 font-display text-3xl font-medium tracking-tight text-zinc-900">
             Settings
           </h1>
-          <p className="mt-3 text-base leading-7 text-black/70">
+          <p className="mt-3 max-w-2xl text-base leading-7 text-zinc-600">
             Manage your profile, payment gateway, and account details.
           </p>
         </header>

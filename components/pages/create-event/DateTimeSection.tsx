@@ -2,6 +2,7 @@
 
 import { Controller, useFormContext } from "react-hook-form";
 import DateTimePicker from "../../widgets/DateTimePicker";
+import HelpTooltip from "../../widgets/HelpTooltip";
 import { CalendarIcon, ClockIcon } from "./Icons";
 
 function padDateTime(value: number) {
@@ -24,11 +25,12 @@ export default function DateTimeSection() {
   const { control, formState: { errors } } = useFormContext();
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white">
+    <div className="rounded-2xl border border-zinc-200 bg-white">
       {/* Start Date */}
-      <div className="flex items-center gap-3 px-4 py-3 text-black/70">
+      <div className="flex items-center gap-3 px-4 py-3 text-zinc-700">
         <CalendarIcon />
-        <span className="w-12 text-sm font-medium text-black">Start</span>
+        <span className="w-12 text-sm font-medium text-zinc-900">Start</span>
+        <HelpTooltip text="The date and time your event begins." />
         <Controller
           name="startDate"
           control={control}
@@ -43,18 +45,19 @@ export default function DateTimeSection() {
           )}
         />
         {errors.startDate && (
-          <span className="text-red-500 text-xs mt-1">
+          <span className="text-red-600 text-xs mt-1">
             {errors.startDate.message as string}
           </span>
         )}
       </div>
 
-      <div className="h-px bg-black/10" />
+      <div className="h-px bg-zinc-200" />
 
       {/* End Date */}
-      <div className="flex items-center gap-3 px-4 py-3 text-black/70">
+      <div className="flex items-center gap-3 px-4 py-3 text-zinc-700">
         <CalendarIcon />
-        <span className="w-12 text-sm font-medium text-black">End</span>
+        <span className="w-12 text-sm font-medium text-zinc-900">End</span>
+        <HelpTooltip text="The date and time your event ends. Must be after the start time." />
         <Controller
           name="endDate"
           control={control}
@@ -69,18 +72,19 @@ export default function DateTimeSection() {
           )}
         />
         {errors.endDate && (
-          <span className="text-red-500 text-xs mt-1">
+          <span className="text-red-600 text-xs mt-1">
             {errors.endDate.message as string}
           </span>
         )}
       </div>
 
-      <div className="h-px bg-black/10" />
+      <div className="h-px bg-zinc-200" />
 
       {/* Registration Deadline */}
-      <div className="flex items-center gap-3 px-4 py-3 text-black/70">
+      <div className="flex items-center gap-3 px-4 py-3 text-zinc-700">
         <ClockIcon />
-        <span className="text-sm font-medium text-black">Registration deadline</span>
+        <span className="text-sm font-medium text-zinc-900">Registration deadline</span>
+        <HelpTooltip text="Attendees can no longer register after this time. Leave empty to allow registration until the event begins." />
         <Controller
           name="regDeadline"
           control={control}
@@ -97,8 +101,8 @@ export default function DateTimeSection() {
         />
       </div>
       {errors.regDeadline && (
-        <div className="px-4 pb-3 border-t border-black/5 pt-2">
-          <span className="text-red-500 text-xs">
+        <div className="px-4 pb-3 border-t border-zinc-200 pt-2">
+          <span className="text-red-600 text-xs">
             {errors.regDeadline.message as string}
           </span>
         </div>

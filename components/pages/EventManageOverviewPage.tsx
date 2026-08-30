@@ -34,11 +34,11 @@ export default function EventManageOverviewPage() {
   const checkedInCount = registrations.filter((r) => !!r.chekingTime).length;
 
   if (isLoading) {
-    return <div className="p-8 text-center text-black/50">Loading event details...</div>;
+    return <div className="p-8 text-center text-zinc-500">Loading event details...</div>;
   }
 
   if (!event) {
-    return <div className="p-8 text-center text-red-500">Failed to load event details.</div>;
+    return <div className="p-8 text-center text-danger">Failed to load event details.</div>;
   }
 
   const coverUrl = (() => {
@@ -98,57 +98,51 @@ export default function EventManageOverviewPage() {
         {stats.map((item) => (
           <div
             key={item.label}
-            className="rounded-3xl border border-black/10 bg-white/80 p-6 shadow-[0_18px_50px_-35px_rgba(0,0,0,0.35)] backdrop-blur"
+            className="rounded-2xl border border-zinc-200 bg-white p-6"
           >
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
               {item.label}
             </p>
-            <p className="mt-4 text-3xl font-semibold text-black">{item.value}</p>
-            <p className="mt-2 text-sm text-black/60">{item.delta}</p>
+            <p className="mt-4 text-3xl font-semibold text-zinc-900">{item.value}</p>
+            <p className="mt-2 text-sm text-zinc-600">{item.delta}</p>
           </div>
         ))}
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-        <div className="rounded-3xl border border-black/10 bg-white/85 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-7">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
                 Event details
               </p>
-              <h2 className="mt-2 text-2xl font-semibold text-black">
+              <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">
                 {event.title}
               </h2>
             </div>
-            <Link
-              href={`/event/manage/${eventId}/edit`}
-              className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
-            >
-              Edit
-            </Link>
           </div>
 
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {details.map((item) => (
               <div
                 key={item.label}
-                className="rounded-2xl border border-black/10 bg-white px-5 py-4"
+                className="rounded-2xl border border-zinc-200 bg-zinc-50 px-5 py-4"
               >
-                <p className="text-xs uppercase tracking-[0.2em] text-black/40">
+                <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">
                   {item.label}
                 </p>
-                <p className="mt-1 font-semibold text-black">{item.value}</p>
+                <p className="mt-1 font-semibold text-zinc-900">{item.value}</p>
               </div>
             ))}
           </div>
 
-          <p className="mt-6 text-sm leading-7 text-black/70">
+          <p className="mt-6 text-sm leading-7 text-zinc-600">
             {event.description || "No description provided for this event."}
           </p>
         </div>
 
         <aside className="grid gap-4">
-          <div className="overflow-hidden rounded-3xl border border-black/10 bg-black text-white">
+          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-900 text-white">
             {coverUrl ? (
               <div className="relative aspect-video w-full overflow-hidden bg-zinc-900">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -164,10 +158,10 @@ export default function EventManageOverviewPage() {
               </div>
             )}
             <div className="p-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">
                 Next milestone
               </p>
-              <p className="mt-3 text-2xl font-semibold">Event Status</p>
+              <p className="mt-3 font-display text-2xl font-medium">Event Status</p>
               <p className="mt-3 text-sm text-white/70">
                 {new Date(event.startDate) > new Date()
                   ? "This event is scheduled for the future. Prepare your agenda and invite speakers."
@@ -175,30 +169,30 @@ export default function EventManageOverviewPage() {
               </p>
               <Link
                 href={`/event/manage/${eventId}/agenda`}
-                className="mt-5 inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-xs font-semibold uppercase tracking-widest text-black"
+                className="mt-5 inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-sm font-semibold text-zinc-900"
               >
                 Review agenda
               </Link>
             </div>
           </div>
 
-          <div className="rounded-3xl border border-black/10 bg-white/80 p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
               Recent activity
             </p>
-            <div className="mt-4 grid gap-4 text-sm text-black/70">
+            <div className="mt-4 grid gap-4 text-sm text-zinc-600">
               {activity.length > 0 ? (
                 activity.map((item: any) => (
                   <div
                     key={item.title}
-                    className="rounded-2xl border border-black/5 bg-white px-4 py-3"
+                    className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3"
                   >
-                    <p className="font-semibold text-black">{item.title}</p>
-                    <p className="mt-1 text-xs text-black/50">{item.meta}</p>
+                    <p className="font-semibold text-zinc-900">{item.title}</p>
+                    <p className="mt-1 text-xs text-zinc-500">{item.meta}</p>
                   </div>
                 ))
               ) : (
-                <p className="text-sm text-black/50 p-2">No recent activity recorded yet.</p>
+                <p className="text-sm text-zinc-500 p-2">No recent activity recorded yet.</p>
               )}
             </div>
           </div>

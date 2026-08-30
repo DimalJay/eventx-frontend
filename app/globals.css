@@ -1,21 +1,71 @@
 @import "tailwindcss";
 
 :root {
+  /* Surfaces */
   --background: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: #fafafa;
+
+  /* Text */
   --foreground: #18181b;
+  --muted: #3f3f46;
+  --muted-subtle: #71717a;
+
+  /* Accent (single violet) */
   --primary: #7c3aed;
   --primary-strong: #6d28d9;
   --primary-soft: #ede9fe;
   --primary-faint: #f5f3ff;
+
+  /* Status */
+  --success: #059669;
+  --success-soft: #d1fae5;
+  --warning: #ea580c;
+  --warning-soft: #ffedd5;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+
+  /* Borders & focus */
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --ring: rgba(124, 58, 237, 0.35);
+
+  /* Shape */
+  --radius-input: 0.75rem;
+  --radius-card: 1rem;
+  --radius-pill: 9999px;
+
+  /* Elevation */
+  --shadow-card: 0 1px 2px rgba(24, 24, 27, 0.04),
+    0 10px 24px -14px rgba(24, 24, 27, 0.1);
+  --shadow-pop: 0 24px 60px -20px rgba(24, 24, 27, 0.22);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-subtle: var(--muted-subtle);
   --color-primary: var(--primary);
   --color-primary-strong: var(--primary-strong);
   --color-primary-soft: var(--primary-soft);
   --color-primary-faint: var(--primary-faint);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-ring: var(--ring);
+  --radius-input: var(--radius-input);
+  --radius-card: var(--radius-card);
+  --radius-pill: var(--radius-pill);
+  --shadow-card: var(--shadow-card);
+  --shadow-pop: var(--shadow-pop);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-space-grotesk);
@@ -27,16 +77,28 @@ body {
 }
 
 @layer utilities {
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.14em] text-muted-subtle;
+  }
+
   .btn {
-    @apply inline-flex h-11 items-center justify-center rounded-full bg-primary px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-primary-strong
+    @apply inline-flex h-11 items-center justify-center gap-2 rounded-pill bg-primary px-6 text-sm font-semibold text-white transition hover:bg-primary-strong active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-primary/60;
   }
 
   .btn-ghost {
-    @apply inline-flex h-11 items-center justify-center rounded-full border border-black/15 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-primary/50 hover:text-primary
+    @apply inline-flex h-11 items-center justify-center gap-2 rounded-pill border border-border bg-surface px-6 text-sm font-semibold text-muted transition hover:border-primary/50 hover:text-primary;
+  }
+
+  .card {
+    @apply rounded-card border border-border bg-surface;
+  }
+
+  .input {
+    @apply h-12 w-full rounded-input border border-border bg-surface px-4 text-base text-foreground outline-none transition placeholder:text-muted-subtle focus:border-primary/60 focus:ring-2 focus:ring-ring;
   }
 
   .tab-item {
-    @apply data-[selected=true]:text-black text-black/55 font-medium data-[selected=true]:border-b-2 py-2
+    @apply py-2 font-medium text-muted-subtle transition hover:text-foreground data-[selected=true]:border-b-2 data-[selected=true]:border-primary data-[selected=true]:text-foreground;
   }
 }
 
@@ -104,6 +166,20 @@ body {
     transparent 72%
   );
   animation: taste-shader-drift-a 38s ease-in-out infinite alternate-reverse;
+}
+
+.taste-shader-pattern {
+  position: absolute;
+  inset: 0;
+  opacity: 0.6;
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--primary) 12%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 26px 26px;
+  -webkit-mask-image: linear-gradient(to bottom, black, transparent 72%);
+  mask-image: linear-gradient(to bottom, black, transparent 72%);
 }
 
 .taste-shader-grain {

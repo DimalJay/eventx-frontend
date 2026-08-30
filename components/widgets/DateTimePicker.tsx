@@ -1,7 +1,9 @@
 'use client'
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiCalendar } from "react-icons/fi";
+import { usePopoverPosition } from "@/lib/usePopoverPosition";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -9,29 +11,31 @@ const MONTHS = [
 ];
 const WEEKDAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
 
+type Mode = "datetime" | "date";
+
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
-function parseValue(value: string): Date | null {
-  const m = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+function parseValue(value: string, mode: Mode): Date | null {
+  const re = mode === "datetime" ? /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/ : /^(\d{4})-(\d{2})-(\d{2})/;
+  const m = value.match(re);
   if (!m) return null;
-  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4]), Number(m[5]));
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4] ?? 0), Number(m[5] ?? 0));
 }
 
-function formatValue(date: Date): string {
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(
-    date.getHours()
-  )}:${pad(date.getMinutes())}`;
+function formatValue(date: Date, mode: Mode): string {
+  const base = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  return mode === "datetime" ? `${base}T${pad(date.getHours())}:${pad(date.getMinutes())}` : base;
 }
 
-function displayValue(date: Date): string {
+function displayValue(date: Date, mode: Mode): string {
+  const base = `${MONTHS[date.getMonth()].slice(0, 3)} ${date.getDate()}, ${date.getFullYear()}`;
+  if (mode === "date") return base;
   let h = date.getHours();
   const period = h >= 12 ? "PM" : "AM";
   h = h % 12 || 12;
-  return `${MONTHS[date.getMonth()].slice(0, 3)} ${date.getDate()}, ${date.getFullYear()} · ${h}:${pad(
-    date.getMinutes()
-  )} ${period}`;
+  return `${base} · ${h}:${pad(date.getMinutes())} ${period}`;
 }
 
 function sameDay(a: Date, b: Date) {
@@ -46,9 +50,10 @@ export default function DateTimePicker({
   name,
   value,
   onChange,
-  placeholder = "Select date & time",
+  placeholder,
   ariaLabel,
   align = "left",
+  mode = "datetime",
   className,
 }: {
   name?: string;
@@ -57,10 +62,15 @@ export default function DateTimePicker({
   placeholder?: string;
   ariaLabel?: string;
   align?: "left" | "right";
+  mode?: Mode;
   className?: string;
 }) {
+  const isDate = mode === "date";
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const popoverRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
-  const selected = parseValue(value);
+  const geom = usePopoverPosition(open, wrapperRef, popoverRef, "bottom", align);
+  const selected = parseValue(value, mode);
   const [view, setView] = useState(() => {
     const base = selected ?? new Date();
     return { year: base.getFullYear(), month: base.getMonth() };
@@ -69,7 +79,7 @@ export default function DateTimePicker({
   const toggleOpen = () => {
     setOpen((wasOpen) => {
       if (!wasOpen) {
-        const base = parseValue(value) ?? new Date();
+        const base = parseValue(value, mode) ?? new Date();
         setView({ year: base.getFullYear(), month: base.getMonth() });
       }
       return !wasOpen;
@@ -95,68 +105,84 @@ export default function DateTimePicker({
 
   const selectDay = (day: number) => {
     const base = selected ?? new Date();
-    const h = selected ? base.getHours() : 9;
-    const mi = selected ? base.getMinutes() : 0;
-    onChange(formatValue(new Date(view.year, view.month, day, h, mi)));
+    const h = mode === "datetime" && selected ? base.getHours() : 9;
+    const mi = mode === "datetime" && selected ? base.getMinutes() : 0;
+    onChange(formatValue(new Date(view.year, view.month, day, h, mi), mode));
   };
 
   const changeTime = (t: string) => {
     const [h, mi] = t.split(":").map(Number);
     const base = selected ?? new Date();
     onChange(
-      formatValue(new Date(base.getFullYear(), base.getMonth(), base.getDate(), h || 0, mi || 0))
+      formatValue(new Date(base.getFullYear(), base.getMonth(), base.getDate(), h || 0, mi || 0), mode)
     );
   };
 
-  return (
-    <div className={cn("relative", className)}>
-      {name && <input type="hidden" name={name} value={value} />}
-      <button
-        type="button"
-        onClick={toggleOpen}
-        aria-haspopup="dialog"
-        aria-expanded={open}
-        aria-label={ariaLabel}
-        className="w-full bg-transparent text-left text-sm outline-none"
-      >
-        <span className={selected ? "text-black" : "text-black/35"}>
-          {selected ? displayValue(selected) : placeholder}
-        </span>
-      </button>
+  const trigger = isDate ? (
+    <button
+      type="button"
+      onClick={toggleOpen}
+      aria-haspopup="dialog"
+      aria-expanded={open}
+      aria-label={ariaLabel}
+      className="flex h-11 w-full items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-4 text-sm font-medium outline-none transition hover:border-zinc-300 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+    >
+      <span className={selected ? "text-zinc-900" : "text-zinc-500"}>
+        {selected ? displayValue(selected, mode) : (placeholder ?? "Select a date")}
+      </span>
+      <FiCalendar className="h-4 w-4 shrink-0 text-zinc-400" />
+    </button>
+  ) : (
+    <button
+      type="button"
+      onClick={toggleOpen}
+      aria-haspopup="dialog"
+      aria-expanded={open}
+      aria-label={ariaLabel}
+      className="w-full bg-transparent text-left text-sm outline-none"
+    >
+      <span className={selected ? "text-zinc-900" : "text-zinc-500"}>
+        {selected ? displayValue(selected, mode) : (placeholder ?? "Select date & time")}
+      </span>
+    </button>
+  );
 
-      {open && (
-        <>
-          <button
-            type="button"
-            aria-hidden="true"
-            tabIndex={-1}
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 z-20 cursor-default"
-          />
-          <div
-            role="dialog"
-            className={cn(
-              "absolute top-full z-30 mt-2 w-72 max-w-[90vw] rounded-2xl border border-black/10 bg-white p-3 shadow-[0_25px_70px_-35px_rgba(0,0,0,0.45)]",
-              align === "right" ? "right-0" : "left-0"
-            )}
-          >
+  return (
+    <div ref={wrapperRef} className={cn("relative", className)}>
+      {name && <input type="hidden" name={name} value={value} />}
+      {trigger}
+
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <>
+            <div
+              ref={popoverRef}
+              role="dialog"
+              style={{
+                position: "fixed",
+                top: geom ? geom.top : -9999,
+                left: geom ? geom.left : -9999,
+              }}
+              className="z-[95] w-72 max-w-[90vw] rounded-2xl border border-zinc-200 bg-white p-3 shadow-pop"
+            >
             <div className="flex items-center justify-between px-1">
               <button
                 type="button"
                 aria-label="Previous month"
                 onClick={() => shiftMonth(-1)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-black/60 transition hover:bg-black/5 hover:text-black"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900"
               >
                 <FiChevronLeft className="h-4 w-4" />
               </button>
-              <span className="text-sm font-semibold text-black">
+              <span className="text-sm font-semibold text-zinc-900">
                 {MONTHS[view.month]} {view.year}
               </span>
               <button
                 type="button"
                 aria-label="Next month"
                 onClick={() => shiftMonth(1)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-black/60 transition hover:bg-black/5 hover:text-black"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900"
               >
                 <FiChevronRight className="h-4 w-4" />
               </button>
@@ -164,7 +190,7 @@ export default function DateTimePicker({
 
             <div className="mt-2 grid grid-cols-7 gap-1">
               {WEEKDAYS.map((d) => (
-                <span key={d} className="py-1 text-center text-[11px] font-medium text-black/40">
+                <span key={d} className="py-1 text-center text-[11px] font-medium text-zinc-400">
                   {d}
                 </span>
               ))}
@@ -181,9 +207,9 @@ export default function DateTimePicker({
                     className={cn(
                       "flex h-9 items-center justify-center rounded-lg text-sm transition",
                       isSelected
-                        ? "bg-black font-semibold text-white"
-                        : "text-black hover:bg-black/5",
-                      !isSelected && isToday && "font-semibold text-black ring-1 ring-inset ring-black/20"
+                        ? "bg-primary font-semibold text-white"
+                        : "text-zinc-900 hover:bg-primary-faint",
+                      !isSelected && isToday && "font-semibold text-primary ring-1 ring-inset ring-primary/30"
                     )}
                   >
                     {day}
@@ -192,14 +218,16 @@ export default function DateTimePicker({
               })}
             </div>
 
-            <div className="mt-3 flex items-center justify-between gap-2 border-t border-black/10 pt-3">
-              <input
-                type="time"
-                value={timeStr}
-                onChange={(e) => changeTime(e.target.value)}
-                className="rounded-lg border border-black/10 bg-white px-2.5 py-1.5 text-sm text-black outline-none transition focus:border-black/40"
-              />
-              <div className="flex items-center gap-1">
+            <div className="mt-3 flex items-center justify-between gap-2 border-t border-zinc-200 pt-3">
+              {!isDate && (
+                <input
+                  type="time"
+                  value={timeStr}
+                  onChange={(e) => changeTime(e.target.value)}
+                  className="rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 outline-none transition focus:border-primary/60"
+                />
+              )}
+              <div className={cn("flex items-center gap-1", isDate && "ml-auto")}>
                 {selected && (
                   <button
                     type="button"
@@ -207,7 +235,7 @@ export default function DateTimePicker({
                       onChange("");
                       setOpen(false);
                     }}
-                    className="rounded-lg px-3 py-1.5 text-sm font-medium text-black/50 transition hover:bg-black/5 hover:text-black"
+                    className="rounded-lg px-3 py-1.5 text-sm font-medium text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900"
                   >
                     Clear
                   </button>
@@ -215,15 +243,23 @@ export default function DateTimePicker({
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="rounded-lg bg-black px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-black/90"
+                  className="rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-white transition hover:bg-primary-strong"
                 >
                   Done
                 </button>
               </div>
             </div>
-          </div>
-        </>
-      )}
+            </div>
+            <button
+              type="button"
+              aria-hidden="true"
+              tabIndex={-1}
+              onClick={() => setOpen(false)}
+              className="fixed inset-0 z-[90] cursor-default bg-transparent"
+            />
+          </>,
+          document.body
+        )}
     </div>
   );
 }

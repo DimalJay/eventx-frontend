@@ -16,21 +16,21 @@ export default function DisconnectStripeDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-      <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-500">
+    <div className="fixed inset-0 z-20 flex items-center justify-center bg-zinc-900/40 px-4">
+      <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-pop">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-danger">
           Stripe
         </p>
 
-        <h3 className="mt-2 text-xl font-semibold text-black">
+        <h3 className="mt-2 font-display text-xl font-medium tracking-tight text-zinc-900">
           Disconnect this Stripe account?
         </h3>
 
-        <p className="mt-2 text-sm leading-6 text-black/60">
+        <p className="mt-2 text-sm leading-6 text-zinc-600">
           {accountEmail ? (
             <>
               The account{" "}
-              <span className="font-semibold text-black">{accountEmail}</span>{" "}
+              <span className="font-semibold text-zinc-900">{accountEmail}</span>{" "}
               will be disconnected from EventX. Paid events you run will stop
               accepting ticket payments until you connect a new account.
             </>
@@ -46,7 +46,7 @@ export default function DisconnectStripeDialog({
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
-            className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
             onClick={onClose}
           >
             Cancel
@@ -54,7 +54,7 @@ export default function DisconnectStripeDialog({
 
           <button
             type="button"
-            className="inline-flex h-10 items-center justify-center rounded-full bg-red-500 px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-red-600"
+            className="inline-flex h-10 items-center justify-center rounded-full bg-danger px-4 text-sm font-semibold text-white transition hover:bg-red-600"
             onClick={onConfirm}
           >
             Disconnect

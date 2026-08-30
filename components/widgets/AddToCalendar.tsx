@@ -23,7 +23,7 @@ const escapeIcs = (text: string) =>
 const slug = (text: string) =>
   text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 
-// Build a universal .ics file — works with Apple Calendar, Google, Outlook, and any RFC 5545 client.
+// Build a universal .ics file - works with Apple Calendar, Google, Outlook, and any RFC 5545 client.
 function icsContent({ title, description, location, start, end, timezone }: AddToCalendarProps) {
   const stamp = new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z";
   const uid = `${compact(start)}-${slug(title)}@eventx`;

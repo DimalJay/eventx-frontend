@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
+import HelpTooltip from "../../widgets/HelpTooltip";
 
 interface CoverImageUploadProps {
   initialPreview?: string | null;
@@ -35,7 +36,13 @@ export default function CoverImageUpload({ initialPreview }: CoverImageUploadPro
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="group relative flex aspect-4/5 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-3xl border border-black/10 bg-white/80 p-6 text-center shadow-[0_20px_60px_-40px_rgba(0,0,0,0.4)] backdrop-blur transition hover:border-black/30">
+      <div className="flex items-center gap-2">
+        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+          Cover image
+        </span>
+        <HelpTooltip text="This image becomes the event's main cover. PNG, JPG, or WEBP up to 5MB; a 4:5 portrait crop looks best." side="bottom" />
+      </div>
+      <div className="group relative flex aspect-4/5 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 text-center shadow-card transition hover:border-primary/30">
         <input
           type="file"
           name="cover"
@@ -64,17 +71,17 @@ export default function CoverImageUpload({ initialPreview }: CoverImageUploadPro
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
-              className="h-9 w-9 text-black/40"
+              className="h-9 w-9 text-zinc-300"
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5l4.5-4.5a2 2 0 012.8 0L15 16.5m-2-2l1.5-1.5a2 2 0 012.8 0L21 15M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
             </svg>
-            <span className="mt-4 text-sm font-medium text-black/70">Add event cover</span>
-            <span className="mt-1 text-xs text-black/40">PNG, JPG, or WEBP · 4:5 looks best</span>
+            <span className="mt-4 text-sm font-medium text-zinc-700">Add event cover</span>
+            <span className="mt-1 text-xs text-zinc-400">PNG, JPG, or WEBP · 4:5 looks best</span>
           </>
         )}
       </div>
       {errors.coverImage && (
-        <span className="text-red-500 text-xs mt-1">
+        <span className="text-red-600 text-xs mt-1">
           {errors.coverImage.message as string}
         </span>
       )}

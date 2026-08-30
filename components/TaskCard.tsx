@@ -22,27 +22,27 @@ export default function TaskCard({ task , users, eventId }: { task: ITask , user
         <>
         <article
             key={`${task.id}`}
-            className="rounded-2xl border border-black/10 bg-white px-4 py-4"
+            className="rounded-2xl border border-zinc-200 bg-white px-4 py-4 transition hover:border-primary/30 hover:shadow-card"
             onClick={() => setOpen(true)}
         >
-            <h3 className="text-sm font-semibold text-black">
+            <h3 className="text-sm font-semibold text-zinc-900">
                 {task.title}
             </h3>
 
-            <p className="mt-1 text-xs text-black/40">
+            <p className="mt-1 text-xs text-zinc-500">
                 {task.description}
             </p>
 
             <div className="mt-4 flex items-center justify-between">
-                <span className="inline-flex items-center gap-2 text-xs text-black/60">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black text-[10px] font-semibold uppercase text-white">
+                <span className="inline-flex items-center gap-2 text-xs text-zinc-600">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary-soft text-[10px] font-semibold uppercase text-primary">
                         {assignedUser ? assignedUser.name.charAt(0) : "?"}
                     </span>
 
                     {assignedUser ? assignedUser.name : task.assignedTo}
                 </span>
 
-                <span className="text-xs font-semibold text-black/60">
+                <span className="text-xs font-semibold text-zinc-600">
                     {formatDueDate(task.dueDate)}
                 </span>
             </div>

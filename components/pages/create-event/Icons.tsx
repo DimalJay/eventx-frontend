@@ -1,4 +1,5 @@
 import React from "react";
+import HelpTooltip from "../../widgets/HelpTooltip";
 
 export function CalendarIcon() {
   return (
@@ -56,17 +57,20 @@ export function ClockIcon() {
 export function OptionRow({
   icon,
   label,
+  help,
   children,
 }: {
   icon: React.ReactNode;
   label: string;
+  help?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="flex items-center justify-between gap-4 px-4 py-3.5">
-      <div className="flex items-center gap-3 text-black/70">
+      <div className="flex items-center gap-3 text-zinc-500">
         {icon}
-        <span className="text-sm font-medium text-black">{label}</span>
+        <span className="text-sm font-medium text-zinc-900">{label}</span>
+        {help && <HelpTooltip text={help} />}
       </div>
       {children}
     </div>

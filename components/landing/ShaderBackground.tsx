@@ -7,6 +7,7 @@ export default function ShaderBackground() {
       <div className="taste-shader-blob taste-shader-blob-a" />
       <div className="taste-shader-blob taste-shader-blob-b" />
       <div className="taste-shader-blob taste-shader-blob-c" />
+      <div className="taste-shader-pattern" />
       <div className="taste-shader-grain" />
     </div>
   );

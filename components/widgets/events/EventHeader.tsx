@@ -27,15 +27,15 @@ export default function EventHeader({ id }: EventHeaderProps) {
                 <div className="flex items-center gap-3">
                     <Logo />
                     <div>
-                        <p className="text-xs font-semibold uppercase tracking-[0.28em] text-black/50">
+                        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
                             EventX live dashboard
                         </p>
-                        <p className="text-2xl font-semibold tracking-tight text-black">
+                        <p className="mt-1 font-display text-2xl font-medium tracking-tight text-zinc-900">
                             {event ? event.title : "Loading..."}
                         </p>
                     </div>
                 </div>
-                <Link href={`/event/${eventId}`} className="inline-flex h-10 items-center rounded-full border border-black/15 bg-white/80 px-5 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40">
+                <Link href={`/event/${eventId}`} className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary">
                     View Event
                 </Link>
             </div>

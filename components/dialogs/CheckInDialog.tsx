@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { IRegistration } from "@/types";
 import { toast } from "sonner";
+import Dialog from "@/components/widgets/Dialog";
 
 type Props = {
   open: boolean;
@@ -28,69 +29,65 @@ export default function CheckInDialog({ open, onClose, registrations, onCheckIn,
 
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-      <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-          Check in
+  if (scannedReg) {
+    return (
+      <Dialog
+        open={open}
+        onClose={onClose}
+        eyebrow="Check in"
+        title={`${scannedReg.firstName} ${scannedReg.lastName}`}
+        description={scannedReg.email}
+      >
+        <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
+          Ticket code: {scannedReg.ticketCode}
         </p>
 
-        {scannedReg ? (
-          <>
-            <h3 className="mt-2 text-xl font-semibold text-black">
-              {scannedReg.firstName} {scannedReg.lastName}
-            </h3>
-            <p className="mt-1 text-sm text-black/60">
-              {scannedReg.email}
-            </p>
-            <p className="mt-3 text-xs font-semibold uppercase tracking-[0.2em] text-black/40">
-              Ticket code: {scannedReg.ticketCode}
-            </p>
+        <div className="mt-5 flex flex-col gap-3">
+          <button
+            type="button"
+            disabled={isPending}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-40"
+            onClick={() =>
+              onCheckIn(scannedReg.id)
+            }
+          >
+            Mark as checked in
+          </button>
+          <button
+            type="button"
+            disabled={isPending}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 px-5 py-3 text-sm font-semibold text-red-600 transition hover:border-red-300 disabled:opacity-40"
+            onClick={() =>
+              onNotGoing(scannedReg.id)
+            }
+          >
+            Not going
+          </button>
+        </div>
 
-            <div className="mt-5 flex flex-col gap-3">
-              <button
-                type="button"
-                disabled={isPending}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-black px-5 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:opacity-40"
-                onClick={() =>
-                  onCheckIn(scannedReg.id)
-                }
-              >
-                Mark as checked in
-              </button>
-              <button
-                type="button"
-                disabled={isPending}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-200 px-5 py-3 text-sm font-semibold uppercase tracking-widest text-rose-700 transition hover:border-rose-300 disabled:opacity-40"
-                onClick={() =>
-                  onNotGoing(scannedReg.id)
-                }
-              >
-                Not going
-              </button>
-            </div>
+        <button
+          type="button"
+          className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
+          onClick={() => {
+            setScannedReg(null);
+            setInput("");
+          }}
+        >
+          Scan another
+        </button>
+      </Dialog>
+    );
+  }
 
-            <button
-              type="button"
-              className="mt-4 inline-flex h-10 w-full items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
-              onClick={() => {
-                setScannedReg(null);
-                setInput("");
-              }}
-            >
-              Scan another
-            </button>
-          </>
-        ) : (
-          <>
-            <h3 className="mt-2 text-xl font-semibold text-black">
-              Scan ticket
-            </h3>
-            <p className="mt-2 text-sm text-black/60">
-              Point the camera at the attendee&apos;s QR code.
-            </p>
-
-            <div className="mt-4 overflow-hidden rounded-2xl bg-black/5">
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      eyebrow="Check in"
+      title="Scan ticket"
+      description="Point the camera at the attendee's QR code."
+    >
+      <div className="mt-4 overflow-hidden rounded-2xl bg-zinc-100">
               <Scanner
                 ref={scannerRef}
                 onScan={(detectedCodes) => {
@@ -111,11 +108,11 @@ export default function CheckInDialog({ open, onClose, registrations, onCheckIn,
             </div>
 
             <div className="mt-4 flex items-center gap-3">
-              <div className="h-px flex-1 bg-black/10" />
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/40">
+              <div className="h-px flex-1 bg-zinc-200" />
+              <span className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">
                 or enter code
               </span>
-              <div className="h-px flex-1 bg-black/10" />
+              <div className="h-px flex-1 bg-zinc-200" />
             </div>
 
             <div className="mt-4 flex gap-2">
@@ -124,12 +121,12 @@ export default function CheckInDialog({ open, onClose, registrations, onCheckIn,
                 placeholder="Ticket code"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                className="h-11 flex-1 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
+                className="h-11 flex-1 rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20"
               />
               <button
                 type="button"
                 disabled={!input.trim()}
-                className="inline-flex h-11 items-center justify-center rounded-2xl bg-black px-5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:opacity-40"
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-40"
                 onClick={() => {
                   const match = registrations.find(
                     (r) =>
@@ -151,7 +148,7 @@ export default function CheckInDialog({ open, onClose, registrations, onCheckIn,
             <div className="mt-5 flex justify-end">
               <button
                 type="button"
-                className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+                className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
                 onClick={() => {
                   setScannedReg(null);
                   setInput("");
@@ -161,9 +158,6 @@ export default function CheckInDialog({ open, onClose, registrations, onCheckIn,
                 Close
               </button>
             </div>
-          </>
-        )}
-      </div>
-    </div>
+    </Dialog>
   );
 }

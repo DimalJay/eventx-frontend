@@ -194,7 +194,7 @@ export default function EventViewPage({ id }: { id?: string }) {
     tagline: backendEvent.description || "No description provided.",
     status: backendEvent.isPaid || backendEvent.ticketPrice > 0 ? "Tickets live" : "Free Event",
     date: startDateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }),
-    time: `${startDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo', hour12: true })} – ${endDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo', hour12: true })}`,
+    time: `${startDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo', hour12: true })} - ${endDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo', hour12: true })}`,
     start: backendEvent.startDate || startDateObj.toISOString(),
     end: backendEvent.endDate || endDateObj.toISOString(),
     timezone: "Asia/Colombo",
@@ -251,14 +251,14 @@ export default function EventViewPage({ id }: { id?: string }) {
       <AuroraShader />
 
       <main className="relative w-full max-w-6xl flex-1 px-5 py-12 sm:px-10 sm:py-16 lg:px-14">
-        {/* Hero — asymmetric split cover + title */}
+        {/* Hero - asymmetric split cover + title */}
         <motion.section
           className="grid items-center gap-10 lg:grid-cols-[minmax(0,400px)_1fr] lg:gap-16"
           variants={coverContainer}
           initial={reduce ? false : "hidden"}
           animate="show"
         >
-          {/* Cover — portrait 4:5 frame, matching the creation page */}
+          {/* Cover - portrait 4:5 frame, matching the creation page */}
           <motion.div
             variants={coverItem}
             className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] bg-linear-to-br from-[#1c1c1c] via-[#2d2d2d] to-[#444]"
@@ -292,7 +292,7 @@ export default function EventViewPage({ id }: { id?: string }) {
 
             <CountdownTimer targetDate={backendEvent.startDate} />
 
-            {/* Facts — slim definition list, no boxes */}
+            {/* Facts - slim definition list, no boxes */}
             <dl className="grid w-full grid-cols-2 gap-x-6 gap-y-6 border-t border-black/10 pt-7 sm:grid-cols-4">
               <div>
                 <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">Starts</dt>
@@ -318,7 +318,7 @@ export default function EventViewPage({ id }: { id?: string }) {
               </div>
             </dl>
 
-            {/* Actions — one primary, two quiet utilities */}
+            {/* Actions - one primary, two quiet utilities */}
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <a
                 href="#tickets"
@@ -343,7 +343,7 @@ export default function EventViewPage({ id }: { id?: string }) {
           </motion.div>
         </motion.section>
 
-        {/* About — generous editorial prose */}
+        {/* About - generous editorial prose */}
         <section className="mt-20 max-w-2xl">
           <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">
             About this event
@@ -351,7 +351,7 @@ export default function EventViewPage({ id }: { id?: string }) {
           <p className="mt-5 text-base leading-8 text-black/70 sm:text-lg">{event.tagline}</p>
         </section>
 
-        {/* Agenda — ruled timeline, no cards */}
+        {/* Agenda - ruled timeline, no cards */}
         {agenda && agenda.length > 0 && (
           <section className="mt-20">
             <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">Agenda</h2>
@@ -369,7 +369,7 @@ export default function EventViewPage({ id }: { id?: string }) {
           </section>
         )}
 
-        {/* Tickets — single focused feature card */}
+        {/* Tickets - single focused feature card */}
         <section id="tickets" className="mt-20">
           <div className="relative overflow-hidden rounded-[1.75rem] border border-black/10 bg-white/80 p-7 backdrop-blur sm:p-10">
             <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-center lg:gap-12">

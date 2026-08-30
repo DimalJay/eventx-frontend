@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useParams } from "next/navigation";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,13 +19,13 @@ import {
 import { HTTPError } from "@/lib/request";
 
 const inputBase =
-  "w-full rounded-xl border border-black/10 bg-white px-3 text-sm text-black outline-none transition focus:border-black/40 focus:ring-2 focus:ring-black/5";
+  "w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-primary/60 focus:ring-2 focus:ring-primary/20";
 
 const cardClass =
-  "rounded-3xl border border-black/10 bg-white/85 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur";
+  "rounded-2xl border border-zinc-200 bg-white p-7";
 
 const labelClass =
-  "text-xs font-semibold uppercase tracking-[0.2em] text-black/50";
+  "text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500";
 
 const detailsSchema = z.object({
   title: z.string().min(1, "Event name is required").max(100, "Event name must be 100 characters or less"),
@@ -150,30 +151,40 @@ export default function EventManageSettingsPage() {
   });
 
   if (isLoading) {
-    return <div className="p-8 text-center text-black/50">Loading event settings...</div>;
+    return <div className="p-8 text-center text-zinc-500">Loading event settings...</div>;
   }
 
   if (!event) {
-    return <div className="p-8 text-center text-red-500">Failed to load event settings.</div>;
+    return <div className="p-8 text-center text-danger">Failed to load event settings.</div>;
   }
 
   return (
     <div className="flex flex-col gap-6">
       {/* Update details */}
       <section className={cardClass}>
-        <p className={labelClass}>General</p>
-        <h2 className="mt-2 text-2xl font-semibold text-black">Update event</h2>
-        <p className="mt-1 text-sm text-black/60">
-          Change the core details of your event. For the cover image, ticket options, and capacity, use
-          the full editor.
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className={labelClass}>General</p>
+            <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">Update event</h2>
+            <p className="mt-1 text-sm text-zinc-600">
+              Change the core details of your event. For the cover image, ticket options, and capacity, use
+              the full editor.
+            </p>
+          </div>
+          <Link
+            href={`/event/manage/${eventId}/edit`}
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary"
+          >
+            Edit event
+          </Link>
+        </div>
 
         <form
           className="mt-6 flex flex-col gap-4"
           onSubmit={detailsForm.handleSubmit((data) => detailsMutation.mutate(data))}
         >
           <div>
-            <label htmlFor="settings-title" className="block text-xs font-medium uppercase tracking-[0.18em] text-black/40">
+            <label htmlFor="settings-title" className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
               Event name
             </label>
             <input
@@ -184,14 +195,14 @@ export default function EventManageSettingsPage() {
               className={`mt-2 h-11 ${inputBase}`}
             />
             {detailsForm.formState.errors.title && (
-              <span className="mt-1 block text-xs text-red-500">
+              <span className="mt-1 block text-xs text-red-600">
                 {detailsForm.formState.errors.title.message}
               </span>
             )}
           </div>
 
           <div>
-            <label htmlFor="settings-description" className="block text-xs font-medium uppercase tracking-[0.18em] text-black/40">
+            <label htmlFor="settings-description" className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
               Description
             </label>
             <textarea
@@ -205,7 +216,7 @@ export default function EventManageSettingsPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label htmlFor="settings-location" className="block text-xs font-medium uppercase tracking-[0.18em] text-black/40">
+              <label htmlFor="settings-location" className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
                 Location / link
               </label>
               <input
@@ -218,7 +229,7 @@ export default function EventManageSettingsPage() {
               />
             </div>
             <div>
-              <span className="block text-xs font-medium uppercase tracking-[0.18em] text-black/40">
+              <span className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
                 Visibility
               </span>
               <Controller
@@ -232,8 +243,8 @@ export default function EventManageSettingsPage() {
                     onChange={field.onChange}
                     className="mt-2 h-11 w-full px-3"
                     options={[
-                      { value: "true", label: "Public — anyone can find it" },
-                      { value: "false", label: "Private — invite only" },
+                      { value: "true", label: "Public - anyone can find it" },
+                      { value: "false", label: "Private - invite only" },
                     ]}
                   />
                 )}
@@ -241,11 +252,11 @@ export default function EventManageSettingsPage() {
             </div>
           </div>
 
-          <div className="flex justify-end border-t border-black/5 pt-4">
+          <div className="flex justify-end border-t border-zinc-200 pt-4">
             <button
               type="submit"
               disabled={detailsMutation.isPending}
-              className="inline-flex h-11 items-center justify-center rounded-full bg-black px-6 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/50"
+              className="btn disabled:cursor-not-allowed disabled:opacity-60"
             >
               {detailsMutation.isPending ? "Saving..." : "Save changes"}
             </button>
@@ -256,8 +267,8 @@ export default function EventManageSettingsPage() {
       {/* Reschedule */}
       <section className={cardClass}>
         <p className={labelClass}>Schedule</p>
-        <h2 className="mt-2 text-2xl font-semibold text-black">Reschedule event</h2>
-        <p className="mt-1 text-sm text-black/60">
+        <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">Reschedule event</h2>
+        <p className="mt-1 text-sm text-zinc-600">
           Move the start, end, or registration deadline. Attendees see the updated times immediately.
         </p>
 
@@ -268,11 +279,11 @@ export default function EventManageSettingsPage() {
           >
             <DateTimeSection />
 
-            <div className="flex justify-end border-t border-black/5 pt-4">
+            <div className="flex justify-end border-t border-zinc-200 pt-4">
               <button
                 type="submit"
                 disabled={scheduleMutation.isPending}
-                className="inline-flex h-11 items-center justify-center rounded-full bg-black px-6 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/50"
+                className="btn disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {scheduleMutation.isPending ? "Saving..." : "Save new schedule"}
               </button>
@@ -285,17 +296,17 @@ export default function EventManageSettingsPage() {
       <section className={`${cardClass} flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}>
         <div>
           <p className={labelClass}>Status</p>
-          <h2 className="mt-2 flex items-center gap-3 text-2xl font-semibold text-black">
+          <h2 className="mt-2 flex items-center gap-3 font-display text-2xl font-medium tracking-tight text-zinc-900">
             {isClosed ? "Closed" : "Active"}
             <span
               className={`inline-flex h-6 items-center rounded-full px-3 text-[10px] font-semibold uppercase tracking-widest ${
-                isClosed ? "bg-red-100 text-red-600" : "bg-emerald-100 text-emerald-700"
+                isClosed ? "bg-danger-soft text-danger" : "bg-success-soft text-success"
               }`}
             >
               {isClosed ? "Closed" : "Live"}
             </span>
           </h2>
-          <p className="mt-1 max-w-xl text-sm text-black/60">
+          <p className="mt-1 max-w-xl text-sm text-zinc-600">
             {isClosed
               ? "This event is closed. Reopen it if things are back on."
               : "Closing an event marks it as closed for attendees. You can reopen it at any time."}
@@ -304,26 +315,26 @@ export default function EventManageSettingsPage() {
         <button
           type="button"
           onClick={() => setCloseDialogOpen(true)}
-          className="inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-black/15 px-6 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+          className="inline-flex h-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary"
         >
           {isClosed ? "Reopen event" : "Close event"}
         </button>
       </section>
 
       {/* Danger zone */}
-      <section className="rounded-3xl border border-red-200 bg-red-50/70 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-500">
+      <section className="rounded-2xl border border-danger-soft bg-danger-soft/40 p-7">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-danger">
           Danger zone
         </p>
-        <h2 className="mt-2 text-2xl font-semibold text-red-600">Delete event</h2>
-        <p className="mt-1 max-w-xl text-sm text-black/60">
+        <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-danger">Delete event</h2>
+        <p className="mt-1 max-w-xl text-sm text-zinc-600">
           Permanently delete &quot;{event.title}&quot; along with its registrations, agenda, and tasks.
           This cannot be undone.
         </p>
         <button
           type="button"
           onClick={() => setDeleteDialogOpen(true)}
-          className="mt-4 inline-flex h-11 items-center justify-center rounded-full bg-red-500 px-6 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-red-600"
+          className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-danger px-5 text-sm font-medium text-white transition hover:bg-red-700"
         >
           Delete event
         </button>

@@ -41,8 +41,8 @@ export default function ConnectStripeDialog({ open, onClose, connected }: Props)
   const isConnected = connected === true;
 
   return (
-    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-      <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
+    <div className="fixed inset-0 z-20 flex items-center justify-center bg-zinc-900/40 px-4">
+      <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-pop">
         <div
           className={`flex h-12 w-12 items-center justify-center rounded-2xl ${
             isConnected ? "bg-emerald-50 text-emerald-600" : "bg-[#635bff]/10 text-[#635bff]"
@@ -60,21 +60,21 @@ export default function ConnectStripeDialog({ open, onClose, connected }: Props)
           )}
         </div>
 
-        <p className="mt-4 text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+        <p className="mt-4 text-sm font-semibold uppercase tracking-[0.16em] text-primary">
           Stripe
         </p>
-        <h3 className="mt-2 text-xl font-semibold text-black">
+        <h3 className="mt-2 text-xl font-semibold text-zinc-900">
           {isConnected
             ? "Stripe account connected"
             : "Connect Stripe to sell tickets"}
         </h3>
-        <p className="mt-2 text-sm leading-6 text-black/60">
+        <p className="mt-2 text-sm leading-6 text-zinc-600">
           {isConnected
             ? "Your account is connected. Paid events will collect ticket payments and send them to your Stripe account."
             : "Paid events need a connected Stripe account. Stripe handles the payment and sends ticket money to you. You will go to Stripe to set up your account, then come back to finish creating this event."}
         </p>
 
-        <p className="mt-4 flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
+        <p className="mt-4 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs text-emerald-800">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4 shrink-0">
             <rect x="3" y="11" width="18" height="11" rx="2" />
             <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -86,7 +86,7 @@ export default function ConnectStripeDialog({ open, onClose, connected }: Props)
           <button
             type="button"
             disabled={mutation.isPending}
-            className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40 disabled:opacity-50"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900 disabled:opacity-50"
             onClick={onClose}
           >
             Not now
@@ -94,9 +94,9 @@ export default function ConnectStripeDialog({ open, onClose, connected }: Props)
           <button
             type="button"
             disabled={mutation.isPending}
-            className={`inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-xs font-semibold uppercase tracking-widest text-white transition disabled:opacity-50 ${
+            className={`inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold text-white transition disabled:opacity-50 ${
               isConnected
-                ? "bg-black hover:bg-black/90"
+                ? "bg-primary hover:bg-primary/90"
                 : "bg-[#635bff] hover:bg-[#4f47e8]"
             }`}
             onClick={handleConnect}

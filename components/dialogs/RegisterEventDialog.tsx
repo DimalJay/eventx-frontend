@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { registerForEvent } from "@/service/registrationService";
 import { toast } from "sonner";
+import Dialog from "@/components/widgets/Dialog";
 
 type Props = {
   eventId: string;
@@ -58,60 +59,52 @@ export default function RegisterEventDialog({ eventId, open, onClose, onRegister
     },
   });
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-      <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-          Register
-        </p>
-        <h3 className="mt-2 text-xl font-semibold text-black">
-          Register for event
-        </h3>
-        <p className="mt-2 text-sm text-black/60">
-          Enter your details to secure your spot.
-        </p>
-
-        <form onSubmit={handleSubmit((data) => mutation.mutate(data))}>
-          <label className="mt-5 grid gap-2 text-sm font-semibold text-black">
+    <Dialog
+      open={open}
+      eyebrow="Register"
+      title="Register for event"
+      description="Enter your details to secure your spot."
+    >
+      <form onSubmit={handleSubmit((data) => mutation.mutate(data))}>
+          <label className="mt-5 grid gap-2 text-sm font-semibold text-zinc-900">
             Email address
             <input
               type="email"
               autoComplete="email"
               placeholder="you@example.com"
               {...register("email")}
-              className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
+              className="h-11 rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20"
             />
             {errors.email && (
-              <p className="text-xs text-rose-600">{errors.email.message}</p>
+              <p className="text-xs text-red-600">{errors.email.message}</p>
             )}
           </label>
 
           <div className="mt-4 grid grid-cols-2 gap-3">
-            <label className="grid min-w-0 gap-2 text-sm font-semibold text-black">
+            <label className="grid min-w-0 gap-2 text-sm font-semibold text-zinc-900">
               First name
               <input
                 type="text"
                 placeholder="John"
                 {...register("firstName")}
-                className="h-11 w-full min-w-0 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
+                className="h-11 w-full min-w-0 rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20"
               />
               {errors.firstName && (
-                <p className="text-xs text-rose-600">{errors.firstName.message}</p>
+                <p className="text-xs text-red-600">{errors.firstName.message}</p>
               )}
             </label>
 
-            <label className="grid min-w-0 gap-2 text-sm font-semibold text-black">
+            <label className="grid min-w-0 gap-2 text-sm font-semibold text-zinc-900">
               Last name
               <input
                 type="text"
                 placeholder="Doe"
                 {...register("lastName")}
-                className="h-11 w-full min-w-0 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
+                className="h-11 w-full min-w-0 rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20"
               />
               {errors.lastName && (
-                <p className="text-xs text-rose-600">{errors.lastName.message}</p>
+                <p className="text-xs text-red-600">{errors.lastName.message}</p>
               )}
             </label>
           </div>
@@ -119,7 +112,7 @@ export default function RegisterEventDialog({ eventId, open, onClose, onRegister
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+              className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
               onClick={onClose}
             >
               Cancel
@@ -127,13 +120,12 @@ export default function RegisterEventDialog({ eventId, open, onClose, onRegister
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="inline-flex h-10 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:opacity-50"
+              className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50"
             >
               {mutation.isPending ? "Registering..." : "Register Event"}
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Dialog>
   );
 }

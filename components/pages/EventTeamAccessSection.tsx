@@ -37,19 +37,19 @@ export default function EventTeamAccessSection() {
 
   return (
     <>
-      <section className="rounded-3xl border border-black/10 bg-white/85 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">
+      <section className="rounded-2xl border border-zinc-200 bg-white p-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-              Team Access
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Team access
             </p>
-            <h2 className="mt-2 text-2xl font-semibold text-black">
+            <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">
               Manage event operators
             </h2>
           </div>
           <button
             type="button"
-            className="inline-flex h-11 items-center justify-center rounded-full bg-black px-5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+            className="btn"
             onClick={() => setAddMemberOpen(true)}
           >
             Add member
@@ -58,19 +58,19 @@ export default function EventTeamAccessSection() {
 
         <div className="mt-6 grid gap-4">
           {isLoading ? (
-            <p className="text-sm text-black/60">Loading team members...</p>
+            <p className="text-sm text-zinc-600">Loading team members...</p>
           ) : teamMembers.length === 0 ? (
-            <p className="text-sm text-black/60">No team members found.</p>
+            <p className="text-sm text-zinc-600">No team members found.</p>
           ) : (
             teamMembers.map((member) => (
               <div
                 key={member.id}
-                className="grid gap-4 rounded-2xl border border-black/10 bg-white px-5 py-4 sm:grid-cols-[1.4fr_auto] sm:items-center"
+                className="grid gap-4 rounded-2xl border border-zinc-200 bg-white px-5 py-4 sm:grid-cols-[1.4fr_auto] sm:items-center"
               >
                 <div>
-                  <p className="text-base font-semibold text-black">{member.name}</p>
-                  <p className="text-sm text-black/60">{member.email}</p>
-                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+                  <p className="text-base font-semibold text-zinc-900">{member.name}</p>
+                  <p className="text-sm text-zinc-600">{member.email}</p>
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
                     {member.role}
                   </p>
                 </div>
@@ -84,25 +84,25 @@ export default function EventTeamAccessSection() {
                         current === member.email ? null : member.email
                       )
                     }
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/15 text-lg font-semibold text-black transition hover:border-black/40"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-lg font-semibold text-zinc-700 transition hover:border-zinc-400"
                   >
                     <EllipsisVertical/>
                   </button>
                   {menuOpenFor === member.email ? (
-                    <div className="absolute right-0 top-11 z-10 w-48 max-w-[90vw] rounded-2xl border border-black/10 bg-white p-2 shadow-[0_20px_40px_-30px_rgba(0,0,0,0.35)] sm:right-0">
+                    <div className="absolute right-0 top-11 z-10 w-48 max-w-[90vw] rounded-2xl border border-zinc-200 bg-white p-2 shadow-pop sm:right-0">
                       <button
                         type="button"
-                        className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-widest text-black transition hover:bg-black/5"
+                        className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
                         onClick={() => {
                           setMenuOpenFor(null);
                           setRoleModalMember(member);
                         }}
                       >
-                        Promote / Demote
+                        Promote / demote
                       </button>
                       <button
                         type="button"
-                        className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-xs font-semibold uppercase tracking-widest text-rose-700 transition hover:bg-rose-50"
+                        className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50"
                         onClick={() => {
                           setMenuOpenFor(null);
                           setRemoveConfirmMember(member);

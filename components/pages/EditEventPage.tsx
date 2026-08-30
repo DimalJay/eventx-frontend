@@ -15,6 +15,7 @@ import DateTimeSection from "./create-event/DateTimeSection";
 import LocationSection from "./create-event/LocationSection";
 import EventOptionsSection from "./create-event/EventOptionsSection";
 import { TextIcon } from "./create-event/Icons";
+import HelpTooltip from "../widgets/HelpTooltip";
 
 const baseEventSchema = z.object({
   title: z.string().min(1, "Event name is required").max(100, "Event name must be 100 characters or less"),
@@ -221,19 +222,19 @@ export default function EditEventPage() {
   };
 
   if (isLoading) {
-    return <div className="p-8 text-center text-black/50">Loading event data...</div>;
+    return <div className="p-8 text-center text-zinc-500">Loading event data...</div>;
   }
 
   if (!event) {
-    return <div className="p-8 text-center text-red-500">Failed to load event data.</div>;
+    return <div className="p-8 text-center text-danger">Failed to load event data.</div>;
   }
 
   return (
     <FormProvider {...methods}>
       <div className="w-full">
         <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-black">Edit Event</h1>
-          <p className="text-sm text-black/60">Update details for "{event.title}"</p>
+          <h1 className="font-display text-2xl font-medium tracking-tight text-zinc-900">Edit event</h1>
+          <p className="mt-1 text-sm text-zinc-600">Update details for &quot;{event.title}&quot;</p>
         </div>
 
         <form className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start lg:gap-8" onSubmit={handleSubmit(onSubmit, onErrors)}>
@@ -241,8 +242,8 @@ export default function EditEventPage() {
           <section className="flex flex-col gap-4 lg:sticky lg:top-24">
             <CoverImageUpload initialPreview={initialCoverPreview} />
 
-            <div className="rounded-2xl border border-black/10 bg-white/80 p-4 backdrop-blur">
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-black/50">
+            <div className="rounded-2xl border border-zinc-200 bg-white p-4">
+              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
                 Visibility
               </span>
               <Controller
@@ -256,8 +257,8 @@ export default function EditEventPage() {
                     onChange={field.onChange}
                     className="mt-2 w-full px-3 py-2.5"
                     options={[
-                      { value: "true", label: "Public — anyone can find it" },
-                      { value: "false", label: "Private — invite only" },
+                      { value: "true", label: "Public - anyone can find it" },
+                      { value: "false", label: "Private - invite only" },
                     ]}
                   />
                 )}
@@ -266,15 +267,15 @@ export default function EditEventPage() {
           </section>
 
           {/* Right: form */}
-          <section className="flex flex-col gap-5 rounded-3xl border border-black/10 bg-white/80 p-5 shadow-[0_20px_60px_-40px_rgba(0,0,0,0.3)] backdrop-blur sm:p-7">
+          <section className="flex flex-col gap-5 rounded-2xl border border-zinc-200 bg-white p-5 sm:p-7">
             <input
               type="text"
               autoComplete="off"
-              placeholder="Event Name"
+              placeholder="Event name"
               {...register("title")}
-              className="w-full bg-transparent text-3xl font-semibold tracking-tight text-black outline-none placeholder:text-black/25 sm:text-4xl"
+              className="w-full bg-transparent font-display text-3xl font-medium tracking-tight text-zinc-900 outline-none placeholder:text-zinc-400 sm:text-4xl"
             />
-            {errors.title && <span className="text-red-500 text-xs mt-1">{errors.title.message}</span>}
+            {errors.title && <span className="mt-1 text-xs text-red-600">{errors.title.message}</span>}
 
             {/* Date card */}
             <DateTimeSection />
@@ -283,16 +284,17 @@ export default function EditEventPage() {
             <LocationSection />
 
             {/* Description */}
-            <div className="rounded-2xl border border-black/10 bg-white px-4 py-3">
-              <div className="flex items-center gap-3 text-black/70">
+            <div className="rounded-2xl border border-zinc-200 bg-white px-4 py-3">
+              <div className="flex items-center gap-3 text-zinc-700">
                 <TextIcon />
-                <span className="text-sm font-medium text-black">Description</span>
+                <span className="text-sm font-medium text-zinc-900">Description</span>
+                <HelpTooltip text="Write a short description of your event - who it's for, what attendees will get, and any key outcomes." />
               </div>
               <textarea
                 {...register("description")}
                 rows={3}
                 placeholder="Describe the audience, goals, and main outcomes."
-                className="mt-2 w-full resize-none bg-transparent text-sm text-black outline-none placeholder:text-black/35"
+                className="mt-2 w-full resize-none bg-transparent text-sm text-zinc-900 outline-none placeholder:text-zinc-400"
               />
             </div>
 
@@ -303,14 +305,14 @@ export default function EditEventPage() {
               <button
                 type="submit"
                 disabled={mutation.isPending}
-                className="flex-1 flex h-12 items-center justify-center rounded-2xl bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:bg-black/50"
+                className="btn flex-1 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {mutation.isPending ? "Saving..." : "Save Changes"}
+                {mutation.isPending ? "Saving..." : "Save changes"}
               </button>
               <button
                 type="button"
                 onClick={() => router.push(`/event/manage/${eventId}/overview`)}
-                className="flex h-12 items-center justify-center rounded-2xl border border-black/10 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:bg-black/5"
+                className="inline-flex h-12 flex-1 items-center justify-center rounded-full border border-zinc-200 bg-white px-6 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary"
               >
                 Cancel
               </button>

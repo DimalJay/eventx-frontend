@@ -7,6 +7,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { createTaskRequest } from "@/service/taskService";
 import Select from "../widgets/Select";
+import DateTimePicker from "../widgets/DateTimePicker";
+import HelpTooltip from "../widgets/HelpTooltip";
+import Dialog from "../widgets/Dialog";
 import { TeamMember } from "@/types/team";
 
 
@@ -60,40 +63,42 @@ export default function EventTaskCreateDialog({ open, onClose, users, eventId }:
         onClose();
     }
 
-    if (!open) return null;
+if (!open) return null;
 
-    return (
-        <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-            <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">Add task</p>
-
-                <h3 className="mt-2 text-xl font-semibold text-black">Create a new task</h3>
-
-                <p className="mt-2 text-sm text-black/60">Assign a task to a team member.</p>
-
-                <form className="mt-5 grid gap-4" onSubmit={handleSubmit(onSubmit)}>
-                    <label className="grid gap-2 text-sm font-semibold text-black">
+  return (
+    <Dialog
+      open={open}
+      eyebrow="Add task"
+      title="Create a new task"
+      description="Assign a task to a team member."
+    >
+      <form className="mt-5 grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+                    <label className="grid gap-2 text-sm font-semibold text-zinc-900">
                         Task title
                         <input
                             type="text"
                             {...register("title")}
-                            className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
+                            className="h-11 rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20"
                         />
-                        {errors.title && <span className="text-red-500 text-xs font-normal">{errors.title.message}</span>}
+                        {errors.title && <span className="text-red-600 text-xs font-normal">{errors.title.message}</span>}
                     </label>
 
-                    <label className="grid gap-2 text-sm font-semibold text-black">
-                        Description
+                    <div className="grid gap-2 text-sm font-semibold text-zinc-900">
+                        <label htmlFor="task-description" className="flex items-center gap-1.5">
+                          Description
+                          <HelpTooltip text="Add context so the assignee knows what's expected - scope, links, or acceptance criteria." side="bottom" />
+                        </label>
                         <textarea
+                            id="task-description"
                             rows={4}
                             {...register("description")}
-                            className="rounded-2xl border border-black/10 bg-white px-4 py-3 text-base text-black outline-none transition focus:border-black/40"
+                            className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20"
                         />
-                        {errors.description && <span className="text-red-500 text-xs font-normal">{errors.description.message}</span>}
-                    </label>
+                        {errors.description && <span className="text-red-600 text-xs font-normal">{errors.description.message}</span>}
+                    </div>
 
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <label className="grid gap-2 text-sm font-semibold text-black">
+                        <label className="grid gap-2 text-sm font-semibold text-zinc-900">
                             Assigned By
                             <Controller
                                 name="assignedBy"
@@ -109,11 +114,11 @@ export default function EventTaskCreateDialog({ open, onClose, users, eventId }:
                                     />
                                 )}
                             />
-                            {errors.assignedBy && <span className="text-red-500 text-xs font-normal">{errors.assignedBy.message}</span>}
+                            {errors.assignedBy && <span className="text-red-600 text-xs font-normal">{errors.assignedBy.message}</span>}
                         </label>
 
 
-                        <label className="grid gap-2 text-sm font-semibold text-black">
+                        <label className="grid gap-2 text-sm font-semibold text-zinc-900">
                             Assigned To
                             <Controller
                                 name="assignedTo"
@@ -129,23 +134,34 @@ export default function EventTaskCreateDialog({ open, onClose, users, eventId }:
                                     />
                                 )}
                             />
-                            {errors.assignedTo && <span className="text-red-500 text-xs font-normal">{errors.assignedTo.message}</span>}
+                            {errors.assignedTo && <span className="text-red-600 text-xs font-normal">{errors.assignedTo.message}</span>}
                         </label>
                     </div>
-                    <label className="grid gap-2 text-sm font-semibold text-black">
-                        Due Date
-                        <input
-                            type="date"
-                            {...register("dueDate")}
-                            className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
+                    <div className="grid gap-2 text-sm font-semibold text-zinc-900">
+                        <div className="flex items-center gap-1.5">
+                          Due Date
+                          <HelpTooltip text="The date the task should be completed. Team members see the due date on their task list." side="bottom" />
+                        </div>
+                        <Controller
+                            name="dueDate"
+                            control={control}
+                            render={({ field }) => (
+                                <DateTimePicker
+                                    mode="date"
+                                    name={field.name}
+                                    ariaLabel="Task due date"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                />
+                            )}
                         />
-                        {errors.dueDate && <span className="text-red-500 text-xs font-normal">{errors.dueDate.message}</span>}
-                    </label>
+                        {errors.dueDate && <span className="text-red-600 text-xs font-normal">{errors.dueDate.message}</span>}
+                    </div>
 
                     <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
                         <button
                             type="button"
-                            className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+                            className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
                             onClick={handleClose}
                         >
                             Cancel
@@ -153,14 +169,13 @@ export default function EventTaskCreateDialog({ open, onClose, users, eventId }:
 
                         <button
                             type="submit"
-                            className="inline-flex h-10 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/60"
+                            className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
                             disabled={mutation.isPending}
                         >
                             {mutation.isPending ? "Creating..." : "Create task"}
                         </button>
                     </div>
-                </form>
-            </div>
-        </div>
-    );
+</form>
+    </Dialog>
+  );
 }

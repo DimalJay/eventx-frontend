@@ -4,6 +4,9 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { sendInvitationsRequest } from "@/service/registrationService";
 import { toast } from "sonner";
+import HelpTooltip from "@/components/widgets/HelpTooltip";
+import Select from "@/components/widgets/Select";
+import Dialog from "@/components/widgets/Dialog";
 
 type Props = {
   eventId: string;
@@ -75,42 +78,43 @@ export default function SendInvitationDialog({ eventId, open, onClose }: Props) 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/40 px-4 backdrop-blur-sm">
-      <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-          Invitations
-        </p>
-        <h3 className="mt-2 text-xl font-semibold text-black">
-          Send Event Invitations
-        </h3>
-        <p className="mt-2 text-sm text-black/60">
-          Invite speakers or VIP guests. They will receive a dynamic invitation email to confirm attendance.
-        </p>
-
-        <form
+    <Dialog
+      open={open}
+      eyebrow="Invitations"
+      title="Send Event Invitations"
+      description="Invite speakers or VIP guests. They will receive a dynamic invitation email to confirm attendance."
+    >
+      <form
           onSubmit={(e) => {
             e.preventDefault();
             mutation.mutate();
           }}
           className="mt-5 space-y-4"
         >
-          <div className="grid gap-2 text-sm font-semibold text-black">
-            <label htmlFor="invitation-role">Recipient Role</label>
-            <select
-              id="invitation-role"
+          <div className="grid gap-2 text-sm font-semibold text-zinc-900">
+            <div className="flex items-center gap-1.5">
+              <label htmlFor="invitation-role">Recipient Role</label>
+              <HelpTooltip text="Guest Speaker events carry the speaker role on the agenda; VVIP / VIP participants are honored guests without a speaking slot." side="bottom" />
+            </div>
+            <Select
+              ariaLabel="Recipient Role"
               value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
-            >
-              <option value="GUEST_SPEAKER">Guest Speaker</option>
-              <option value="VVIP_VIP">VVIP / VIP Participant</option>
-            </select>
+              onChange={setRole}
+              className="h-11 w-full px-4"
+              options={[
+                { value: "GUEST_SPEAKER", label: "Guest Speaker" },
+                { value: "VVIP_VIP", label: "VVIP / VIP Participant" },
+              ]}
+            />
           </div>
 
-          <div className="grid gap-2 text-sm font-semibold text-black">
+          <div className="grid gap-2 text-sm font-semibold text-zinc-900">
             <div className="flex items-center justify-between">
-              <label htmlFor="invitation-emails">Email Addresses</label>
-              <label className="text-xs text-blue-600 hover:underline cursor-pointer">
+              <div className="flex items-center gap-1.5">
+                <label htmlFor="invitation-emails">Email Addresses</label>
+                <HelpTooltip text="Separate multiple addresses with commas or new lines. You can also upload a CSV file and valid email addresses will be extracted automatically." side="bottom" />
+              </div>
+              <label className="text-xs text-primary hover:underline cursor-pointer">
                 Upload CSV
                 <input
                   type="file"
@@ -126,14 +130,14 @@ export default function SendInvitationDialog({ eventId, open, onClose }: Props) 
               placeholder="Enter emails separated by commas or lines..."
               value={emailsInput}
               onChange={(e) => setEmailsInput(e.target.value)}
-              className="rounded-2xl border border-black/10 bg-white p-4 text-base text-black outline-none transition focus:border-black/40 resize-none"
+              className="rounded-xl border border-zinc-200 bg-white p-4 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20 resize-none"
             />
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+              className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
               onClick={onClose}
               disabled={mutation.isPending}
             >
@@ -141,14 +145,13 @@ export default function SendInvitationDialog({ eventId, open, onClose }: Props) 
             </button>
             <button
               type="submit"
-              className="inline-flex h-10 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:opacity-50"
+              className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50"
               disabled={mutation.isPending}
             >
               {mutation.isPending ? "Sending..." : "Send Invitation"}
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Dialog>
   );
 }

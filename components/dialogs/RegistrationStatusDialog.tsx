@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { IRegistration } from "@/types";
+import Dialog from "@/components/widgets/Dialog";
 
 type Props = {
   reg: IRegistration;
@@ -26,36 +27,29 @@ export default function RegistrationStatusDialog({ reg, open, onClose, onUpdateS
     }
   }, [isPending]);
 
-  if (!open) return null;
-
   const handleUpdate = (status: string) => {
     setUpdatingStatus(status);
     onUpdateStatus(reg.id, status);
   };
 
   return (
-    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-      <div className="w-full max-w-sm rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-          Update status
-        </p>
-        <h3 className="mt-2 text-xl font-semibold text-black">
-          {reg.firstName} {reg.lastName}
-        </h3>
-        <p className="mt-2 text-sm text-black/60">
-          {reg.email}
-        </p>
-
-        <div className="mt-5 grid gap-2">
+    <Dialog
+      open={open}
+      eyebrow="Update status"
+      title={`${reg.firstName} ${reg.lastName}`}
+      description={reg.email}
+      maxWidth="sm"
+    >
+      <div className="mt-5 grid gap-2">
           {dialogOptions.map((opt) => (
             <button
               key={opt.value}
               type="button"
               disabled={isPending}
-              className={`flex w-full items-center justify-between rounded-2xl border px-5 py-3 text-left text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`flex w-full items-center justify-between rounded-xl border px-5 py-3 text-left text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed ${
                 reg.status === opt.value
-                  ? "border-black/30 bg-black/5 text-black"
-                  : "border-black/10 bg-white text-black/70 hover:border-black/30"
+                  ? "border-primary bg-primary-soft text-primary"
+                  : "border-zinc-200 bg-white text-zinc-600 hover:border-primary/30"
               }`}
               onClick={() => handleUpdate(opt.value)}
             >
@@ -63,7 +57,7 @@ export default function RegistrationStatusDialog({ reg, open, onClose, onUpdateS
                 {isPending && updatingStatus === opt.value ? "Updating..." : opt.label}
               </div>
               {reg.status === opt.value && (!isPending || updatingStatus !== opt.value) ? (
-                <span className="text-xs text-black/40">Current</span>
+                <span className="text-xs text-primary/70">Current</span>
               ) : null}
             </button>
           ))}
@@ -72,13 +66,12 @@ export default function RegistrationStatusDialog({ reg, open, onClose, onUpdateS
         <div className="mt-5 flex justify-end">
           <button
             type="button"
-            className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
             onClick={onClose}
           >
             Close
           </button>
         </div>
-      </div>
-    </div>
+    </Dialog>
   );
 }

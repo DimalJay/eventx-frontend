@@ -8,9 +8,10 @@ import { toast } from "sonner";
 import { useAuth } from "@/components/auth/AuthContext";
 import { changePassword, deleteAccount } from "@/service/userService";
 import DeleteAccountDialog from "@/components/dialogs/DeleteAccountDialog";
+import HelpTooltip from "@/components/widgets/HelpTooltip";
 
 const inputBase =
-  "h-11 w-full rounded-xl border border-black/10 bg-white px-3 text-sm text-black outline-none transition focus:border-black/40 focus:ring-2 focus:ring-black/5";
+  "h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-500 focus:border-primary/60 focus:ring-2 focus:ring-primary/20";
 
 interface PasswordFormValues {
   currentPassword: string;
@@ -87,11 +88,11 @@ export default function AccountSettingsPage() {
 
   if (!user) {
     return (
-      <section className="rounded-3xl border border-black/10 bg-white/85 p-7 backdrop-blur">
-        <div className="h-6 w-40 animate-pulse rounded-full bg-black/10" />
+      <section className="card p-7">
+        <div className="h-6 w-40 animate-pulse rounded-full bg-zinc-200" />
         <div className="mt-4 space-y-4">
-          <div className="h-11 animate-pulse rounded-xl bg-black/5" />
-          <div className="h-11 animate-pulse rounded-xl bg-black/5" />
+          <div className="h-11 animate-pulse rounded-xl bg-zinc-100" />
+          <div className="h-11 animate-pulse rounded-xl bg-zinc-100" />
         </div>
       </section>
     );
@@ -114,18 +115,18 @@ export default function AccountSettingsPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <section className="rounded-3xl border border-black/10 bg-white/85 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+      <section className="card p-7">
+        <p className="eyebrow">
           Account details
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {rows.map((row) => (
             <div
               key={row.label}
-              className="rounded-2xl border border-black/5 bg-[#f5f1ea] px-5 py-4"
+              className="rounded-2xl border border-zinc-200 bg-zinc-50 px-5 py-4"
             >
-              <p className="text-xs text-black/50">{row.label}</p>
-              <p className="mt-1 truncate text-sm font-semibold capitalize text-black">
+              <p className="text-xs text-zinc-500">{row.label}</p>
+              <p className="mt-1 truncate text-sm font-semibold capitalize text-zinc-900">
                 {row.value}
               </p>
             </div>
@@ -133,11 +134,11 @@ export default function AccountSettingsPage() {
         </div>
       </section>
 
-      <section className="rounded-3xl border border-black/10 bg-white/85 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+      <section className="card p-7">
+        <p className="eyebrow">
           Change password
         </p>
-        <p className="mt-2 text-sm leading-6 text-black/70">
+        <p className="mt-2 text-sm leading-6 text-zinc-600">
           Use a password with at least 8 characters.
         </p>
 
@@ -146,7 +147,7 @@ export default function AccountSettingsPage() {
           className="mt-4 grid gap-4 sm:grid-cols-2"
         >
           <div className="sm:col-span-2">
-            <label className="mb-1.5 block text-xs text-black/60">
+            <label className="mb-1.5 block text-xs font-medium text-zinc-700">
               Current password
             </label>
             <input
@@ -165,8 +166,9 @@ export default function AccountSettingsPage() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs text-black/60">
+            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-zinc-700">
               New password
+              <HelpTooltip text="Use at least 8 characters. Avoid reusing a password from another site, and mix letters, numbers, and symbols." side="bottom" />
             </label>
             <input
               type="password"
@@ -188,7 +190,7 @@ export default function AccountSettingsPage() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs text-black/60">
+            <label className="mb-1.5 block text-xs font-medium text-zinc-700">
               Confirm new password
             </label>
             <input
@@ -212,7 +214,7 @@ export default function AccountSettingsPage() {
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="inline-flex h-11 items-center justify-center rounded-full bg-black px-6 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/85 disabled:opacity-50"
+              className="btn disabled:opacity-50"
             >
               {mutation.isPending ? "Updating..." : "Update password"}
             </button>
@@ -220,22 +222,22 @@ export default function AccountSettingsPage() {
         </form>
       </section>
 
-      <section className="rounded-3xl border border-red-200 bg-white/85 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-red-600">
+      <section className="rounded-2xl border border-red-200 bg-white p-7">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-red-600">
           Danger zone
         </p>
         <div className="mt-4 space-y-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-black">Log out</p>
-              <p className="mt-0.5 text-sm text-black/60">
+              <p className="text-sm font-semibold text-zinc-900">Log out</p>
+              <p className="mt-0.5 text-sm text-zinc-600">
                 Log out of EventX on this device.
               </p>
             </div>
             <button
               type="button"
               onClick={handleLogout}
-              className="inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-red-200 bg-red-50 px-6 text-xs font-semibold uppercase tracking-widest text-red-600 transition hover:border-red-400"
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-full border border-red-200 bg-red-50 px-6 text-sm font-semibold text-red-600 transition hover:border-red-400"
             >
               Log out
             </button>
@@ -245,10 +247,10 @@ export default function AccountSettingsPage() {
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-black">
+              <p className="text-sm font-semibold text-zinc-900">
                 Delete account
               </p>
-              <p className="mt-0.5 text-sm text-black/60">
+              <p className="mt-0.5 text-sm text-zinc-600">
                 Permanently delete your account, your events, and all related
                 data.
               </p>
@@ -257,7 +259,7 @@ export default function AccountSettingsPage() {
               type="button"
               disabled={deleteMutation.isPending}
               onClick={() => setDeleteOpen(true)}
-              className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-red-500 px-6 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-red-600 disabled:opacity-50"
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-danger px-6 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-50"
             >
               {deleteMutation.isPending ? "Deleting..." : "Delete account"}
             </button>

@@ -24,10 +24,10 @@ export default function SettingsSidebar() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold transition",
+              "flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition",
               active
-                ? "bg-black text-white"
-                : "text-black/60 hover:bg-black/5 hover:text-black",
+                ? "bg-primary text-white shadow-card"
+                : "text-zinc-600 hover:bg-primary-faint hover:text-primary",
             )}
           >
             <Icon className="h-4 w-4 shrink-0" />

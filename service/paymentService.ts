@@ -1,21 +1,45 @@
 import { request } from "@/lib/request";
 import { Response, StripeConnectStatus } from "@/types";
 
+const ALREADY_PURCHASED_PATTERNS = [
+  /already (purchased|bought|registered|booked)/i,
+  /already own/i,
+  /already have (a )?ticket/i,
+  /duplicate (registration|purchase)/i,
+];
+
+const friendlyMessage = (raw: string): string => {
+  if (ALREADY_PURCHASED_PATTERNS.some((re) => re.test(raw))) {
+    return "You have already purchased a ticket for this event. Check your email for the confirmation.";
+  }
+  if (/invalid email/i.test(raw)) {
+    return "Unable to start payment for this event. Please try again or contact support.";
+  }
+  return raw;
+};
+
 export const createCheckoutSession = async (data: {
   eventId: string;
   quantity?: number;
 }) => {
-  const res: Response = await request("/payment/checkout-session", {
-    method: "POST",
-    data: {
-      eventId: Number(data.eventId),
-      quantity: data.quantity ?? 1,
-      currency: "lkr",
-    },
-  });
+  let res: Response;
+  try {
+    res = await request("/payment/checkout-session", {
+      method: "POST",
+      data: {
+        eventId: Number(data.eventId),
+        quantity: data.quantity ?? 1,
+        currency: "lkr",
+      },
+    });
+  } catch (err) {
+    const msg =
+      err instanceof Error ? err.message : "Unable to start payment.";
+    throw new Error(friendlyMessage(msg));
+  }
 
   if (res && !res.success) {
-    throw new Error(res.message || "Unable to start payment.");
+    throw new Error(friendlyMessage(res.message || "Unable to start payment."));
   }
 
   const url =

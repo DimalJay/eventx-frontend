@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../auth/AuthContext";
@@ -41,6 +42,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const { login, googleLogin } = useAuth();
+  const [formError, setFormError] = useState<string | null>(null);
 
   const {
     register,
@@ -53,6 +55,7 @@ export default function LoginPage() {
       return login(data);
     },
     onSuccess: () => {
+      setFormError(null);
       toast.success("Login successful.");
       router.replace("/home");
     },
@@ -63,7 +66,7 @@ export default function LoginPage() {
         return;
       }
       const message = error?.response?.data?.message || error?.message || "Login failed. Please try again.";
-      toast.error(message);
+      setFormError(message);
     },
   });
 
@@ -90,6 +93,7 @@ export default function LoginPage() {
   };
 
   const onSubmit = (data: LoginFormValues) => {
+    setFormError(null);
     mutation.mutate(data);
   };
 
@@ -129,7 +133,7 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   placeholder="jordan@eventx.com"
-                  {...register("email")}
+                  {...register("email", { onChange: () => setFormError(null) })}
                   className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-900 outline-none transition placeholder:text-zinc-500 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
                 />
                 {errors.email && (
@@ -144,7 +148,7 @@ export default function LoginPage() {
                   type="password"
                   autoComplete="current-password"
                   placeholder="Enter your password"
-                  {...register("password")}
+                  {...register("password", { onChange: () => setFormError(null) })}
                   className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-900 outline-none transition placeholder:text-zinc-500 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
                 />
                 {errors.password && (
@@ -162,6 +166,15 @@ export default function LoginPage() {
                   Forgot password?
                 </Link>
               </div>
+
+              {formError && (
+                <div
+                  role="alert"
+                  className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-600"
+                >
+                  {formError}
+                </div>
+              )}
 
               <button
                 type="submit"

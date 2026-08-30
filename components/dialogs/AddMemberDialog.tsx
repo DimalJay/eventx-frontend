@@ -1,11 +1,14 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { addTeamMember } from "@/service/teamService";
 import { toast } from "sonner";
+import HelpTooltip from "@/components/widgets/HelpTooltip";
+import Select from "@/components/widgets/Select";
+import Dialog from "@/components/widgets/Dialog";
 
 type Props = {
   eventId: string;
@@ -26,6 +29,7 @@ export default function AddMemberDialog({ eventId, open, onClose }: Props) {
   const {
     register,
     handleSubmit,
+    control,
     reset,
     formState: { errors },
   } = useForm<FormValues>({
@@ -53,67 +57,65 @@ export default function AddMemberDialog({ eventId, open, onClose }: Props) {
     },
   });
 
-  if (!open) return null;
-
   return (
-    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-      <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-          Add member
-        </p>
-        <h3 className="mt-2 text-xl font-semibold text-black">
-          Invite a team member
-        </h3>
-        <p className="mt-2 text-sm text-black/60">
-          Enter an email and assign a role for event access.
-        </p>
-
-        <form onSubmit={handleSubmit(({ email, role }) => mutation.mutate({ email, role }))}>
-          <label className="mt-5 grid gap-2 text-sm font-semibold text-black">
+    <Dialog
+      open={open}
+      eyebrow="Add member"
+      title="Invite a team member"
+      description="Enter an email and assign a role for event access."
+    >
+      <form onSubmit={handleSubmit(({ email, role }) => mutation.mutate({ email, role }))}>
+          <label className="mt-5 grid gap-2 text-sm font-semibold text-zinc-900">
             Email address
             <input
               type="email"
               autoComplete="email"
               placeholder="person@eventx.com"
               {...register("email")}
-              className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
+              className="h-11 rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20"
             />
             {errors.email && (
-              <p className="text-xs text-rose-600">{errors.email.message}</p>
+              <p className="text-xs text-red-600">{errors.email.message}</p>
             )}
           </label>
 
-          <label className="mt-4 grid gap-2 text-sm font-semibold text-black">
-            Role
-            <select
-              {...register("role")}
-              className="h-11 rounded-2xl border border-black/10 bg-white px-4 text-base text-black outline-none transition focus:border-black/40"
-            >
-              {roleOptions.map((role) => (
-                <option key={role} value={role}>
-                  {role}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="mt-4">
+            <div className="flex items-center gap-1.5 text-sm font-semibold text-zinc-900">
+              Role
+              <HelpTooltip text="Coordinators can edit event details and manage attendees. Members can view event data but cannot change settings." side="bottom" />
+            </div>
+            <Controller
+              name="role"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  name={field.name}
+                  ariaLabel="Role"
+                  value={field.value}
+                  onChange={field.onChange}
+                  className="mt-2 h-11 w-full px-4"
+                  options={roleOptions.map((role) => ({ value: role, label: role }))}
+                />
+              )}
+            />
+          </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+              className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
               onClick={onClose}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="inline-flex h-10 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+              className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90"
             >
               Send invite
             </button>
           </div>
         </form>
-      </div>
-    </div>
+    </Dialog>
   );
 }

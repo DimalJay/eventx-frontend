@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
+import Dialog from "../widgets/Dialog";
 
 const agendaSchema = z.object({
   task: z.string().min(1, "Task title is required"),
@@ -74,40 +75,41 @@ export default function EditEventAgendaItem({
   };
 
   return (
-    <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-      <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">Update Schedule</p>
-        <h3 className="mt-2 text-xl font-semibold text-black">Edit Agenda Item</h3>
-        <p className="mt-2 text-sm text-black/60">Modify the details of this agenda item.</p>
-
+    <Dialog
+      open
+      eyebrow="Update Schedule"
+      title="Edit Agenda Item"
+      description="Modify the details of this agenda item."
+    >
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mt-5 space-y-4">
-          <label className="grid gap-2 text-sm font-semibold text-black">
+          <label className="grid gap-2 text-sm font-semibold text-zinc-900">
             Task / Title
-            <input type="text" required className="h-11 rounded-2xl border border-black/10 px-4 text-base outline-none transition focus:border-black/40" {...register("task")} />
+            <input type="text" required className="h-11 rounded-xl border border-zinc-200 px-4 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20" {...register("task")} />
           </label>
 
           <div className="grid grid-cols-2 gap-4">
-            <label className="grid gap-2 text-sm font-semibold text-black">
+            <label className="grid gap-2 text-sm font-semibold text-zinc-900">
               Start Time
-              <input type="time" required className="h-11 rounded-2xl border border-black/10 px-4 text-base outline-none transition focus:border-black/40" {...register("startTime")} />
+              <input type="time" required className="h-11 rounded-xl border border-zinc-200 px-4 text-sm text-zinc-900 outline-none transition focus:border-primary/60 focus:ring-primary/20" {...register("startTime")} />
             </label>
-            <label className="grid gap-2 text-sm font-semibold text-black">
+            <label className="grid gap-2 text-sm font-semibold text-zinc-900">
               End Time
-              <input type="time" required className="h-11 rounded-2xl border border-black/10 px-4 text-base outline-none transition focus:border-black/40" {...register("endTime")} />
+              <input type="time" required className="h-11 rounded-xl border border-zinc-200 px-4 text-sm text-zinc-900 outline-none transition focus:border-primary/60 focus:ring-primary/20" {...register("endTime")} />
             </label>
           </div>
 
-          <label className="grid gap-2 text-sm font-semibold text-black">
+          <label className="grid gap-2 text-sm font-semibold text-zinc-900">
             Location
-            <input type="text" required className="h-11 rounded-2xl border border-black/10 px-4 text-base outline-none transition focus:border-black/40" {...register("location")} />
+            <input type="text" required className="h-11 rounded-xl border border-zinc-200 px-4 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20" {...register("location")} />
           </label>
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <button type="button" className="inline-flex h-10 items-center justify-center rounded-full border border-black/15 px-4 text-xs font-semibold uppercase text-black" onClick={() => setOpen(false)}>Cancel</button>
-          <button type="submit" className="inline-flex h-10 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase text-white">Save Changes</button>
+          <button type="button" className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900" onClick={() => setOpen(false)}>Cancel</button>
+          <button type="submit" className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90">Save Changes</button>
         </div>
       </form>
-    </div>
+    </Dialog>
   );
 }

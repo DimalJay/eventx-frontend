@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import EventTaskCreateDialog from "../dialogs/EventTaskCreateDialog";
+import Dialog from "../widgets/Dialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { getTeamMembers } from "@/service/teamService";
 import { getTasksRequest, updateTaskStatusRequest } from "@/service/taskService";
@@ -129,19 +130,19 @@ export default function EventManageTasksPage() {
   return (
     <>
       <div className="flex flex-col gap-6">
-        <section className="flex flex-col gap-5 rounded-3xl border border-black/10 bg-white/85 p-7 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur sm:flex-row sm:items-center sm:justify-between">
+        <section className="flex flex-col gap-5 rounded-2xl border border-zinc-200 bg-white p-7 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
               Team tasks
             </p>
 
-            <h2 className="mt-2 text-2xl font-semibold text-black">
+            <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">
               {done} of {total} complete
             </h2>
 
-            <div className="mt-4 h-2 w-64 max-w-full overflow-hidden rounded-full bg-black/10">
+            <div className="mt-4 h-2 w-64 max-w-full overflow-hidden rounded-full bg-zinc-200">
               <div
-                className="h-full rounded-full bg-black"
+                className="h-full rounded-full bg-primary"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -149,7 +150,7 @@ export default function EventManageTasksPage() {
 
           <button
             type="button"
-            className="inline-flex h-11 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+            className="btn"
             onClick={() => {
               setAddTaskOpen(true);
             }}
@@ -162,7 +163,7 @@ export default function EventManageTasksPage() {
           {Object.entries(groupedTasks).map(([key, value]) => (
             <div
               key={key}
-              className="flex flex-col gap-4 rounded-3xl border border-black/10 bg-white/80 p-6"
+              className="flex flex-col gap-4 rounded-2xl border border-zinc-200 bg-white p-6"
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, key as TaskStatus)}
             >
@@ -173,7 +174,7 @@ export default function EventManageTasksPage() {
                   {TaskStatusDetails[key as TaskStatus].label}
                 </span>
 
-                <span className="text-xs text-black/40">
+                <span className="text-xs text-zinc-400">
                   {value.length}
                 </span>
               </div>
@@ -199,31 +200,22 @@ export default function EventManageTasksPage() {
 
       {
         taskCreatedOpen ? (
-          <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-4">
-            <div className="w-full max-w-md rounded-3xl border border-black/10 bg-white p-6 shadow-[0_30px_70px_-40px_rgba(0,0,0,0.5)]">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
-                Task created
-              </p>
-
-              <h3 className="mt-2 text-xl font-semibold text-black">
-                Task added successfully
-              </h3>
-
-              <p className="mt-2 text-sm text-black/60">
-                The task has been assigned and saved.
-              </p>
-
-              <div className="mt-6 flex justify-end">
-                <button
-                  type="button"
-                  className="inline-flex h-10 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
-                  onClick={() => setTaskCreatedOpen(false)}
-                >
-                  Close
-                </button>
-              </div>
+          <Dialog
+            open
+            eyebrow="Task created"
+            title="Task added successfully"
+            description="The task has been assigned and saved."
+          >
+            <div className="mt-6 flex justify-end">
+              <button
+                type="button"
+                className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-white transition hover:bg-primary-strong"
+                onClick={() => setTaskCreatedOpen(false)}
+              >
+                Close
+              </button>
             </div>
-          </div>
+          </Dialog>
         ) : null
       }
     </>

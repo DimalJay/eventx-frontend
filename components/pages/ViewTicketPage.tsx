@@ -8,7 +8,7 @@ const ticket = {
   organizer: "EventX Studio",
   status: "Valid",
   date: "Thu, Jun 18, 2026",
-  time: "9:00 AM – 5:00 PM",
+  time: "9:00 AM - 5:00 PM",
   venue: "Brooklyn Expo Center",
   location: "Brooklyn, NY",
   holder: "Avery Lin",
@@ -33,7 +33,7 @@ export default function ViewTicketPage() {
 
         {/* Ticket */}
         <div className="relative overflow-hidden rounded-3xl border border-black/10 bg-white shadow-[0_30px_80px_-50px_rgba(0,0,0,0.5)]">
-          {/* Top — event info */}
+          {/* Top - event info */}
           <div className="flex flex-col gap-5 p-6 sm:p-7">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
@@ -73,7 +73,7 @@ export default function ViewTicketPage() {
             <div className="mx-6 border-t border-dashed border-black/20" />
           </div>
 
-          {/* Bottom — QR + holder */}
+          {/* Bottom - QR + holder */}
           <div className="flex flex-col items-center gap-5 p-6 sm:p-7">
             <div className="rounded-3xl border border-black/10">
               <ReactQRCode
@@ -117,7 +117,7 @@ export default function ViewTicketPage() {
         <div className="flex flex-col gap-3">
           <AddToCalendar
             title={ticket.event}
-            description={`Your ${ticket.type} ticket — ${ticket.code}`}
+            description={`Your ${ticket.type} ticket - ${ticket.code}`}
             location={`${ticket.venue}, ${ticket.location}`}
             start={ticket.start}
             end={ticket.end}
