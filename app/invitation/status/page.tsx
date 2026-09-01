@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Link from "next/link";
 import { CheckCircle2, XCircle } from "lucide-react";
+import ShaderBackground from "@/components/landing/ShaderBackground";
 
 function StatusContent() {
   const searchParams = useSearchParams();
@@ -13,9 +14,8 @@ function StatusContent() {
   const isAccept = response === "accept";
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5f1ea] px-4">
-      <div className="pointer-events-none absolute -left-28 top-12 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-40 blur-3xl" />
-      <div className="pointer-events-none absolute right-10 top-24 h-64 w-64 rounded-full bg-[#9fd3ff] opacity-35 blur-3xl" />
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-white px-4">
+      <ShaderBackground />
 
       <main className="relative w-full max-w-md rounded-3xl border border-black/10 bg-white/80 p-8 text-center shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur-md">
         <div className="flex justify-center">
@@ -55,7 +55,7 @@ function StatusContent() {
 
 export default function InvitationStatusPage() {
   return (
-    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-[#f5f1ea] text-black/50">Loading...</div>}>
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center bg-white text-black/50">Loading...</div>}>
       <StatusContent />
     </Suspense>
   );

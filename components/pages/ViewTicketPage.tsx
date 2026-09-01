@@ -2,6 +2,7 @@ import Link from "next/link";
 import AddToCalendar from "../widgets/AddToCalendar";
 import { ReactQRCode } from "@lglab/react-qr-code";
 import Logo from "../widgets/Logo";
+import ShaderBackground from "../landing/ShaderBackground";
 
 const ticket = {
   event: "Astra Product Summit",
@@ -24,10 +25,8 @@ const ticket = {
 
 export default function ViewTicketPage() {
   return (
-    <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f5f1ea]">
-      <div className="pointer-events-none absolute -left-24 top-10 h-52 w-52 rounded-full bg-[#ffc9a7] opacity-35 blur-3xl" />
-      <div className="pointer-events-none absolute right-8 top-20 h-60 w-60 rounded-full bg-[#9fd3ff] opacity-35 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-10 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-[#ffe8a3] opacity-40 blur-3xl" />
+    <div className="relative flex flex-1 justify-center overflow-hidden bg-white">
+      <ShaderBackground />
 
       <main className="relative flex w-full max-w-md flex-col gap-8 px-5 py-12 sm:px-6 sm:py-16 my-7">
 
@@ -68,8 +67,8 @@ export default function ViewTicketPage() {
 
           {/* Perforated divider */}
           <div className="relative">
-            <div className="absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-[#f5f1ea]" />
-            <div className="absolute -right-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-[#f5f1ea]" />
+            <div className="absolute -left-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-white" />
+            <div className="absolute -right-3 top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-white" />
             <div className="mx-6 border-t border-dashed border-black/20" />
           </div>
 

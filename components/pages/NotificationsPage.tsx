@@ -12,6 +12,7 @@ import {
 } from "@/service/notificationService";
 import type { INotification } from "@/types/notifications";
 import { NotificationsLoadingSkeleton } from "@/components/skeleton/NotificationsLoadingSkeleton";
+import ShaderBackground from "../landing/ShaderBackground";
 
 function timeAgo(dateString: string): string {
   const now = Date.now();
@@ -79,9 +80,8 @@ export default function NotificationsPage() {
   });
 
   return (
-    <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f5f1ea]">
-      <div className="pointer-events-none absolute -left-24 top-10 h-52 w-52 rounded-full bg-[#ffc9a7] opacity-35 blur-3xl" />
-      <div className="pointer-events-none absolute right-8 top-20 h-60 w-60 rounded-full bg-[#9fd3ff] opacity-35 blur-3xl" />
+    <div className="relative flex flex-1 justify-center overflow-hidden bg-white">
+      <ShaderBackground />
 
       <main className="relative flex w-full max-w-3xl flex-col gap-8 px-5 py-12 sm:px-8 sm:py-16">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

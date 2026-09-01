@@ -8,6 +8,7 @@ import { IEvent, WithID } from "@/types";
 import Select from "../widgets/Select";
 import { formatPrice } from "@/lib/utils";
 import { Search, CalendarDays, MapPin, ArrowRight, RotateCcw, AlertCircle, Video } from "lucide-react";
+import ShaderBackground from "../landing/ShaderBackground";
 
 export default function DiscoverEvents() {
   // State for search and filters
@@ -111,11 +112,8 @@ export default function DiscoverEvents() {
   const isFiltered = searchQuery || dateFilter !== "all" || priceFilter !== "all" || sortBy !== "date-asc";
 
   return (
-    <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f5f1ea]">
-      {/* Decorative blurred backdrop elements */}
-      <div className="pointer-events-none absolute -left-28 top-12 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-40 blur-3xl" />
-      <div className="pointer-events-none absolute right-10 top-24 h-64 w-64 rounded-full bg-[#9fd3ff] opacity-35 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-10 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[#ffe8a3] opacity-45 blur-3xl" />
+    <div className="relative flex flex-1 justify-center overflow-hidden bg-white">
+      <ShaderBackground />
 
       <main className="relative flex w-full max-w-6xl flex-col gap-10 px-6 py-16 sm:px-10 sm:py-20">
         {/* Header section matching landing style */}
