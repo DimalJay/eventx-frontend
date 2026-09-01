@@ -237,7 +237,97 @@ export default function EventManageSettingsPage() {
   });
 
   if (isLoading) {
-    return <div className="p-8 text-center text-zinc-500">Loading event settings...</div>;
+    return (
+      <div className="flex animate-pulse flex-col gap-6" aria-label="Loading event settings">
+        {/* General */}
+        <section className={`${cardClass}`}>
+          <div className="h-3 w-16 rounded-full bg-zinc-200" />
+          <div className="mt-3 h-6 w-44 rounded-full bg-zinc-200" />
+          <div className="mt-3 h-3 w-3/4 rounded bg-zinc-100" />
+          <div className="mt-6 grid gap-4">
+            <div>
+              <div className="h-3 w-20 rounded-full bg-zinc-200" />
+              <div className="mt-2 h-11 rounded-xl bg-zinc-100" />
+            </div>
+            <div>
+              <div className="h-3 w-20 rounded-full bg-zinc-200" />
+              <div className="mt-2 h-24 rounded-xl bg-zinc-100" />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <div className="h-3 w-20 rounded-full bg-zinc-200" />
+                <div className="mt-2 h-11 rounded-xl bg-zinc-100" />
+              </div>
+              <div>
+                <div className="h-3 w-20 rounded-full bg-zinc-200" />
+                <div className="mt-2 h-11 rounded-xl bg-zinc-100" />
+              </div>
+            </div>
+            <div className="flex justify-end border-t border-zinc-200 pt-4">
+              <div className="h-10 w-32 rounded-full bg-zinc-200" />
+            </div>
+          </div>
+        </section>
+
+        {/* Schedule */}
+        <section className={`${cardClass}`}>
+          <div className="h-3 w-16 rounded-full bg-zinc-200" />
+          <div className="mt-3 h-6 w-52 rounded-full bg-zinc-200" />
+          <div className="mt-3 h-3 w-2/3 rounded bg-zinc-100" />
+          <div className="mt-6 grid gap-3">
+            <div className="h-11 rounded-xl bg-zinc-100" />
+            <div className="h-11 rounded-xl bg-zinc-100" />
+            <div className="h-11 rounded-xl bg-zinc-100" />
+            <div className="flex justify-end border-t border-zinc-200 pt-4">
+              <div className="h-10 w-40 rounded-full bg-zinc-200" />
+            </div>
+          </div>
+        </section>
+
+        {/* Options */}
+        <section className={`${cardClass}`}>
+          <div className="h-3 w-16 rounded-full bg-zinc-200" />
+          <div className="mt-3 h-6 w-56 rounded-full bg-zinc-200" />
+          <div className="mt-3 h-3 w-4/5 rounded bg-zinc-100" />
+          <div className="mt-6 grid grid-cols-1 gap-5 lg:grid-cols-[240px_1fr]">
+            <div className="h-40 rounded-xl bg-zinc-100" />
+            <div className="grid gap-4">
+              <div>
+                <div className="h-3 w-16 rounded-full bg-zinc-200" />
+                <div className="mt-2 h-11 rounded-xl bg-zinc-100" />
+              </div>
+              <div>
+                <div className="h-3 w-16 rounded-full bg-zinc-200" />
+                <div className="mt-2 h-11 rounded-xl bg-zinc-100" />
+              </div>
+              <div className="flex justify-end border-t border-zinc-200 pt-4">
+                <div className="h-10 w-32 rounded-full bg-zinc-200" />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Status */}
+        <section className={`${cardClass}`}>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex-1">
+              <div className="h-3 w-14 rounded-full bg-zinc-200" />
+              <div className="mt-3 h-6 w-40 rounded-full bg-zinc-200" />
+              <div className="mt-3 h-3 w-2/3 rounded bg-zinc-100" />
+            </div>
+            <div className="h-10 w-28 shrink-0 rounded-full bg-zinc-200" />
+          </div>
+        </section>
+
+        {/* Danger zone */}
+        <section className="rounded-2xl border border-danger-soft bg-danger-soft/40 p-7">
+          <div className="h-3 w-20 rounded-full bg-zinc-200" />
+          <div className="mt-3 h-6 w-40 rounded-full bg-zinc-200" />
+          <div className="mt-3 h-3 w-3/4 rounded bg-zinc-100" />
+          <div className="mt-4 h-10 w-32 rounded-full bg-zinc-200" />
+        </section>
+      </div>
+    );
   }
 
   if (!event) {
