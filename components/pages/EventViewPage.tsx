@@ -29,26 +29,25 @@ const coverItem = {
   show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: EASE } },
 };
 
+function getInitialTimeLeft(targetDate: string | Date) {
+  const difference = +new Date(targetDate) - +new Date();
+  if (difference <= 0) {
+    return null;
+  }
+  return {
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+    minutes: Math.floor((difference / 1000 / 60) % 60),
+    seconds: Math.floor((difference / 1000) % 60),
+  };
+}
+
 function CountdownTimer({ targetDate }: { targetDate: string | Date }) {
-  const [timeLeft, setTimeLeft] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
+  const [timeLeft, setTimeLeft] = useState(() => getInitialTimeLeft(targetDate));
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
-      const difference = +new Date(targetDate) - +new Date();
-      if (difference <= 0) {
-        return null;
-      }
-      return {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
-      };
-    };
-
-    setTimeLeft(calculateTimeLeft());
     const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
+      setTimeLeft(getInitialTimeLeft(targetDate));
     }, 1000);
 
     return () => clearInterval(timer);
@@ -216,7 +215,7 @@ export default function EventViewPage({ id }: { id?: string }) {
   try {
     agenda = backendEvent.agenda && typeof backendEvent.agenda === "string" ? JSON.parse(backendEvent.agenda) : [];
     if (!Array.isArray(agenda)) agenda = [];
-  } catch (e) {
+  } catch {
     agenda = [];
   }
 
@@ -242,6 +241,19 @@ export default function EventViewPage({ id }: { id?: string }) {
     } else {
       setRegisterOpen(true);
     }
+  };
+
+  const isOnlineEvent =
+    backendEvent.eventType === "online" ||
+    (!!backendEvent.location && /^(https?:\/\/|zoom\.us|meet\.google|teams\.microsoft)/i.test(backendEvent.location));
+
+  const formatOnlineLink = (url?: string) => {
+    if (!url) return "#";
+    const trimmed = url.trim();
+    if (!/^https?:\/\//i.test(trimmed)) {
+      return `https://${trimmed}`;
+    }
+    return trimmed;
   };
 
   return (
@@ -303,8 +315,28 @@ export default function EventViewPage({ id }: { id?: string }) {
                 <dd className="text-sm text-black/60">{formattedEndTime}</dd>
               </div>
               <div>
-                <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">Where</dt>
-                <dd className="mt-1 text-sm font-semibold text-black">{event.venue}</dd>
+                <dt className="text-[11px] font-semibold uppercase tracking-[0.16em] text-black/45">
+                  {isOnlineEvent ? "Event Link" : "Where"}
+                </dt>
+                <dd className="mt-1 text-sm font-semibold text-black">
+                  {isOnlineEvent ? (
+                    backendEvent.location ? (
+                      <a
+                        href={formatOnlineLink(backendEvent.location)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 font-semibold text-blue-600 hover:text-blue-800 hover:underline"
+                      >
+                        <span>Join Online Event</span>
+                        <span className="text-xs">↗</span>
+                      </a>
+                    ) : (
+                      <span>Online Event</span>
+                    )
+                  ) : (
+                    event.venue
+                  )}
+                </dd>
                 <dd className="text-sm text-black/60">{visibilityText}</dd>
               </div>
               <div>
@@ -354,7 +386,7 @@ export default function EventViewPage({ id }: { id?: string }) {
           <section className="mt-20">
             <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">Agenda</h2>
             <ol className="mt-7 divide-y divide-black/10 border-y border-black/10">
-              {agenda.map((slot: any, index: number) => (
+              {agenda.map((slot: { time?: string; task?: string; title?: string; location?: string; track?: string }, index: number) => (
                 <li key={index} className="grid gap-1 py-5 sm:grid-cols-[120px_1fr_auto] sm:items-baseline sm:gap-6">
                   <span className="text-sm font-semibold tabular-nums text-black">{slot.time}</span>
                   <span className="text-base font-medium text-black">{slot.title || slot.task}</span>
