@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
@@ -47,13 +47,22 @@ export default function UpcomingEvents({ events, isLoading }: UpcomingEventsProp
   return (
     <section id="events" className="scroll-mt-24 bg-zinc-50/70">
       <div className="mx-auto w-full max-w-6xl px-6 py-20 lg:py-28">
-        <motion.div {...reveal} className="max-w-2xl">
-          <h2 className="font-display text-4xl font-medium tracking-tight text-zinc-900 md:text-5xl">
-            Coming up on campus.
-          </h2>
-          <p className="mt-5 max-w-[58ch] text-lg leading-8 text-zinc-600">
-            Organizers are already taking signups. Grab a spot while it lasts.
-          </p>
+        <motion.div {...reveal} className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div className="max-w-2xl">
+            <h2 className="font-display text-4xl font-medium tracking-tight text-zinc-900 md:text-5xl">
+              Coming up on campus.
+            </h2>
+            <p className="mt-5 max-w-[58ch] text-lg leading-8 text-zinc-600">
+              Organizers are already taking signups. Grab a spot while it lasts.
+            </p>
+          </div>
+          <Link
+            href="/discover-events"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-900 shadow-xs transition hover:border-zinc-300 hover:bg-zinc-100"
+          >
+            <span>See all events</span>
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </motion.div>
 
         {isLoading ? (
@@ -141,6 +150,18 @@ export default function UpcomingEvents({ events, isLoading }: UpcomingEventsProp
             <p className="text-sm text-zinc-500">
               No upcoming campus events at the moment.
             </p>
+          </div>
+        )}
+
+        {events.length > 0 && (
+          <div className="mt-12 text-center">
+            <Link
+              href="/discover-events"
+              className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-6 py-3 text-sm font-semibold text-zinc-900 shadow-xs transition hover:border-zinc-300 hover:bg-zinc-100"
+            >
+              <span>See all events</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         )}
       </div>

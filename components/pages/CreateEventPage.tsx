@@ -229,7 +229,7 @@ export default function CreateEventPage() {
                     <Select
                       name={field.name}
                       ariaLabel="Event category"
-                      value={field.value}
+                      value={field.value ?? "General"}
                       onChange={field.onChange}
                       className="mt-2 w-full px-3 py-2.5"
                       options={[

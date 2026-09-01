@@ -10,7 +10,6 @@ import { useState, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { formatPrice } from "@/lib/utils";
 import { IRegistration } from "@/types";
-import AuroraShader from "../widgets/AuroraShader";
 import ShareButton from "../widgets/ShareButton";
 import RegisterEventDialog from "../dialogs/RegisterEventDialog";
 import PaymentCheckoutDialog from "../dialogs/PaymentCheckoutDialog";
@@ -144,7 +143,7 @@ export default function EventViewPage({ id }: { id?: string }) {
 
   if (isError || !backendEvent) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f7efe2]">
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50/70">
         <div className="text-center">
           <p className="text-xl font-semibold text-red-500 uppercase tracking-widest mb-2">Error loading event</p>
           <p className="text-black/60">Please check if the Event ID ({id}) exists in the database.</p>
@@ -257,9 +256,7 @@ export default function EventViewPage({ id }: { id?: string }) {
   };
 
   return (
-    <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f7efe2]">
-      <AuroraShader />
-
+    <div className="relative flex min-h-screen flex-1 justify-center overflow-hidden bg-zinc-50/70">
       <main className="relative w-full max-w-6xl flex-1 px-5 py-12 sm:px-10 sm:py-16 lg:px-14">
         {/* Hero - asymmetric split cover + title */}
         <motion.section

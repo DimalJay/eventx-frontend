@@ -337,7 +337,7 @@ export default function EventManageSettingsPage() {
                   <Select
                     name={field.name}
                     ariaLabel="Event category"
-                    value={field.value}
+                    value={field.value ?? "General"}
                     onChange={field.onChange}
                     className="mt-2 h-11 w-full px-3"
                     options={[
