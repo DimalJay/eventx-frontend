@@ -15,6 +15,7 @@ import ShareButton from "../widgets/ShareButton";
 import RegisterEventDialog from "../dialogs/RegisterEventDialog";
 import PaymentCheckoutDialog from "../dialogs/PaymentCheckoutDialog";
 import LoginPromptDialog from "../dialogs/LoginPromptDialog";
+import { EventViewLoadingSkeleton } from "@/components/skeleton/EventViewLoadingSkeleton";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -138,12 +139,9 @@ export default function EventViewPage({ id }: { id?: string }) {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f7efe2]">
-        <p className="text-lg font-semibold text-black/50 tracking-widest uppercase">Loading event details...</p>
-      </div>
-    );
+    return <EventViewLoadingSkeleton />;
   }
+
 
   if (isError || !backendEvent) {
     return (
@@ -261,7 +259,7 @@ export default function EventViewPage({ id }: { id?: string }) {
           {/* Cover - portrait 4:5 frame, matching the creation page */}
           <motion.div
             variants={coverItem}
-            className="relative aspect-[4/5] overflow-hidden rounded-[1.75rem] bg-linear-to-br from-[#1c1c1c] via-[#2d2d2d] to-[#444]"
+            className="relative aspect-4/5 overflow-hidden rounded-[1.75rem] bg-linear-to-br from-[#1c1c1c] via-[#2d2d2d] to-[#444]"
           >
             {event.cover ? (
               <img src={event.cover} alt={`${event.name} cover`} className="absolute inset-0 h-full w-full object-cover" />

@@ -11,6 +11,7 @@ import {
   markAllNotificationsAsRead,
 } from "@/service/notificationService";
 import type { INotification } from "@/types/notifications";
+import { NotificationsLoadingSkeleton } from "@/components/skeleton/NotificationsLoadingSkeleton";
 
 function timeAgo(dateString: string): string {
   const now = Date.now();
@@ -113,9 +114,7 @@ export default function NotificationsPage() {
 
         <section className="overflow-hidden rounded-3xl border border-black/10 bg-white/85 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur">
           {isLoading ? (
-            <div className="px-6 py-16 text-center text-sm text-black/50">
-              Loading notifications...
-            </div>
+            <NotificationsLoadingSkeleton />
           ) : isError ? (
             <div className="px-6 py-16 text-center">
               <p className="text-sm text-black/50">Failed to load notifications.</p>

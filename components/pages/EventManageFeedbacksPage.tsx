@@ -9,6 +9,7 @@ import { getFeedbacks } from "@/service/feedbackService";
 import { getEventById } from "@/service/eventService";
 import { IFeedback, IEvent } from "@/types";
 import { cn } from "@/lib/utils";
+import { EventFeedbacksLoadingSkeleton } from "@/components/skeleton/EventFeedbacksLoadingSkeleton";
 
 function parseFeedbackDate(value?: string): string {
   if (!value) return "";
@@ -75,11 +76,7 @@ export default function EventManageFeedbacksPage() {
   const distributionMax = Math.max(1, ...distribution.map((d) => d.count));
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-200 border-t-primary" />
-      </div>
-    );
+    return <EventFeedbacksLoadingSkeleton />;
   }
 
   if (isError) {

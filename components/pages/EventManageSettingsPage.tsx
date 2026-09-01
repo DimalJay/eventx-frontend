@@ -19,6 +19,7 @@ import {
   uploadEventCoverRequest,
 } from "@/service/eventService";
 import { HTTPError } from "@/lib/request";
+import { EventSettingsLoadingSkeleton } from "@/components/skeleton/EventSettingsLoadingSkeleton";
 
 const inputBase =
   "w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-primary/60 focus:ring-2 focus:ring-primary/20";
@@ -237,8 +238,9 @@ export default function EventManageSettingsPage() {
   });
 
   if (isLoading) {
-    return <div className="p-8 text-center text-zinc-500">Loading event settings...</div>;
+    return <EventSettingsLoadingSkeleton />;
   }
+
 
   if (!event) {
     return <div className="p-8 text-center text-danger">Failed to load event settings.</div>;
