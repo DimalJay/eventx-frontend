@@ -1,7 +1,7 @@
 import { IEvent } from "@/types";
 import { CalendarCheck, MapPin } from "lucide-react";
 import Link from "next/link";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, encodeEventId } from "@/lib/utils";
 
 interface EventCardProps {
   event: IEvent;
@@ -71,7 +71,7 @@ export default function EventCard({ event, variant = "horizontal" }: EventCardPr
           </div>
 
           <Link
-            href={`/event/manage/${event.id}`}
+            href={`/event/manage/${encodeEventId(event.id)}`}
             className="inline-flex items-center justify-center rounded-full border border-black/10 bg-black px-4 py-2 text-xs font-semibold text-white transition hover:bg-black/90"
           >
             View details
@@ -134,7 +134,7 @@ export default function EventCard({ event, variant = "horizontal" }: EventCardPr
           </div>
 
           <Link
-            href={`/event/manage/${event.id}`}
+            href={`/event/manage/${encodeEventId(event.id)}`}
             className="inline-flex items-center justify-center rounded-full border border-black/10 bg-black px-4 py-2 text-sm font-semibold text-white transition hover:bg-black/90"
           >
             View details

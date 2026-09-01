@@ -19,6 +19,7 @@ import {
   uploadEventCoverRequest,
 } from "@/service/eventService";
 import { HTTPError } from "@/lib/request";
+import { decodeEventId } from "@/lib/utils";
 import { EventSettingsLoadingSkeleton } from "@/components/skeleton/EventSettingsLoadingSkeleton";
 
 const inputBase =
@@ -98,7 +99,7 @@ function toLocalISOString(date: Date) {
 
 export default function EventManageSettingsPage() {
   const params = useParams();
-  const eventId = params.id as string;
+  const eventId = decodeEventId(params.id as string);
   const queryClient = useQueryClient();
   const [closeDialogOpen, setCloseDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);

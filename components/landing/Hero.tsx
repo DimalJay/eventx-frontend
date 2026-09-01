@@ -6,6 +6,7 @@ import { ArrowRight, ArrowDown } from "lucide-react";
 import { IEvent } from "@/types";
 import TiltCard from "./TiltCard";
 import ShaderBackground from "./ShaderBackground";
+import { encodeEventId } from "@/lib/utils";
 
 const HERO_MAIN = "https://picsum.photos/seed/eventx-stage-lights/820/1024";
 const HERO_SUB = "https://picsum.photos/seed/eventx-audience/640/640";
@@ -152,7 +153,7 @@ export default function Hero({ isAuthenticated, featuredEvent }: HeroProps) {
                   )}
                 </p>
                 <Link
-                  href={`/event/${featuredEvent.id}`}
+                  href={`/event/${encodeEventId(featuredEvent.id)}`}
                   className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:text-primary-strong"
                 >
                   View details

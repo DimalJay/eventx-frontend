@@ -7,7 +7,7 @@ import { getPublicEvents } from "@/service/eventService";
 import { IEvent, WithID } from "@/types";
 import Select from "../widgets/Select";
 import Logo from "../widgets/Logo";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, encodeEventId } from "@/lib/utils";
 import { FiSearch, FiCalendar, FiMapPin, FiInfo } from "react-icons/fi";
 
 export default function DiscoverEvents() {
@@ -379,7 +379,7 @@ export default function DiscoverEvents() {
                         </div>
 
                         <Link
-                          href={`/event/${eventId}`}
+                          href={`/event/${encodeEventId(eventId)}`}
                           className="inline-flex h-9 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
                         >
                           View details

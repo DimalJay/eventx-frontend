@@ -1,7 +1,7 @@
 import { IEvent } from "@/types";
 import { Clock, MapPin } from "lucide-react";
 import Link from "next/link";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, encodeEventId } from "@/lib/utils";
 
 interface EventTimelineProps {
   events: IEvent[];
@@ -19,7 +19,7 @@ export default function EventTimeline({
 
   return (
     <div className="relative">
-      <div className="absolute bottom-2 left-[5.75rem] top-2 w-px bg-zinc-200 sm:left-[8.75rem]" />
+      <div className="absolute bottom-2 left-23 top-2 w-px bg-zinc-200 sm:left-[8.75rem]" />
 
       <div className="space-y-6">
         {sorted.map((event) => {
@@ -66,7 +66,7 @@ export default function EventTimeline({
               </div>
 
               <Link
-                href={`/event/manage/${event.id}`}
+                href={`/event/manage/${encodeEventId(event.id)}`}
                 className={`group min-w-0 rounded-2xl border border-zinc-200 bg-white p-5 transition hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary-faint/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${
                   isPast ? "opacity-75 hover:opacity-90" : ""
                 }`}

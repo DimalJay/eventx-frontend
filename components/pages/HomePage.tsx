@@ -10,7 +10,7 @@ import { Clock, MapPin, Settings } from "lucide-react";
 import ShaderBackground from "../landing/ShaderBackground";
 import { getTasksRequest } from "@/service/taskService";
 import { getEventRegistrations } from "@/service/registrationService";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, encodeEventId } from "@/lib/utils";
 
 
 
@@ -243,7 +243,7 @@ export default function HomePage() {
                   )}
 
                   <Link
-                    href={`/event/manage/${nextEvent.id}`}
+                    href={`/event/manage/${encodeEventId(nextEvent.id)}`}
                     className="mt-6 inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-strong active:scale-[0.98]"
                   >
                     Manage event
@@ -259,7 +259,7 @@ export default function HomePage() {
                   <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {subsequentEvents.map((ev: IEvent) => (
                       <Link
-                        href={`/event/manage/${ev.id}`}
+                        href={`/event/manage/${encodeEventId(ev.id)}`}
                         key={ev.id}
                         className="group flex min-w-0 flex-col gap-1 rounded-2xl border border-zinc-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary-faint/60"
                       >
