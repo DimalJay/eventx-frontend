@@ -10,6 +10,7 @@ import AddEventAgendaItem from "../dialogs/AddEventAgendaItem";
 import EditEventAgendaItem from "../dialogs/EditEventAgendaItem";
 import DeleteEventAgendaItem from "../dialogs/DeleteEventAgendaItem";
 import { EllipsisVertical } from "lucide-react";
+import { EventAgendaLoadingSkeleton } from "@/components/skeleton/EventAgendaLoadingSkeleton";
 
 
 export default function EventManageAgendaPage() {
@@ -126,10 +127,7 @@ export default function EventManageAgendaPage() {
 
                 <div className="mt-6 grid gap-4">
                     {isLoading ? (
-                        <div className="flex flex-col items-center justify-center py-16 gap-3">
-                            <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-200 border-t-primary" />
-                            <p className="text-sm text-zinc-500 font-medium">Loading agenda...</p>
-                        </div>
+                        <EventAgendaLoadingSkeleton />
                     ) : agendaItems.length === 0 ? (
                         <div className="text-center py-12 rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/70">
                             <p className="text-sm text-zinc-500">No agenda items added yet. Click &quot;Add Agenda Item&quot; to get started.</p>

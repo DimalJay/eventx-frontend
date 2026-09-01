@@ -21,6 +21,7 @@ import DonutChart from "@/components/widgets/charts/DonutChart";
 import VerticalBars from "@/components/widgets/charts/VerticalBars";
 import SegmentBar from "@/components/widgets/charts/SegmentBar";
 import ProgressRow from "@/components/widgets/charts/ProgressRow";
+import { EventInsightsLoadingSkeleton } from "@/components/skeleton/EventInsightsLoadingSkeleton";
 
 const STATUS_LABELS: Record<string, string> = {
   GOING: "Going",
@@ -246,11 +247,7 @@ export default function EventManageInsightsPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-200 border-t-primary" />
-      </div>
-    );
+    return <EventInsightsLoadingSkeleton />;
   }
 
   if (isError) {

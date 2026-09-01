@@ -8,6 +8,7 @@ import { EllipsisVertical } from "lucide-react";
 import RoleChangeDialog from "../dialogs/RoleChangeDialog";
 import AddMemberDialog from "../dialogs/AddMemberDialog";
 import RemoveMemberDialog from "../dialogs/RemoveMemberDialog";
+import { TeamAccessLoadingSkeleton } from "@/components/skeleton/TeamAccessLoadingSkeleton";
 
 type TeamMember = {
   id: number;
@@ -58,7 +59,7 @@ export default function EventTeamAccessSection() {
 
         <div className="mt-6 grid gap-4">
           {isLoading ? (
-            <p className="text-sm text-zinc-600">Loading team members...</p>
+            <TeamAccessLoadingSkeleton />
           ) : teamMembers.length === 0 ? (
             <p className="text-sm text-zinc-600">No team members found.</p>
           ) : (

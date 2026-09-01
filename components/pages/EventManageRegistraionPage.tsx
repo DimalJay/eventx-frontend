@@ -14,6 +14,7 @@ import RegistrationStatusDialog from "../dialogs/RegistrationStatusDialog";
 import CheckInDialog from "../dialogs/CheckInDialog";
 import SendInvitationDialog from "../dialogs/SendInvitationDialog";
 import SendFeedbackDialog from "../dialogs/SendFeedbackDialog";
+import { EventRegistrationsLoadingSkeleton } from "@/components/skeleton/EventRegistrationsLoadingSkeleton";
 
 const statusStyles: Record<string, string> = {
   GOING: "border-emerald-200 bg-emerald-50 text-emerald-800",
@@ -125,11 +126,7 @@ export default function EventManageRegistraionPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-24">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-zinc-200 border-t-primary" />
-      </div>
-    );
+    return <EventRegistrationsLoadingSkeleton />;
   }
 
   if (isError) {
