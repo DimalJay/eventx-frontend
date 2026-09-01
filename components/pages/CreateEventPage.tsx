@@ -19,6 +19,7 @@ import HelpTooltip from "../widgets/HelpTooltip";
 
 const baseEventSchema = z.object({
   title: z.string().min(1, "Event name is required").max(100, "Event name must be 100 characters or less"),
+  category: z.string().optional(),
   description: z.string().optional(),
   startDate: z.date(),
   endDate: z.date(),
@@ -117,6 +118,7 @@ export default function CreateEventPage() {
     resolver: zodResolver(eventSchema),
     defaultValues: {
       isPublic: "true",
+      category: "General",
       eventType: "online",
       isPaid: "free",
       capacity: 0,
@@ -139,14 +141,25 @@ export default function CreateEventPage() {
         formData.append("coverImage", data.coverImage);
       }
 
+      let descriptionHandled = false;
       Object.entries(data).forEach(([key, value]) => {
-        if (key === "isPaid" || key === "coverImage") return;
-        if (value instanceof Date) {
+        if (key === "isPaid" || key === "coverImage" || key === "category") return;
+        if (key === "description") {
+          descriptionHandled = true;
+          const catPrefix = data.category ? `[Category: ${data.category}]\n\n` : "";
+          const finalDesc = `${catPrefix}${value || ""}`;
+          formData.append("description", finalDesc);
+        } else if (value instanceof Date) {
           formData.append(key, toLocalISOString(value));
         } else if (value !== undefined) {
           formData.append(key, String(value));
         }
       });
+
+      if (!descriptionHandled && data.category) {
+        formData.append("description", `[Category: ${data.category}]`);
+      }
+
       const res = await createEventRequest(formData);
       return res.data;
     },
@@ -178,7 +191,7 @@ export default function CreateEventPage() {
       <div className="flex flex-1 justify-center bg-white">
         <main className="w-full max-w-4xl px-5 py-24 sm:px-8 sm:py-28">
           <form className="grid gap-6 lg:grid-cols-[300px_1fr] lg:items-start lg:gap-8" onSubmit={handleSubmit(onSubmit)}>
-            {/* Left: cover + visibility */}
+            {/* Left: cover + visibility + category */}
             <section className="flex flex-col gap-4 lg:sticky lg:top-24">
               <CoverImageUpload />
 
@@ -199,6 +212,37 @@ export default function CreateEventPage() {
                       options={[
                         { value: "true", label: "Public - anyone can find it" },
                         { value: "false", label: "Private - invite only" },
+                      ]}
+                    />
+                  )}
+                />
+              </div>
+
+              <div className="card p-4">
+                <span className="eyebrow">
+                  Category
+                </span>
+                <Controller
+                  name="category"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      name={field.name}
+                      ariaLabel="Event category"
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="mt-2 w-full px-3 py-2.5"
+                      options={[
+                        { value: "General", label: "General" },
+                        { value: "Technology", label: "Technology" },
+                        { value: "Business", label: "Business" },
+                        { value: "Design", label: "Design" },
+                        { value: "Marketing", label: "Marketing" },
+                        { value: "Entertainment", label: "Entertainment & Music" },
+                        { value: "Workshop", label: "Workshop & Training" },
+                        { value: "Networking", label: "Networking" },
+                        { value: "Sports", label: "Sports & Fitness" },
+                        { value: "Other", label: "Other" },
                       ]}
                     />
                   )}
