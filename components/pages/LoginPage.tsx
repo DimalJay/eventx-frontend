@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff } from "lucide-react";
 import { useAuth } from "../auth/AuthContext";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -43,6 +44,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login, googleLogin } = useAuth();
   const [formError, setFormError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -144,13 +146,23 @@ export default function LoginPage() {
               </label>
               <label className="grid gap-2 text-sm font-semibold text-zinc-900">
                 Password
-                <input
-                  type="password"
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  {...register("password", { onChange: () => setFormError(null) })}
-                  className="h-12 rounded-xl border border-zinc-200 bg-white px-4 text-base text-zinc-900 outline-none transition placeholder:text-zinc-500 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    autoComplete="current-password"
+                    placeholder="Enter your password"
+                    {...register("password", { onChange: () => setFormError(null) })}
+                    className="h-12 w-full rounded-xl border border-zinc-200 bg-white px-4 pr-12 text-base text-zinc-900 outline-none transition placeholder:text-zinc-500 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className="absolute inset-y-0 right-0 flex w-12 items-center justify-center text-zinc-400 transition hover:text-zinc-600 focus-visible:outline-none"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
                 {errors.password && (
                   <span className="text-xs font-normal text-red-600">
                     {errors.password.message}

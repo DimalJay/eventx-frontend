@@ -6,6 +6,7 @@ import { getEventById } from "@/service/eventService";
 import { getEventRegistrations } from "@/service/registrationService";
 import { IRegistration } from "@/types";
 import { formatPrice } from "@/lib/utils";
+import { EventOverviewLoadingSkeleton } from "@/components/skeleton/EventOverviewLoadingSkeleton";
 
 export default function EventManageOverviewPage() {
   const params = useParams();
@@ -34,8 +35,9 @@ export default function EventManageOverviewPage() {
   const checkedInCount = registrations.filter((r) => !!r.chekingTime).length;
 
   if (isLoading) {
-    return <div className="p-8 text-center text-zinc-500">Loading event details...</div>;
+    return <EventOverviewLoadingSkeleton />;
   }
+
 
   if (!event) {
     return <div className="p-8 text-center text-danger">Failed to load event details.</div>;

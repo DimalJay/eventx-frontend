@@ -36,7 +36,8 @@ export default function DeleteEventDialog({ open, onClose, eventId, eventTitle }
   if (!open) return null;
 
   const confirmationMatches =
-    confirmation.trim().length > 0 && confirmation.trim() === (eventTitle || "").trim();
+    confirmation.trim().length > 0 &&
+    confirmation.trim().toLowerCase() === (eventTitle || "").trim().toLowerCase();
 
   const handleClose = () => {
     setConfirmation("");

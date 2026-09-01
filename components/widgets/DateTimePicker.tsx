@@ -54,6 +54,7 @@ export default function DateTimePicker({
   ariaLabel,
   align = "left",
   mode = "datetime",
+  minDate,
   className,
 }: {
   name?: string;
@@ -63,6 +64,7 @@ export default function DateTimePicker({
   ariaLabel?: string;
   align?: "left" | "right";
   mode?: Mode;
+  minDate?: Date;
   className?: string;
 }) {
   const isDate = mode === "date";
@@ -108,6 +110,16 @@ export default function DateTimePicker({
     const h = mode === "datetime" && selected ? base.getHours() : 9;
     const mi = mode === "datetime" && selected ? base.getMinutes() : 0;
     onChange(formatValue(new Date(view.year, view.month, day, h, mi), mode));
+  };
+
+  const minDateStart = minDate
+    ? new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate()).getTime()
+    : null;
+
+  const isDisabled = (day: number) => {
+    if (minDateStart === null) return false;
+    const ts = new Date(view.year, view.month, day).getTime();
+    return ts < minDateStart;
   };
 
   const changeTime = (t: string) => {
@@ -199,17 +211,21 @@ export default function DateTimePicker({
                 const cellDate = new Date(view.year, view.month, day);
                 const isSelected = selected != null && sameDay(cellDate, selected);
                 const isToday = sameDay(cellDate, today);
+                const disabled = isDisabled(day);
                 return (
                   <button
                     key={day}
                     type="button"
-                    onClick={() => selectDay(day)}
+                    onClick={() => !disabled && selectDay(day)}
+                    disabled={disabled}
                     className={cn(
                       "flex h-9 items-center justify-center rounded-lg text-sm transition",
                       isSelected
                         ? "bg-primary font-semibold text-white"
+                        : disabled
+                        ? "cursor-not-allowed text-zinc-300"
                         : "text-zinc-900 hover:bg-primary-faint",
-                      !isSelected && isToday && "font-semibold text-primary ring-1 ring-inset ring-primary/30"
+                      !isSelected && isToday && !disabled && "font-semibold text-primary ring-1 ring-inset ring-primary/30"
                     )}
                   >
                     {day}

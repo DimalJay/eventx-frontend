@@ -50,6 +50,13 @@ export const getEventById = async (eventId: string) => {
   return res;
 }
 
+export const canManageEventRequest = async (eventId: string) => {
+  const res: Response = await request(`/event/${eventId}/can-manage`, {
+    method: 'GET',
+  });
+  return res;
+}
+
 export const updateEventRequest = async (eventId: string, data: any ) => {
   const res: Response = await request('/event', {
     method: 'PUT',
