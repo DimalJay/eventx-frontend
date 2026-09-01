@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
@@ -54,7 +54,7 @@ export default function ProfileSettingsPage() {
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     formState: { errors },
   } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
@@ -65,7 +65,7 @@ export default function ProfileSettingsPage() {
     },
   });
 
-  const phoneNumberVal = watch("phoneNumber") || "";
+  const phoneNumberVal = useWatch({ control, name: "phoneNumber" }) || "";
   const phoneMaxLength = phoneNumberVal.trim().startsWith("+") ? 12 : 10;
 
   useEffect(() => {
