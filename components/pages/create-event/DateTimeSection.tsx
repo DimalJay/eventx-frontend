@@ -23,6 +23,7 @@ function pickerValueToDate(value: string) {
 
 export default function DateTimeSection() {
   const { control, formState: { errors } } = useFormContext();
+  const today = new Date();
 
   return (
     <div className="rounded-2xl border border-zinc-200 bg-white">
@@ -40,6 +41,7 @@ export default function DateTimeSection() {
               ariaLabel="Event start date and time"
               value={dateToPickerValue(field.value)}
               onChange={(value) => field.onChange(pickerValueToDate(value))}
+              minDate={today}
               className="flex-1"
             />
           )}
@@ -67,6 +69,7 @@ export default function DateTimeSection() {
               ariaLabel="Event end date and time"
               value={dateToPickerValue(field.value)}
               onChange={(value) => field.onChange(pickerValueToDate(value))}
+              minDate={today}
               className="flex-1"
             />
           )}
@@ -94,6 +97,7 @@ export default function DateTimeSection() {
               ariaLabel="Registration deadline date and time"
               value={dateToPickerValue(field.value)}
               onChange={(value) => field.onChange(pickerValueToDate(value))}
+              minDate={today}
               align="right"
               className="ml-auto"
             />
