@@ -287,9 +287,17 @@ export default function CreateEventPage() {
 
               <button
                 type="submit"
-                className="btn w-full"
+                disabled={mutation.isPending}
+                className="btn w-full disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
               >
-                Create Event
+                {mutation.isPending ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>Creating event...</span>
+                  </>
+                ) : (
+                  "Create Event"
+                )}
               </button>
               <p className="text-center text-xs text-muted-subtle">
                 You can finalize ticketing and publish when the details are ready.
