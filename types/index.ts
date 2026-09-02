@@ -13,14 +13,15 @@ export interface IEvent {
   organizerId?: string | number;
   title: string;
   description?: string;
-  startDate: Date,
-  endDate: Date,
+  startDate: Date;
+  endDate: Date;
   location?: string;
+  eventType?: "online" | "physical" | string;
   imageUrl?: string;
   isPublic: boolean;
   capacity: number;
   ticketPrice: number;
-  agenda: string,
+  agenda: string;
   registrationDeadline?: string;
   regDeadline?: string;
   waitlistEnabled?: boolean;

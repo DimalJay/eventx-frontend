@@ -6,9 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getPublicEvents } from "@/service/eventService";
 import { IEvent, WithID } from "@/types";
 import Select from "../widgets/Select";
-import Logo from "../widgets/Logo";
 import { formatPrice } from "@/lib/utils";
-import { FiSearch, FiCalendar, FiMapPin, FiInfo } from "react-icons/fi";
+import { Search, CalendarDays, MapPin, ArrowRight, RotateCcw, AlertCircle, Video } from "lucide-react";
 
 export default function DiscoverEvents() {
   // State for search and filters
@@ -31,7 +30,7 @@ export default function DiscoverEvents() {
     retry: false,
   });
 
-  // Safe typed list of events (only show public events by default for discovery)
+  // Safe typed list of events (only show public events)
   const events = useMemo(() => {
     return (rawEvents as WithID<IEvent>[]).filter(
       (event) => event.isPublic !== false && String(event.isPublic) !== "false"
@@ -41,7 +40,6 @@ export default function DiscoverEvents() {
   // Handle filtering logic
   const filteredEvents = useMemo(() => {
     return events.filter((event) => {
-      // 1. Search Query Filter (Title, Description, Location)
       const query = searchQuery.trim().toLowerCase();
       const matchesSearch =
         !query ||
@@ -49,7 +47,6 @@ export default function DiscoverEvents() {
         (event.description && event.description.toLowerCase().includes(query)) ||
         (event.location && event.location.toLowerCase().includes(query));
 
-      // 2. Price Filter
       let matchesPrice = true;
       const price = Number(event.ticketPrice) || 0;
       if (priceFilter === "free") {
@@ -58,13 +55,10 @@ export default function DiscoverEvents() {
         matchesPrice = price > 0;
       }
 
-      // 3. Date Filter
       let matchesDate = true;
       if (dateFilter !== "all") {
         const now = new Date();
         const eventDate = new Date(event.startDate);
-
-        // Reset time parts for date comparison
         const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const eventDateStart = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
 
@@ -107,13 +101,14 @@ export default function DiscoverEvents() {
     return sorted;
   }, [filteredEvents, sortBy]);
 
-  // Reset filters handler
   const handleResetFilters = () => {
     setSearchQuery("");
     setDateFilter("all");
-    priceFilter !== "all" && setPriceFilter("all");
+    setPriceFilter("all");
     setSortBy("date-asc");
   };
+
+  const isFiltered = searchQuery || dateFilter !== "all" || priceFilter !== "all" || sortBy !== "date-asc";
 
   return (
     <div className="relative flex flex-1 justify-center overflow-hidden bg-[#f5f1ea]">
@@ -122,49 +117,44 @@ export default function DiscoverEvents() {
       <div className="pointer-events-none absolute right-10 top-24 h-64 w-64 rounded-full bg-[#9fd3ff] opacity-35 blur-3xl" />
       <div className="pointer-events-none absolute bottom-10 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[#ffe8a3] opacity-45 blur-3xl" />
 
-      <main className="relative flex w-full max-w-6xl flex-col gap-10 px-6 py-20 sm:px-10 sm:py-24">
-        {/* Header section */}
-        <header className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-3">
-              <Logo />
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-black/50">
-                  Explore events
-                </p>
-                <p className="text-2xl font-semibold tracking-tight text-black">
-                  Discover Events
-                </p>
-              </div>
-            </div>
-            <p className="max-w-2xl text-base leading-7 text-black/70">
-              Find and register for workshops, summits, and experiences near you or online.
-            </p>
+      <main className="relative flex w-full max-w-6xl flex-col gap-10 px-6 py-16 sm:px-10 sm:py-20">
+        {/* Header section matching landing style */}
+        <header className="flex flex-col gap-4">
+          <div>
+            <span className="inline-flex items-center rounded-full bg-primary/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+              Discover
+            </span>
           </div>
+          <h1 className="font-display text-4xl font-medium tracking-tight text-zinc-900 md:text-5xl">
+            Explore campus events.
+          </h1>
+          <p className="max-w-2xl text-lg leading-8 text-zinc-600">
+            Find and register for workshops, summits, and experiences near you or online.
+          </p>
         </header>
 
         {/* Filter controls panel */}
-        <section className="relative z-10 flex flex-col gap-4 rounded-3xl border border-black/10 bg-white/85 p-5 shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)] backdrop-blur xl:flex-row xl:items-center">
+        <section className="flex flex-col gap-4 rounded-2xl border border-zinc-200/80 bg-white p-4 shadow-xs lg:flex-row lg:items-center">
           {/* Search bar */}
           <div className="relative flex-1">
-            <FiSearch className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-black/40" />
+            <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
-              placeholder="Search by title, description or location..."
+              placeholder="Search by title, description, or location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full h-11 rounded-xl border border-black/10 bg-white py-2 pl-11 pr-4 text-sm text-black outline-none transition focus:border-black/40 focus:ring-2 focus:ring-black/5 placeholder:text-black/35"
+              className="h-11 w-full rounded-xl border border-zinc-200 bg-white pl-10 pr-4 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
           {/* Filtering and Sorting dropdowns */}
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-black/45">Date</span>
+              <span className="text-xs font-medium text-zinc-500">Date:</span>
               <Select
                 value={dateFilter}
                 onChange={setDateFilter}
-                className="px-3 py-2 h-11 min-w-[130px] rounded-xl"
+                className="h-11 min-w-[130px] rounded-xl px-3 py-2 text-xs"
                 options={[
                   { value: "all", label: "All Dates" },
                   { value: "today", label: "Today" },
@@ -176,11 +166,11 @@ export default function DiscoverEvents() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-black/45">Price</span>
+              <span className="text-xs font-medium text-zinc-500">Price:</span>
               <Select
                 value={priceFilter}
-                onChange={priceFilter => setPriceFilter(priceFilter)}
-                className="px-3 py-2 h-11 min-w-[130px] rounded-xl"
+                onChange={(p) => setPriceFilter(p)}
+                className="h-11 min-w-[120px] rounded-xl px-3 py-2 text-xs"
                 options={[
                   { value: "all", label: "All Prices" },
                   { value: "free", label: "Free" },
@@ -190,11 +180,11 @@ export default function DiscoverEvents() {
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-black/45">Sort By</span>
+              <span className="text-xs font-medium text-zinc-500">Sort:</span>
               <Select
                 value={sortBy}
                 onChange={setSortBy}
-                className="px-3 py-2 h-11 min-w-[170px] rounded-xl"
+                className="h-11 min-w-[170px] rounded-xl px-3 py-2 text-xs"
                 options={[
                   { value: "date-asc", label: "Date: Soonest first" },
                   { value: "date-desc", label: "Date: Latest first" },
@@ -206,12 +196,13 @@ export default function DiscoverEvents() {
             </div>
 
             {/* Clear button */}
-            {(searchQuery || dateFilter !== "all" || priceFilter !== "all" || sortBy !== "date-asc") && (
+            {isFiltered && (
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="ml-auto text-xs font-semibold uppercase tracking-wider text-black/60 hover:text-black transition underline underline-offset-4 xl:ml-2"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-zinc-200 px-3 py-2 text-xs font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900"
               >
+                <RotateCcw className="h-3.5 w-3.5" />
                 Reset
               </button>
             )}
@@ -225,29 +216,30 @@ export default function DiscoverEvents() {
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className="animate-pulse rounded-3xl border border-black/10 bg-white/80 p-5 flex flex-col gap-4 shadow-[0_15px_40px_-25px_rgba(0,0,0,0.15)]"
+                  className="overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200/70 shadow-xs"
                 >
-                  <div className="h-44 w-full rounded-2xl bg-black/5" />
-                  <div className="h-6 w-3/4 rounded-md bg-black/5" />
-                  <div className="h-4 w-1/2 rounded-md bg-black/5" />
-                  <div className="h-4 w-full rounded-md bg-black/5" />
-                  <div className="h-9 w-full rounded-full bg-black/5 mt-auto" />
+                  <div className="h-44 animate-pulse bg-zinc-100" />
+                  <div className="space-y-3 p-5">
+                    <div className="h-5 w-3/4 animate-pulse rounded bg-zinc-100" />
+                    <div className="h-4 w-1/2 animate-pulse rounded bg-zinc-100" />
+                    <div className="h-4 w-2/3 animate-pulse rounded bg-zinc-100" />
+                  </div>
                 </div>
               ))}
             </div>
           )}
 
           {isError && (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-black/10 bg-white/85 p-12 text-center backdrop-blur shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)]">
-              <FiInfo className="h-10 w-10 text-red-500/80 mb-4" />
-              <h3 className="text-lg font-semibold text-black">Failed to load events</h3>
-              <p className="mt-2 text-sm text-black/60 max-w-sm">
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-white p-12 text-center shadow-xs">
+              <AlertCircle className="mb-3 h-10 w-10 text-red-500" />
+              <h3 className="text-base font-semibold text-zinc-900">Failed to load events</h3>
+              <p className="mt-1 text-sm text-zinc-500 max-w-sm">
                 There was an error communicating with the backend. Please try again.
               </p>
               <button
                 type="button"
                 onClick={() => refetch()}
-                className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-black px-6 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+                className="mt-6 inline-flex h-10 items-center justify-center rounded-full bg-zinc-900 px-6 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-zinc-800"
               >
                 Retry
               </button>
@@ -255,18 +247,18 @@ export default function DiscoverEvents() {
           )}
 
           {!isLoading && !isError && sortedEvents.length === 0 && (
-            <div className="flex flex-col items-center justify-center rounded-3xl border border-black/10 bg-white/85 p-12 text-center backdrop-blur shadow-[0_25px_70px_-45px_rgba(0,0,0,0.35)]">
-              <div className="rounded-full bg-black/5 p-4 mb-4">
-                <FiSearch className="h-8 w-8 text-black/45" />
+            <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-300 bg-white p-12 text-center shadow-xs">
+              <div className="mb-3 rounded-full bg-zinc-100 p-4 text-zinc-400">
+                <Search className="h-6 w-6" />
               </div>
-              <h3 className="text-lg font-semibold text-black">No events found</h3>
-              <p className="mt-2 text-sm text-black/60 max-w-sm">
+              <h3 className="text-base font-semibold text-zinc-900">No events found</h3>
+              <p className="mt-1 text-sm text-zinc-500 max-w-sm">
                 We couldn&apos;t find any events matching your current search query or filter selection.
               </p>
               <button
                 type="button"
                 onClick={handleResetFilters}
-                className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-black px-6 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+                className="mt-6 inline-flex h-10 items-center justify-center rounded-full bg-zinc-900 px-6 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-zinc-800"
               >
                 Reset Filters
               </button>
@@ -276,9 +268,9 @@ export default function DiscoverEvents() {
           {!isLoading && !isError && sortedEvents.length > 0 && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {sortedEvents.map((event) => {
-                const eventId = (event as any).id || event._id;
-                const isFree = Number(event.ticketPrice) === 0 || !event.ticketPrice;
-                const displayPrice = formatPrice(event.ticketPrice);
+                const eventId = event.id || (event as WithID<IEvent>)._id;
+                const isFree = Number(event.ticketPrice) || 0;
+                const displayPrice = isFree === 0 ? "Free entry" : formatPrice(event.ticketPrice);
 
                 const eventDate = new Date(event.startDate);
                 const displayDate = eventDate.toLocaleDateString("en-US", {
@@ -288,101 +280,86 @@ export default function DiscoverEvents() {
                 });
 
                 const isOnline =
+                  event.eventType === "online" ||
                   event.location?.toLowerCase().includes("online") ||
                   event.location?.toLowerCase().includes("zoom") ||
                   event.location?.toLowerCase().includes("http");
 
                 // Get cover image path from database or mockup
-                const rawImg = (event as any).coverImage || event.imageUrl;
+                const rawImg = (event as IEvent & { coverImage?: string }).coverImage || event.imageUrl;
                 const backendBaseUrl = process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL?.replace("/api/v1", "") || "";
                 const imageUrl = (rawImg && rawImg !== "null" && rawImg !== "undefined" && rawImg.trim() !== "")
                   ? (rawImg.startsWith("http") ? rawImg : `${backendBaseUrl}${rawImg}`)
-                  : "/images/default-event.jpg";
+                  : `https://picsum.photos/seed/eventx-${eventId}/720/400`;
 
                 return (
                   <article
                     key={eventId}
-                    className="group relative flex flex-col overflow-hidden rounded-3xl border border-black/10 bg-white shadow-[0_15px_40px_-25px_rgba(0,0,0,0.25)] transition duration-300 hover:-translate-y-1 hover:border-black/20 hover:shadow-[0_20px_50px_-30px_rgba(0,0,0,0.3)]"
+                    className="group flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200/70 shadow-xs transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-zinc-900/5"
                   >
-                    {/* Event image or stylized gradient placeholder */}
-                    <div className="relative h-44 w-full overflow-hidden bg-linear-to-br from-[#ffe8a3] via-[#ffc9a7] to-[#9fd3ff]">
-                      {imageUrl ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={imageUrl}
-                          alt={event.title}
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center text-xs font-semibold uppercase tracking-[0.3em] text-black/35 select-none">
-                          {event.title.charAt(0)}
-                        </div>
-                      )}
+                    {/* Event cover image */}
+                    <div className="relative h-44 w-full overflow-hidden bg-zinc-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={imageUrl}
+                        alt={event.title}
+                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
+                      />
 
-                      {/* Price Badge */}
-                      <div className="absolute left-3 top-3">
-                        <span
-                          className={`inline-flex items-center rounded-full px-3 py-1.5 text-[10px] font-bold tracking-wider uppercase shadow-xs ${isFree ? "bg-emerald-500 text-white" : "bg-black text-white"
-                            }`}
-                        >
-                          {displayPrice}
-                        </span>
-                      </div>
-
-                      {/* Online vs Offline Badge */}
-                      {event.location && (
+                      {/* Online badge */}
+                      {isOnline && (
                         <div className="absolute right-3 top-3">
-                          <span className="inline-flex items-center rounded-full bg-white/95 px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-black shadow-xs backdrop-blur-xs">
-                            {isOnline ? "Online" : "In Person"}
+                          <span className="inline-flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-zinc-800 shadow-xs backdrop-blur-xs">
+                            <Video className="h-3 w-3 text-primary" />
+                            Online
                           </span>
                         </div>
                       )}
                     </div>
 
                     {/* Card Content details */}
-                    <div className="flex flex-1 flex-col p-5 gap-3">
-                      <h3 className="text-lg font-semibold leading-tight text-black group-hover:text-black/80 transition line-clamp-1">
+                    <div className="flex flex-1 flex-col p-5">
+                      <h3 className="line-clamp-2 text-lg font-semibold leading-snug text-zinc-900 transition-colors group-hover:text-primary">
                         {event.title}
                       </h3>
 
                       {event.description && (
-                        <p className="text-xs leading-relaxed text-black/60 line-clamp-2">
+                        <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-zinc-600">
                           {event.description}
                         </p>
                       )}
 
-                      <div className="mt-2 flex flex-col gap-2 text-xs text-black/70">
-                        <div className="flex items-center gap-2">
-                          <FiCalendar className="h-4 w-4 shrink-0 text-black/40" />
-                          <span>{displayDate}</span>
-                        </div>
-                        {event.location && (
-                          <div className="flex items-center gap-2">
-                            <FiMapPin className="h-4 w-4 shrink-0 text-black/40" />
-                            <span className="truncate">{event.location}</span>
-                          </div>
-                        )}
+                      <div className="mt-4 flex flex-col gap-1.5 text-sm text-zinc-500">
+                        <span className="inline-flex items-center gap-2">
+                          <CalendarDays className="h-4 w-4 text-zinc-400" strokeWidth={1.75} />
+                          {displayDate}
+                        </span>
+                        <span className="inline-flex items-center gap-2">
+                          {isOnline ? (
+                            <Video className="h-4 w-4 text-zinc-400" strokeWidth={1.75} />
+                          ) : (
+                            <MapPin className="h-4 w-4 text-zinc-400" strokeWidth={1.75} />
+                          )}
+                          <span className="truncate">
+                            {event.location || (isOnline ? "Online Event" : "Location TBA")}
+                          </span>
+                        </span>
                       </div>
 
                       {/* Capacity details and CTA */}
-                      <div className="mt-auto flex items-center justify-between border-t border-black/5 pt-4">
-                        <div>
-                          {event.capacity > 0 ? (
-                            <span className="text-[10px] font-semibold uppercase tracking-wider text-black/45">
-                              Cap: {event.capacity}
-                            </span>
-                          ) : (
-                            <span className="text-[10px] font-semibold uppercase tracking-wider text-black/45">
-                              Open spots
-                            </span>
-                          )}
-                        </div>
+                      <div className="mt-5 flex items-center justify-between border-t border-zinc-100 pt-4">
+                        <span className="text-sm font-semibold text-primary">
+                          {displayPrice}
+                        </span>
 
                         <Link
                           href={`/event/${eventId}`}
-                          className="inline-flex h-9 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-700 transition hover:text-primary"
                         >
-                          View details
+                          <span>View details</span>
+                          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" strokeWidth={1.75} />
                         </Link>
                       </div>
                     </div>

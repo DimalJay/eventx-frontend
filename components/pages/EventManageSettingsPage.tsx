@@ -30,8 +30,19 @@ const cardClass =
 const labelClass =
   "text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500";
 
+function parseCategoryAndDesc(rawDesc: string = "") {
+  const match = rawDesc.match(/^\[Category:\s*([^\]]+)\]\n\n?/);
+  if (match) {
+    const category = match[1].trim();
+    const description = rawDesc.slice(match[0].length);
+    return { category, description };
+  }
+  return { category: "General", description: rawDesc };
+}
+
 const detailsSchema = z.object({
   title: z.string().min(1, "Event name is required").max(100, "Event name must be 100 characters or less"),
+  category: z.string().optional(),
   description: z.string().optional(),
   location: z.string().optional(),
   isPublic: z.enum(["true", "false"]),
@@ -128,6 +139,8 @@ export default function EventManageSettingsPage() {
     return `${backendBase}${coverPath}`;
   }, [event]);
 
+  const parsedDesc = useMemo(() => parseCategoryAndDesc(event?.description || ""), [event?.description]);
+
   const optionsForm = useForm<OptionsValues>({
     resolver: zodResolver(optionsSchema),
     defaultValues: {
@@ -185,11 +198,12 @@ export default function EventManageSettingsPage() {
 
   const detailsForm = useForm<DetailsValues>({
     resolver: zodResolver(detailsSchema),
-    defaultValues: { isPublic: "true" },
+    defaultValues: { isPublic: "true", category: "General" },
     values: event
       ? {
           title: event.title || "",
-          description: event.description || "",
+          category: parsedDesc.category,
+          description: parsedDesc.description,
           location: event.location || "",
           isPublic: event.isPublic ? "true" : "false",
         }
@@ -198,9 +212,11 @@ export default function EventManageSettingsPage() {
 
   const detailsMutation = useMutation({
     mutationFn: async (data: DetailsValues) => {
+      const catPrefix = data.category ? `[Category: ${data.category}]\n\n` : "";
+      const finalDesc = `${catPrefix}${data.description || ""}`;
       return updateEventRequest(eventId, {
         title: data.title,
-        description: data.description || "",
+        description: finalDesc,
         location: data.location || "",
         isPublic: data.isPublic === "true",
       });
@@ -296,7 +312,7 @@ export default function EventManageSettingsPage() {
             />
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <label htmlFor="settings-location" className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
                 Location / link
@@ -308,6 +324,36 @@ export default function EventManageSettingsPage() {
                 {...detailsForm.register("location")}
                 placeholder="Offline location or virtual link"
                 className={`mt-2 h-11 ${inputBase}`}
+              />
+            </div>
+            <div>
+              <span className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
+                Category
+              </span>
+              <Controller
+                name="category"
+                control={detailsForm.control}
+                render={({ field }) => (
+                  <Select
+                    name={field.name}
+                    ariaLabel="Event category"
+                    value={field.value ?? "General"}
+                    onChange={field.onChange}
+                    className="mt-2 h-11 w-full px-3"
+                    options={[
+                      { value: "General", label: "General" },
+                      { value: "Technology", label: "Technology" },
+                      { value: "Business", label: "Business" },
+                      { value: "Design", label: "Design" },
+                      { value: "Marketing", label: "Marketing" },
+                      { value: "Entertainment", label: "Entertainment & Music" },
+                      { value: "Workshop", label: "Workshop & Training" },
+                      { value: "Networking", label: "Networking" },
+                      { value: "Sports", label: "Sports & Fitness" },
+                      { value: "Other", label: "Other" },
+                    ]}
+                  />
+                )}
               />
             </div>
             <div>

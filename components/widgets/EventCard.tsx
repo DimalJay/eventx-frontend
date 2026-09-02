@@ -1,5 +1,5 @@
 import { IEvent } from "@/types";
-import { CalendarCheck, MapPin } from "lucide-react";
+import { CalendarCheck, MapPin, Video } from "lucide-react";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 
@@ -18,6 +18,7 @@ export default function EventCard({ event, variant = "horizontal" }: EventCardPr
   const isFree = event.ticketPrice === 0;
   const lowCapacity = event.capacity > 0 && event.capacity <= 10;
   const isPast = event.startDate ? new Date(event.startDate) < new Date() : false;
+  const isOnline = event.eventType === "online" || (!!event.location && /^(https?:\/\/|zoom\.us|meet\.google|teams\.microsoft)/i.test(event.location));
 
   if (variant === "vertical") {
     return (
@@ -46,8 +47,8 @@ export default function EventCard({ event, variant = "horizontal" }: EventCardPr
 
           <div className="mt-3 space-y-2 text-sm text-black/70">
             <p className="flex items-center gap-2">
-              <span className="text-black/50"><MapPin size={16}/></span>
-              <span className="truncate">{event.location}</span>
+              <span className="text-black/50">{isOnline ? <Video size={16} /> : <MapPin size={16} />}</span>
+              <span className="truncate">{isOnline ? (event.location ? "Online Event" : "Online Event") : (event.location || "TBA")}</span>
             </p>
             <p className="flex items-center gap-2">
               <span className="text-black/50"><CalendarCheck size={16}/></span>
@@ -109,8 +110,8 @@ export default function EventCard({ event, variant = "horizontal" }: EventCardPr
 
           <div className="mt-3 space-y-2 text-sm text-black/70">
             <p className="flex items-center gap-2">
-              <span className="text-black/50"><MapPin size={18}/></span>
-              <span className="truncate">{event.location}</span>
+              <span className="text-black/50">{isOnline ? <Video size={18} /> : <MapPin size={18} />}</span>
+              <span className="truncate">{isOnline ? (event.location ? "Online Event" : "Online Event") : (event.location || "TBA")}</span>
             </p>
             <p className="flex items-center gap-2">
               <span className="text-black/50"><CalendarCheck size={18}/></span>

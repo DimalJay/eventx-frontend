@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { toast } from "sonner";
 import { useAuth } from "@/components/auth/AuthContext";
 import { updateProfile } from "@/service/userService";
@@ -10,11 +13,38 @@ import HelpTooltip from "@/components/widgets/HelpTooltip";
 const inputBase =
   "h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-500 focus:border-primary/60 focus:ring-2 focus:ring-primary/20";
 
-interface ProfileFormValues {
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-}
+const profileSchema = z.object({
+  firstName: z
+    .string()
+    .trim()
+    .min(1, "First name is required")
+    .min(2, "First name must be at least 2 characters")
+    .max(50, "First name cannot exceed 50 characters")
+    .regex(/^[a-zA-Z\s'-]+$/, "First name can only contain letters, spaces, hyphens, and apostrophes"),
+  lastName: z
+    .string()
+    .trim()
+    .min(1, "Last name is required")
+    .min(2, "Last name must be at least 2 characters")
+    .max(50, "Last name cannot exceed 50 characters")
+    .regex(/^[a-zA-Z\s'-]+$/, "Last name can only contain letters, spaces, hyphens, and apostrophes"),
+  phoneNumber: z
+    .string()
+    .trim()
+    .refine(
+      (val) => {
+        if (!val) return true;
+        const digitsOnly = val.replace(/\D/g, "");
+        if (val.startsWith("+")) {
+          return digitsOnly.length >= 9 && digitsOnly.length <= 11;
+        }
+        return /^0\d{9}$/.test(digitsOnly);
+      },
+      "Phone number must be 10 digits (e.g. 0702913111) or international format (e.g. +94702913111)"
+    ),
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
 
 export default function ProfileSettingsPage() {
   const { user } = useAuth();
@@ -24,14 +54,29 @@ export default function ProfileSettingsPage() {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors },
   } = useForm<ProfileFormValues>({
+    resolver: zodResolver(profileSchema),
     defaultValues: {
       firstName: user?.firstName ?? "",
       lastName: user?.lastName ?? "",
       phoneNumber: user?.phoneNumber ?? "",
     },
   });
+
+  const phoneNumberVal = useWatch({ control, name: "phoneNumber" }) || "";
+  const phoneMaxLength = phoneNumberVal.trim().startsWith("+") ? 12 : 10;
+
+  useEffect(() => {
+    if (user) {
+      reset({
+        firstName: user.firstName ?? "",
+        lastName: user.lastName ?? "",
+        phoneNumber: user.phoneNumber ?? "",
+      });
+    }
+  }, [user, reset]);
 
   const mutation = useMutation({
     mutationFn: updateProfile,
@@ -106,9 +151,8 @@ export default function ProfileSettingsPage() {
               type="text"
               className={inputBase}
               placeholder="First name"
-              {...register("firstName", {
-                required: "First name is required",
-              })}
+              maxLength={50}
+              {...register("firstName")}
             />
             {errors.firstName && (
               <p className="mt-1 text-xs text-red-600">
@@ -125,9 +169,8 @@ export default function ProfileSettingsPage() {
               type="text"
               className={inputBase}
               placeholder="Last name"
-              {...register("lastName", {
-                required: "Last name is required",
-              })}
+              maxLength={50}
+              {...register("lastName")}
             />
             {errors.lastName && (
               <p className="mt-1 text-xs text-red-600">
@@ -139,14 +182,30 @@ export default function ProfileSettingsPage() {
           <div className="sm:col-span-2">
             <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-zinc-700">
               Phone number
-              <HelpTooltip text="Use an international format, e.g. +94 77 123 4567. Organizers may use this to contact you about the event." side="bottom" />
+              <HelpTooltip text="Enter a 10-digit number e.g. 0702913111 or international format e.g. +94702913111." side="bottom" />
             </label>
             <input
               type="tel"
               className={inputBase}
-              placeholder="Phone number"
-              {...register("phoneNumber")}
+              placeholder="e.g. 0702913111 or +94702913111"
+              maxLength={phoneMaxLength}
+              {...register("phoneNumber", {
+                onChange: (e) => {
+                  let val = e.target.value;
+                  if (val.startsWith("+")) {
+                    val = "+" + val.slice(1).replace(/\D/g, "");
+                  } else {
+                    val = val.replace(/\D/g, "");
+                  }
+                  e.target.value = val;
+                },
+              })}
             />
+            {errors.phoneNumber && (
+              <p className="mt-1 text-xs text-red-600">
+                {errors.phoneNumber.message}
+              </p>
+            )}
           </div>
 
           <div className="sm:col-span-2">
@@ -175,4 +234,4 @@ export default function ProfileSettingsPage() {
       </section>
     </div>
   );
-}
+}

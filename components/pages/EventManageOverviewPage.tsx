@@ -83,16 +83,47 @@ export default function EventManageOverviewPage() {
     { label: "Check-ins", value: String(checkedInCount), delta: checkedInCount === 0 ? "Opens on event day" : `${checkedInCount} checked in` },
   ];
 
+  const isOnlineEvent =
+    event.eventType === "online" ||
+    (!!event.location && /^(https?:\/\/|zoom\.us|meet\.google|teams\.microsoft)/i.test(event.location));
+
+  const formatUrl = (url?: string) => {
+    if (!url) return "#";
+    const trimmed = url.trim();
+    if (!/^https?:\/\//i.test(trimmed)) return `https://${trimmed}`;
+    return trimmed;
+  };
+
   const details = [
     { label: "Start Date", value: formattedStartDate },
     { label: "End Date", value: formattedEndDate },
     { label: "Start Time", value: formattedStartTime },
     { label: "End Time", value: formattedEndTime },
-    { label: "Location", value: event.location || "TBA" },
+    {
+      label: isOnlineEvent ? "Online Link" : "Location",
+      value: isOnlineEvent && event.location ? (
+        <a
+          href={formatUrl(event.location)}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary font-semibold hover:underline inline-flex items-center gap-1"
+        >
+          <span>{event.location.startsWith("http") || event.location.includes("/") ? "Join Meeting Link" : event.location}</span>
+          <span className="text-xs">↗</span>
+        </a>
+      ) : (
+        event.location || (isOnlineEvent ? "Online Event" : "TBA")
+      ),
+    },
     { label: "Visibility", value: event.isPublic ? "Public Event" : "Private Event" },
   ];
 
-  const activity: any[] = [];
+  interface ActivityItem {
+    title: string;
+    meta: string;
+  }
+
+  const activity: ActivityItem[] = [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -184,7 +215,7 @@ export default function EventManageOverviewPage() {
             </p>
             <div className="mt-4 grid gap-4 text-sm text-zinc-600">
               {activity.length > 0 ? (
-                activity.map((item: any) => (
+                activity.map((item) => (
                   <div
                     key={item.title}
                     className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3"
