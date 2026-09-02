@@ -20,13 +20,26 @@ type Props = {
     eventId: string;
 };
 
+const isNotInPast = (val: string) => {
+    if (!val) return true;
+    const datePart = val.split("T")[0];
+    const parts = datePart.split("-").map(Number);
+    if (parts.length < 3 || isNaN(parts[0]) || isNaN(parts[1]) || isNaN(parts[2])) return true;
+    const selectedDate = new Date(parts[0], parts[1] - 1, parts[2]);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return selectedDate >= today;
+};
+
 const eventTaskSchema = z.object({
     eventId: z.string().optional(),
     title: z.string().min(1, "Task title is required"),
     description: z.string().optional(),
     assignedTo: z.string().min(1, "Assignee is required"),
     assignedBy: z.string().min(1, "Assigner is required"),
-    dueDate: z.string().min(1, "Due date is required"),
+    dueDate: z.string()
+        .min(1, "Due date is required")
+        .refine(isNotInPast, { message: "Due date cannot be in the past" }),
 });
 
 type EventTaskFormValues = z.infer<typeof eventTaskSchema>;
@@ -152,6 +165,7 @@ if (!open) return null;
                                     ariaLabel="Task due date"
                                     value={field.value}
                                     onChange={field.onChange}
+                                    minDate={new Date()}
                                 />
                             )}
                         />
