@@ -10,13 +10,7 @@ import AddMemberDialog from "../dialogs/AddMemberDialog";
 import RemoveMemberDialog from "../dialogs/RemoveMemberDialog";
 import { TeamAccessLoadingSkeleton } from "@/components/skeleton/TeamAccessLoadingSkeleton";
 import { decodeEventId } from "@/lib/utils";
-
-type TeamMember = {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-};
+import type { TeamMember } from "@/types/team";
 
 
 export default function EventTeamAccessSection() {

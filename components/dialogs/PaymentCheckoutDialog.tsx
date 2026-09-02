@@ -83,9 +83,16 @@ export default function PaymentCheckoutDialog({
             type="button"
             disabled={mutation.isPending}
             onClick={() => mutation.mutate()}
-            className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-50"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {mutation.isPending ? "Redirecting to Stripe..." : `Pay ${formattedPrice}`}
+            {mutation.isPending ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Redirecting to Stripe...
+              </>
+            ) : (
+              `Pay ${formattedPrice}`
+            )}
           </button>
         </div>
     </Dialog>

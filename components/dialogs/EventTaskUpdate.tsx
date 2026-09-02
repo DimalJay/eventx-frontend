@@ -248,10 +248,17 @@ export default function EventTaskUpdateDialog({
 
               <button
                 type="submit"
-                className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={mutation.isPending}
               >
-                {mutation.isPending ? "Updating..." : "Update task"}
+                {mutation.isPending ? (
+                  <>
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Updating...
+                  </>
+                ) : (
+                  "Update task"
+                )}
               </button>
 </div>
       </form>

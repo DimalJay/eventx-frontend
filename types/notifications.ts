@@ -1,10 +1,20 @@
+export type NotificationType =
+  | "General"
+  | "Registration"
+  | "task_assignment"
+  | "task_update"
+  | "team_access"
+  | "team_removed"
+  | "team_role_changed"
+  | "team_update";
+
 export interface INotification {
   id: number;
   title: string;
   message: string;
   userId: number;
   status: "unread" | "read";
-  type: string;
+  type: NotificationType;
   createdAt: string;
   readAt: string | null;
   isRead: boolean;

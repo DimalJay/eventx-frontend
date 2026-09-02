@@ -85,11 +85,18 @@ export default function DeleteEventDialog({ open, onClose, eventId, eventTitle }
 
           <button
             type="button"
-            className="inline-flex h-10 items-center justify-center rounded-full bg-danger px-4 text-sm font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-danger px-4 text-sm font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={() => mutation.mutate()}
             disabled={!confirmationMatches || mutation.isPending}
           >
-            {mutation.isPending ? "Deleting..." : "Delete forever"}
+            {mutation.isPending ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Deleting...
+              </>
+            ) : (
+              "Delete forever"
+            )}
           </button>
         </div>
     </Dialog>

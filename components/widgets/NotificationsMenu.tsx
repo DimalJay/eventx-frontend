@@ -1,29 +1,32 @@
 'use client'
 import { useState } from "react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, timeAgo } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { IoNotificationsOutline } from "react-icons/io5";
 import { getNotifications } from "@/service/notificationService";
 import type { INotification } from "@/types/notifications";
+import { UserPlus, UserMinus, ArrowUpCircle, Users, ClipboardList, RefreshCw, Bell } from "lucide-react";
 
-function timeAgo(dateString: string): string {
-  const now = Date.now();
-  const then = new Date(dateString).getTime();
-  const diffMs = now - then;
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHr = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHr / 24);
-
-  if (diffSec < 60) return "Just now";
-  if (diffMin < 60) return `${diffMin} min ago`;
-  if (diffHr < 24) return `${diffHr} hour${diffHr > 1 ? "s" : ""} ago`;
-  if (diffDay < 7) return `${diffDay} day${diffDay > 1 ? "s" : ""} ago`;
-  return new Date(dateString).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+function notificationIcon(type: INotification["type"]) {
+  switch (type) {
+    case "team_access":
+      return <UserPlus className="h-4 w-4 text-emerald-600" />;
+    case "team_removed":
+      return <UserMinus className="h-4 w-4 text-red-500" />;
+    case "team_role_changed":
+      return <ArrowUpCircle className="h-4 w-4 text-blue-600" />;
+    case "team_update":
+      return <Users className="h-4 w-4 text-violet-600" />;
+    case "task_assignment":
+      return <ClipboardList className="h-4 w-4 text-amber-600" />;
+    case "task_update":
+      return <RefreshCw className="h-4 w-4 text-amber-500" />;
+    case "Registration":
+      return <ClipboardList className="h-4 w-4 text-emerald-600" />;
+    default:
+      return <Bell className="h-4 w-4 text-zinc-500" />;
+  }
 }
 
 export default function NotificationsMenu({ className }: { className?: string }) {
@@ -99,8 +102,14 @@ export default function NotificationsMenu({ className }: { className?: string })
                         !item.isRead ? "bg-red-500" : "bg-transparent"
                       )}
                     />
-                    <div>
-                      <p className="text-sm font-medium text-black">{item.title}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        {notificationIcon(item.type)}
+                        <p className="text-sm font-medium text-black truncate">{item.title}</p>
+                      </div>
+                      {item.message && (
+                        <p className="mt-0.5 text-xs text-black/60 line-clamp-2">{item.message}</p>
+                      )}
                       <p className="mt-0.5 text-xs text-black/50">{timeAgo(item.createdAt)}</p>
                     </div>
                   </div>
