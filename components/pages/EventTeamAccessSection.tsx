@@ -9,6 +9,7 @@ import RoleChangeDialog from "../dialogs/RoleChangeDialog";
 import AddMemberDialog from "../dialogs/AddMemberDialog";
 import RemoveMemberDialog from "../dialogs/RemoveMemberDialog";
 import { TeamAccessLoadingSkeleton } from "@/components/skeleton/TeamAccessLoadingSkeleton";
+import { decodeEventId } from "@/lib/utils";
 
 type TeamMember = {
   id: number;
@@ -19,7 +20,8 @@ type TeamMember = {
 
 
 export default function EventTeamAccessSection() {
-  const { id: eventId } = useParams() as { id: string };
+  const { id } = useParams() as { id: string };
+  const eventId = decodeEventId(id);
 
   const { data: teamMembers = [], isLoading } = useQuery({
     queryKey: ["team-members", eventId],

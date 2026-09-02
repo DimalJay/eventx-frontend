@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, MapPin, CalendarDays } from "lucide-react";
 import { IEvent } from "@/types";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, encodeEventId } from "@/lib/utils";
 
 type UpcomingEventsProps = {
   events: IEvent[];
@@ -130,7 +130,7 @@ export default function UpcomingEvents({ events, isLoading }: UpcomingEventsProp
                           : formatPrice(event.ticketPrice)}
                       </span>
                       <Link
-                        href={`/event/${event.id}`}
+                        href={`/event/${encodeEventId(event.id)}`}
                         className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-700 transition hover:text-primary"
                       >
                         View details

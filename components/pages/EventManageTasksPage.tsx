@@ -10,6 +10,7 @@ import { ITask, TaskStatus } from "@/types";
 import { TeamMember } from "@/types/team";
 import TaskCard from "../TaskCard";
 import { cn } from "@/lib/utils";
+import { decodeEventId } from "@/lib/utils";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 
@@ -38,7 +39,8 @@ const TaskStatusDetails: Record<TaskStatus, StatusAttributes> = {
 };
 
 export default function EventManageTasksPage() {
-  const { id: eventId } = useParams() as { id: string };
+  const { id } = useParams() as { id: string };
+  const eventId = decodeEventId(id);
   const queryClient = useQueryClient();
   
   const { data: users = [] } = useQuery({

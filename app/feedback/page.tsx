@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Star, MessageSquareCode, CheckCircle, Award, Users } from "lucide-react";
 import { toast } from "sonner";
 import { completeFeedback } from "@/service/feedbackService";
+import { encodeEventId } from "@/lib/utils";
 
 function FeedbackForm() {
   const searchParams = useSearchParams();
@@ -74,7 +75,7 @@ function FeedbackForm() {
           Your feedback has been submitted successfully. We appreciate your time and comments to help us improve future events!
         </p>
         <button
-          onClick={() => router.push(`/event/${eventId}`)}
+          onClick={() => router.push(`/event/${encodeEventId(eventId)}`)}
           className="btn"
         >
           View Event

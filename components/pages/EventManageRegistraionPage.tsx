@@ -8,6 +8,7 @@ import { getEventById } from "@/service/eventService";
 import { IRegistration, IEvent } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { registrationCSVRows, downloadCSV } from "@/lib/utils";
+import { decodeEventId } from "@/lib/utils";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
 import RegistrationStatusDialog from "../dialogs/RegistrationStatusDialog";
@@ -31,7 +32,8 @@ const statusLabels: Record<string, string> = {
 };
 
 export default function EventManageRegistraionPage() {
-  const { id: eventId } = useParams() as { id: string };
+  const { id } = useParams() as { id: string };
+  const eventId = decodeEventId(id);
   const queryClient = useQueryClient();
   const [selectedReg, setSelectedReg] = useState<IRegistration | null>(null);
   const [checkInOpen, setCheckInOpen] = useState(false);

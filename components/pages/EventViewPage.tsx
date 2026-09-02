@@ -8,7 +8,7 @@ import { getEventRegistrations } from "@/service/registrationService";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, decodeEventId } from "@/lib/utils";
 import { IRegistration } from "@/types";
 import ShareButton from "../widgets/ShareButton";
 import RegisterEventDialog from "../dialogs/RegisterEventDialog";
@@ -84,6 +84,7 @@ const included = [
 export default function EventViewPage({ id }: { id?: string }) {
   const { user } = useAuth();
   const reduce = useReducedMotion();
+  const eventId = id ? decodeEventId(id) : "";
   const [registerOpen, setRegisterOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [loginPromptOpen, setLoginPromptOpen] = useState(false);
@@ -122,18 +123,18 @@ export default function EventViewPage({ id }: { id?: string }) {
   }, []);
 
   const { data: backendEvent, isLoading, isError } = useQuery({
-    queryKey: ["event", id],
+    queryKey: ["event", eventId],
     queryFn: async () => {
-      const res = await getEventById(id as string);
+      const res = await getEventById(eventId);
       return res.data;
     },
-    enabled: !!id,
+    enabled: !!eventId,
   });
 
   const { data: registrationsResponse } = useQuery({
-    queryKey: ["registrations", id],
-    queryFn: () => getEventRegistrations({ data: { eventId: id as string } }),
-    enabled: !!id,
+    queryKey: ["registrations", eventId],
+    queryFn: () => getEventRegistrations({ data: { eventId } }),
+    enabled: !!eventId,
   });
 
   if (isLoading) {
@@ -460,7 +461,7 @@ export default function EventViewPage({ id }: { id?: string }) {
         {id && (
           isPaid ? (
             <PaymentCheckoutDialog
-              eventId={id}
+              eventId={eventId}
               title={backendEvent.title || "Untitled Event"}
               price={backendEvent.ticketPrice || 0}
               seatsLeft={event.seatsLeft}
@@ -470,7 +471,7 @@ export default function EventViewPage({ id }: { id?: string }) {
             />
           ) : (
             <RegisterEventDialog
-              eventId={id}
+              eventId={eventId}
               open={registerOpen}
               onClose={() => setRegisterOpen(false)}
               onRegistered={rememberJoined}

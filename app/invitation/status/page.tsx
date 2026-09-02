@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Link from "next/link";
 import { CheckCircle2, XCircle } from "lucide-react";
+import { encodeEventId } from "@/lib/utils";
 
 function StatusContent() {
   const searchParams = useSearchParams();
@@ -42,7 +43,7 @@ function StatusContent() {
 
         <div className="mt-8 flex flex-col gap-3">
           <Link
-            href={eventId ? `/event/${eventId}` : "/"}
+            href={eventId ? `/event/${encodeEventId(eventId)}` : "/"}
             className="flex h-11 w-full items-center justify-center rounded-full bg-black text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
           >
             {eventId ? "View Event" : "Go to Homepage"}

@@ -6,6 +6,25 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function encodeEventId(id: string | number | null | undefined): string {
+  if (id === null || id === undefined || id === "") return "";
+  return btoa(String(id)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+export function decodeEventId(param: string | null | undefined): string {
+  if (!param) return "";
+  if (/^\d+$/.test(param)) return param;
+  try {
+    const base64 =
+      param.replace(/-/g, "+").replace(/_/g, "/") +
+      "=".repeat((4 - (param.length % 4)) % 4);
+    const decoded = atob(base64);
+    return /^\d+$/.test(decoded) ? decoded : param;
+  } catch {
+    return param;
+  }
+}
+
 export function formatPrice(value?: number | string | null, keepZero = false): string {
   const amount = Number(value);
   if (Number.isFinite(amount) && amount > 0) {

@@ -57,6 +57,15 @@ export interface IAgendaItem {
   location: string;
 }
 
+export interface ITicketDetails {
+  ticketCode: string;
+  status: string;
+  eventId: string;
+  event: Partial<IEvent> & { eventType?: string };
+  organizer: string | null;
+  holder: { firstName: string; lastName: string; email: string } | null;
+}
+
 export interface IRegistration {
   id: string;
   eventId: string;

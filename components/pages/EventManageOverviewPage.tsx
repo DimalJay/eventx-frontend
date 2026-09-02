@@ -5,12 +5,12 @@ import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
 import { getEventRegistrations } from "@/service/registrationService";
 import { IRegistration } from "@/types";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, decodeEventId, encodeEventId } from "@/lib/utils";
 import { EventOverviewLoadingSkeleton } from "@/components/skeleton/EventOverviewLoadingSkeleton";
 
 export default function EventManageOverviewPage() {
   const params = useParams();
-  const eventId = params.id as string;
+  const eventId = decodeEventId(params.id as string);
 
   const { data: event, isLoading } = useQuery({
     queryKey: ['event', eventId],
@@ -201,7 +201,7 @@ export default function EventManageOverviewPage() {
                   : "This event has already started or passed."}
               </p>
               <Link
-                href={`/event/manage/${eventId}/agenda`}
+                href={`/event/manage/${encodeEventId(eventId)}/agenda`}
                 className="mt-5 inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-sm font-semibold text-zinc-900"
               >
                 Review agenda

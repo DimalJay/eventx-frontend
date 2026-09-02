@@ -11,11 +11,12 @@ import EditEventAgendaItem from "../dialogs/EditEventAgendaItem";
 import DeleteEventAgendaItem from "../dialogs/DeleteEventAgendaItem";
 import { EllipsisVertical } from "lucide-react";
 import { EventAgendaLoadingSkeleton } from "@/components/skeleton/EventAgendaLoadingSkeleton";
+import { decodeEventId } from "@/lib/utils";
 
 
 export default function EventManageAgendaPage() {
     const params = useParams();
-    const eventId = params.id as string;
+    const eventId = decodeEventId(params.id as string);
     const queryClient = useQueryClient();
 
     // Get Event Data

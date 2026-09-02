@@ -6,10 +6,11 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { canManageEventRequest } from "@/service/eventService";
+import { decodeEventId, encodeEventId } from "@/lib/utils";
 
 export default function ManageLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
     const { id } = useParams();
-    const eventId = id as string;
+    const eventId = decodeEventId(id as string);
     const router = useRouter();
 
     const { data, isLoading, isError } = useQuery({
@@ -62,14 +63,14 @@ export default function ManageLayout({ children }: Readonly<{ children: React.Re
             <div className="relative z-10 flex w-full max-w-6xl flex-col gap-10 px-6 py-16 lg:py-20">
                 <EventHeader id={eventId} />
                 <TabView defaultPage="overview">
-                    <TabItem url={`/event/manage/${eventId}/overview`} name="overview" >Overview</TabItem>
-                    <TabItem url={`/event/manage/${eventId}/registration`} name="registration" >Registration</TabItem>
-                    <TabItem url={`/event/manage/${eventId}/agenda`} name="agenda" >Agenda</TabItem>
-                    <TabItem url={`/event/manage/${eventId}/team`} name="team" >Team</TabItem>
-                    <TabItem url={`/event/manage/${eventId}/tasks`} name="tasks" >Tasks</TabItem>
-                    <TabItem url={`/event/manage/${eventId}/feedbacks`} name="feedbacks" >Feedbacks</TabItem>
-                    <TabItem url={`/event/manage/${eventId}/insights`} name="insights" >Insights</TabItem>
-                    <TabItem url={`/event/manage/${eventId}/settings`} name="settings" >Settings</TabItem>
+                    <TabItem url={`/event/manage/${encodeEventId(eventId)}/overview`} name="overview" >Overview</TabItem>
+                    <TabItem url={`/event/manage/${encodeEventId(eventId)}/registration`} name="registration" >Registration</TabItem>
+                    <TabItem url={`/event/manage/${encodeEventId(eventId)}/agenda`} name="agenda" >Agenda</TabItem>
+                    <TabItem url={`/event/manage/${encodeEventId(eventId)}/team`} name="team" >Team</TabItem>
+                    <TabItem url={`/event/manage/${encodeEventId(eventId)}/tasks`} name="tasks" >Tasks</TabItem>
+                    <TabItem url={`/event/manage/${encodeEventId(eventId)}/feedbacks`} name="feedbacks" >Feedbacks</TabItem>
+                    <TabItem url={`/event/manage/${encodeEventId(eventId)}/insights`} name="insights" >Insights</TabItem>
+                    <TabItem url={`/event/manage/${encodeEventId(eventId)}/settings`} name="settings" >Settings</TabItem>
                 </TabView>
                 {children}
             </div>
