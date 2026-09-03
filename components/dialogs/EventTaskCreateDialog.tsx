@@ -76,7 +76,15 @@ export default function EventTaskCreateDialog({ open, onClose, users, eventId }:
         onClose();
     }
 
-if (!open) return null;
+    const coordinatorUsers = users.filter(
+        (user) => user.role?.toUpperCase() === "COORDINATOR" || user.role?.toUpperCase() === "ORGANIZER" || user.isOrganizer
+    );
+    const assignedByOptions = (coordinatorUsers.length > 0 ? coordinatorUsers : users).map((user) => ({
+        value: user.id.toString(),
+        label: `${user.name}`,
+    }));
+
+    if (!open) return null;
 
   return (
     <Dialog
@@ -119,11 +127,11 @@ if (!open) return null;
                                 render={({ field }) => (
                                     <Select
                                         name={field.name}
-                                        ariaLabel="Event visibility"
+                                        ariaLabel="Assigned by"
                                         value={field.value}
                                         onChange={field.onChange}
                                         className="mt-2 w-full px-3 py-2.5"
-                                        options={users.map((user) => ({ value: user.id.toString(), label: `${user.name}` }))}
+                                        options={assignedByOptions}
                                     />
                                 )}
                             />

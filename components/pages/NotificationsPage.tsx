@@ -12,6 +12,7 @@ import {
 } from "@/service/notificationService";
 import type { INotification } from "@/types/notifications";
 import { NotificationsLoadingSkeleton } from "@/components/skeleton/NotificationsLoadingSkeleton";
+import ShaderBackground from "../landing/ShaderBackground";
 import { UserPlus, UserMinus, ArrowUpCircle, Users, ClipboardList, RefreshCw, Bell } from "lucide-react";
 
 function notificationIcon(type: INotification["type"]) {

@@ -8,6 +8,7 @@ import { ReactQRCode } from "@lglab/react-qr-code";
 import { getTicketDetails } from "@/service/registrationService";
 import { formatPrice, encodeEventId } from "@/lib/utils";
 import { ITicketDetails } from "@/types";
+import ShaderBackground from "../landing/ShaderBackground";
 
 const formatTicketDate = (value?: string | Date) => {
   if (!value) return "TBA";

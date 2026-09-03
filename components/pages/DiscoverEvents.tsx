@@ -8,6 +8,7 @@ import { IEvent, WithID } from "@/types";
 import Select from "../widgets/Select";
 import { formatPrice, encodeEventId } from "@/lib/utils";
 import { Search, RotateCcw, AlertCircle, Video, CalendarDays, MapPin, ArrowRight } from "lucide-react";
+import ShaderBackground from "../landing/ShaderBackground";
 
 export default function DiscoverEvents() {
   // State for search and filters

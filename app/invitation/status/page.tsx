@@ -4,6 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Link from "next/link";
 import { CheckCircle2, XCircle } from "lucide-react";
+import ShaderBackground from "@/components/landing/ShaderBackground";
 import { encodeEventId } from "@/lib/utils";
 
 function StatusContent() {
