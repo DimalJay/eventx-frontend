@@ -46,12 +46,19 @@ export default function CheckInDialog({ open, onClose, registrations, onCheckIn,
           <button
             type="button"
             disabled={isPending}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-40"
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={() =>
               onCheckIn(scannedReg.id)
             }
           >
-            Mark as checked in
+            {isPending ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Checking in...
+              </>
+            ) : (
+              "Mark as checked in"
+            )}
           </button>
           <button
             type="button"

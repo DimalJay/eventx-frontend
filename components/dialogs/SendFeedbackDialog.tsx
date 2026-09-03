@@ -67,11 +67,18 @@ export default function SendFeedbackDialog({ open, onClose, eventId, eventTitle,
 
         <button
           type="button"
-          className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           onClick={() => mutation.mutate()}
           disabled={mutation.isPending || goingCount === 0}
         >
-          {mutation.isPending ? "Sending..." : "Send feedback"}
+          {mutation.isPending ? (
+            <>
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              Sending...
+            </>
+          ) : (
+            "Send feedback"
+          )}
         </button>
       </div>
     </Dialog>

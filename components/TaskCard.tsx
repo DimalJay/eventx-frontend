@@ -3,7 +3,7 @@ import EventTaskUpdateDialog from "./dialogs/EventTaskUpdate";
 import { useState } from "react";
 import { TeamMember } from "@/types/team";
 
-export default function TaskCard({ task , users, eventId }: { task: ITask , users: TeamMember[], eventId: string }) {
+export default function TaskCard({ task , users, eventId, canEdit = true }: { task: ITask , users: TeamMember[], eventId: string, canEdit?: boolean }) {
     const [open, setOpen] = useState(false);
 
     const assignedUser = users.find((user) => String(user.id) == task.assignedTo);
@@ -47,7 +47,7 @@ export default function TaskCard({ task , users, eventId }: { task: ITask , user
                 </span>
             </div>
         </article>
-        <EventTaskUpdateDialog task={task} open={open} onClose={() => setOpen(false)} users={users} eventId={eventId} />
+        <EventTaskUpdateDialog task={task} open={open} onClose={() => setOpen(false)} users={users} eventId={eventId} canEdit={canEdit} />
         </>
     )
 }

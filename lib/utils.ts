@@ -6,6 +6,25 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function encodeEventId(id: string | number | null | undefined): string {
+  if (id === null || id === undefined || id === "") return "";
+  return btoa(String(id)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+export function decodeEventId(param: string | null | undefined): string {
+  if (!param) return "";
+  if (/^\d+$/.test(param)) return param;
+  try {
+    const base64 =
+      param.replace(/-/g, "+").replace(/_/g, "/") +
+      "=".repeat((4 - (param.length % 4)) % 4);
+    const decoded = atob(base64);
+    return /^\d+$/.test(decoded) ? decoded : param;
+  } catch {
+    return param;
+  }
+}
+
 export function formatPrice(value?: number | string | null, keepZero = false): string {
   const amount = Number(value);
   if (Number.isFinite(amount) && amount > 0) {
@@ -13,6 +32,25 @@ export function formatPrice(value?: number | string | null, keepZero = false): s
   }
   if (keepZero && amount === 0) return "LKR 0";
   return "Free";
+}
+
+export function timeAgo(dateString: string): string {
+  const now = Date.now();
+  const then = new Date(dateString).getTime();
+  const diffMs = now - then;
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHr = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHr / 24);
+
+  if (diffSec < 60) return "Just now";
+  if (diffMin < 60) return `${diffMin} min ago`;
+  if (diffHr < 24) return `${diffHr} hour${diffHr > 1 ? "s" : ""} ago`;
+  if (diffDay < 7) return `${diffDay} day${diffDay > 1 ? "s" : ""} ago`;
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 export function formatDateTime(value?: string | Date | null): string {

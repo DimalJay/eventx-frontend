@@ -4,13 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { removeTeamMember } from "@/service/teamService";
 import { toast } from "sonner";
 import Dialog from "@/components/widgets/Dialog";
-
-type TeamMember = {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-};
+import type { TeamMember } from "@/types/team";
 
 type Props = {
   eventId: string;
@@ -52,17 +46,26 @@ export default function RemoveMemberDialog({ eventId, member, open, onClose }: P
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
-            className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
+            disabled={mutation.isPending}
+            className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900 disabled:opacity-50"
             onClick={onClose}
           >
             Cancel
           </button>
           <button
             type="button"
-            className="inline-flex h-10 items-center justify-center rounded-full bg-danger px-4 text-sm font-semibold text-white transition hover:bg-red-600"
+            disabled={mutation.isPending}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-danger px-4 text-sm font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
             onClick={() => mutation.mutate(member.id)}
           >
-            Yes, remove
+            {mutation.isPending ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Removing...
+              </>
+            ) : (
+              "Yes, remove"
+            )}
           </button>
         </div>
     </Dialog>

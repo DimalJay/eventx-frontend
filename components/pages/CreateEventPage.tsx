@@ -16,6 +16,7 @@ import LocationSection from "./create-event/LocationSection";
 import EventOptionsSection from "./create-event/EventOptionsSection";
 import { TextIcon } from "./create-event/Icons";
 import HelpTooltip from "../widgets/HelpTooltip";
+import { encodeEventId } from "@/lib/utils";
 
 const baseEventSchema = z.object({
   title: z.string().min(1, "Event name is required").max(100, "Event name must be 100 characters or less"),
@@ -168,7 +169,7 @@ export default function CreateEventPage() {
       console.log("Event created:", data);
       const eventId = data?.id;
       if (eventId) {
-        router.push(`/event/manage/${eventId}`);
+        router.push(`/event/manage/${encodeEventId(eventId)}`);
       }
     },
     onError: (error: Error) => {

@@ -39,9 +39,16 @@ export default function DeleteEventAgendaItem({
             type="button"
             disabled={isPending}
             onClick={onDelete}
-            className="inline-flex h-10 items-center justify-center rounded-full bg-danger px-4 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-danger px-4 text-sm font-semibold text-white transition hover:bg-red-600 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isPending ? "Deleting..." : "Yes, Delete"}
+            {isPending ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Deleting...
+              </>
+            ) : (
+              "Yes, Delete"
+            )}
           </button>
         </div>
     </Dialog>

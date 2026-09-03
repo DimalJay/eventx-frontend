@@ -103,16 +103,25 @@ export default function AddMemberDialog({ eventId, open, onClose }: Props) {
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
             <button
               type="button"
-              className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
+              disabled={mutation.isPending}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900 disabled:opacity-50"
               onClick={onClose}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90"
+              disabled={mutation.isPending}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Send invite
+              {mutation.isPending ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Adding...
+                </>
+              ) : (
+                "Send invite"
+              )}
             </button>
           </div>
         </form>

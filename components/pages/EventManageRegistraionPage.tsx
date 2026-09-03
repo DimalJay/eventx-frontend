@@ -8,6 +8,7 @@ import { getEventById } from "@/service/eventService";
 import { IRegistration, IEvent } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { registrationCSVRows, downloadCSV } from "@/lib/utils";
+import { decodeEventId } from "@/lib/utils";
 import { Download } from "lucide-react";
 import { toast } from "sonner";
 import RegistrationStatusDialog from "../dialogs/RegistrationStatusDialog";
@@ -15,6 +16,7 @@ import CheckInDialog from "../dialogs/CheckInDialog";
 import SendInvitationDialog from "../dialogs/SendInvitationDialog";
 import SendFeedbackDialog from "../dialogs/SendFeedbackDialog";
 import { EventRegistrationsLoadingSkeleton } from "@/components/skeleton/EventRegistrationsLoadingSkeleton";
+import { useEventRole } from "@/components/auth/EventManageContext";
 
 const statusStyles: Record<string, string> = {
   GOING: "border-emerald-200 bg-emerald-50 text-emerald-800",
@@ -31,7 +33,8 @@ const statusLabels: Record<string, string> = {
 };
 
 export default function EventManageRegistraionPage() {
-  const { id: eventId } = useParams() as { id: string };
+  const { id } = useParams() as { id: string };
+  const eventId = decodeEventId(id);
   const queryClient = useQueryClient();
   const [selectedReg, setSelectedReg] = useState<IRegistration | null>(null);
   const [checkInOpen, setCheckInOpen] = useState(false);
@@ -39,6 +42,8 @@ export default function EventManageRegistraionPage() {
   const [sendFeedbackOpen, setSendFeedbackOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const { role } = useEventRole();
+  const canManageGuests = role === "ORGANIZER" || role === "COORDINATOR";
 
   const { data: event } = useQuery({
     queryKey: ["event", eventId],
@@ -165,30 +170,34 @@ export default function EventManageRegistraionPage() {
             </h2>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary disabled:opacity-50"
-              onClick={() => setSendFeedbackOpen(true)}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
-                <path d="M21.5 12H16c-.7 2-2 3-4 3s-3.3-1-4-3H2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M5.5 5.1L2 12v6c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-6l-3.5-6.9C18.1 4.4 17.1 4 16 4H8c-1.1 0-2.1.4-2.5 1.1z" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Send feedback
-            </button>
-            <button
-              type="button"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary"
-              onClick={() => setInviteOpen(true)}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
-                <circle cx="9" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round"/>
-                <line x1="19" y1="8" x2="19" y2="14" strokeLinecap="round" strokeLinejoin="round"/>
-                <line x1="22" y1="11" x2="16" y2="11" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Invite guests
-            </button>
+            {canManageGuests && (
+              <button
+                type="button"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary disabled:opacity-50"
+                onClick={() => setSendFeedbackOpen(true)}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                  <path d="M21.5 12H16c-.7 2-2 3-4 3s-3.3-1-4-3H2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M5.5 5.1L2 12v6c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-6l-3.5-6.9C18.1 4.4 17.1 4 16 4H8c-1.1 0-2.1.4-2.5 1.1z" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Send feedback
+              </button>
+            )}
+            {canManageGuests && (
+              <button
+                type="button"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary"
+                onClick={() => setInviteOpen(true)}
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <circle cx="9" cy="7" r="4" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="19" y1="8" x2="19" y2="14" strokeLinecap="round" strokeLinejoin="round"/>
+                  <line x1="22" y1="11" x2="16" y2="11" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                Invite guests
+              </button>
+            )}
             <button
               type="button"
               className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary"
@@ -201,15 +210,17 @@ export default function EventManageRegistraionPage() {
               </svg>
               Check in
             </button>
-            <button
-              type="button"
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary disabled:opacity-50 disabled:pointer-events-none"
-              onClick={handleExport}
-              disabled={filteredRegistrations.length === 0}
-            >
-              <Download className="h-4 w-4" strokeWidth={1.8} />
-              Export
-            </button>
+            {canManageGuests && (
+              <button
+                type="button"
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary disabled:opacity-50 disabled:pointer-events-none"
+                onClick={handleExport}
+                disabled={filteredRegistrations.length === 0}
+              >
+                <Download className="h-4 w-4" strokeWidth={1.8} />
+                Export
+              </button>
+            )}
           </div>
         </div>
 

@@ -9,6 +9,7 @@ import { getFeedbacks } from "@/service/feedbackService";
 import { getEventById } from "@/service/eventService";
 import { IFeedback, IEvent } from "@/types";
 import { cn } from "@/lib/utils";
+import { decodeEventId, encodeEventId } from "@/lib/utils";
 import { EventFeedbacksLoadingSkeleton } from "@/components/skeleton/EventFeedbacksLoadingSkeleton";
 
 function parseFeedbackDate(value?: string): string {
@@ -27,7 +28,8 @@ function nameOf(f: IFeedback): string {
 }
 
 export default function EventManageFeedbacksPage() {
-  const { id: eventId } = useParams() as { id: string };
+  const { id } = useParams() as { id: string };
+  const eventId = decodeEventId(id);
 
   const { data: event } = useQuery({
     queryKey: ["event", eventId],
@@ -100,7 +102,7 @@ export default function EventManageFeedbacksPage() {
           </h2>
         </div>
         <Link
-          href={`/event/manage/${eventId}/registration`}
+          href={`/event/manage/${encodeEventId(eventId)}/registration`}
           className="inline-flex h-10 items-center justify-center gap-2 self-start rounded-full border border-zinc-200 bg-white px-4 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary"
         >
           <Megaphone className="h-4 w-4" strokeWidth={1.8} />
@@ -193,7 +195,7 @@ export default function EventManageFeedbacksPage() {
                   : "Send feedback requests to your attendees and responses will appear here."}
               </p>
               <Link
-                href={`/event/manage/${eventId}/registration`}
+                href={`/event/manage/${encodeEventId(eventId)}/registration`}
                 className="mt-5 inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary-strong"
               >
                 Request feedback

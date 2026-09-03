@@ -16,6 +16,7 @@ import { TeamMember } from "@/types/team";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/utils";
 import { registrationCSVRows, downloadCSV } from "@/lib/utils";
+import { decodeEventId, encodeEventId } from "@/lib/utils";
 import HelpTooltip from "@/components/widgets/HelpTooltip";
 import DonutChart from "@/components/widgets/charts/DonutChart";
 import VerticalBars from "@/components/widgets/charts/VerticalBars";
@@ -41,7 +42,8 @@ const dayMs = 24 * 60 * 60 * 1000;
 const NOW_TS = Date.now();
 
 export default function EventManageInsightsPage() {
-  const { id: eventId } = useParams() as { id: string };
+  const { id } = useParams() as { id: string };
+  const eventId = decodeEventId(id);
   const reducedMotion = useReducedMotion();
 
   const { data: event } = useQuery({
@@ -528,7 +530,7 @@ export default function EventManageInsightsPage() {
               text="No tasks yet."
               action={
                 <Link
-                  href={`/event/manage/${eventId}/tasks`}
+                  href={`/event/manage/${encodeEventId(eventId)}/tasks`}
                   className="mt-4 inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-primary/50 hover:text-primary"
                 >
                   Assign tasks

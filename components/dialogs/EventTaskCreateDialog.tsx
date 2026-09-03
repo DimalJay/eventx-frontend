@@ -20,13 +20,26 @@ type Props = {
     eventId: string;
 };
 
+const isNotInPast = (val: string) => {
+    if (!val) return true;
+    const datePart = val.split("T")[0];
+    const parts = datePart.split("-").map(Number);
+    if (parts.length < 3 || isNaN(parts[0]) || isNaN(parts[1]) || isNaN(parts[2])) return true;
+    const selectedDate = new Date(parts[0], parts[1] - 1, parts[2]);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return selectedDate >= today;
+};
+
 const eventTaskSchema = z.object({
     eventId: z.string().optional(),
     title: z.string().min(1, "Task title is required"),
     description: z.string().optional(),
     assignedTo: z.string().min(1, "Assignee is required"),
     assignedBy: z.string().min(1, "Assigner is required"),
-    dueDate: z.string().min(1, "Due date is required"),
+    dueDate: z.string()
+        .min(1, "Due date is required")
+        .refine(isNotInPast, { message: "Due date cannot be in the past" }),
 });
 
 type EventTaskFormValues = z.infer<typeof eventTaskSchema>;
@@ -152,6 +165,7 @@ if (!open) return null;
                                     ariaLabel="Task due date"
                                     value={field.value}
                                     onChange={field.onChange}
+                                    minDate={new Date()}
                                 />
                             )}
                         />
@@ -169,10 +183,17 @@ if (!open) return null;
 
                         <button
                             type="submit"
-                            className="inline-flex h-10 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+                            className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
                             disabled={mutation.isPending}
                         >
-                            {mutation.isPending ? "Creating..." : "Create task"}
+                            {mutation.isPending ? (
+                              <>
+                                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                Creating...
+                              </>
+                            ) : (
+                              "Create task"
+                            )}
                         </button>
                     </div>
 </form>

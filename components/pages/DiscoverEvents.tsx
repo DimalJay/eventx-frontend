@@ -6,9 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { getPublicEvents } from "@/service/eventService";
 import { IEvent, WithID } from "@/types";
 import Select from "../widgets/Select";
-import { formatPrice } from "@/lib/utils";
-import { Search, CalendarDays, MapPin, ArrowRight, RotateCcw, AlertCircle, Video } from "lucide-react";
-import ShaderBackground from "../landing/ShaderBackground";
+import { formatPrice, encodeEventId } from "@/lib/utils";
+import { Search, RotateCcw, AlertCircle, Video, CalendarDays, MapPin, ArrowRight } from "lucide-react";
 
 export default function DiscoverEvents() {
   // State for search and filters
@@ -353,8 +352,8 @@ export default function DiscoverEvents() {
                         </span>
 
                         <Link
-                          href={`/event/${eventId}`}
-                          className="inline-flex items-center gap-1.5 text-sm font-medium text-zinc-700 transition hover:text-primary"
+                          href={`/event/${encodeEventId(eventId)}`}
+                          className="inline-flex h-9 items-center justify-center rounded-full bg-black px-4 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
                         >
                           <span>View details</span>
                           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" strokeWidth={1.75} />

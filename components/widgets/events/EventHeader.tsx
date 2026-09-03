@@ -3,13 +3,14 @@ import Link from "next/link";
 import Logo from "../Logo";
 import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
+import { decodeEventId, encodeEventId } from "@/lib/utils";
 
 interface EventHeaderProps {
     id: string | string[] | undefined;
 }
 
 export default function EventHeader({ id }: EventHeaderProps) {
-    const eventId = id as string;
+    const eventId = decodeEventId(id as string);
 
     const { data: event } = useQuery({
         queryKey: ['event', eventId],
@@ -35,7 +36,7 @@ export default function EventHeader({ id }: EventHeaderProps) {
                         </p>
                     </div>
                 </div>
-                <Link href={`/event/${eventId}`} className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary">
+                <Link href={`/event/${encodeEventId(eventId)}`} className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary">
                     View Event
                 </Link>
             </div>

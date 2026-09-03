@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, timeAgo } from "@/lib/utils";
 import { toast } from "sonner";
 import {
   getNotifications,
@@ -12,25 +12,27 @@ import {
 } from "@/service/notificationService";
 import type { INotification } from "@/types/notifications";
 import { NotificationsLoadingSkeleton } from "@/components/skeleton/NotificationsLoadingSkeleton";
-import ShaderBackground from "../landing/ShaderBackground";
+import { UserPlus, UserMinus, ArrowUpCircle, Users, ClipboardList, RefreshCw, Bell } from "lucide-react";
 
-function timeAgo(dateString: string): string {
-  const now = Date.now();
-  const then = new Date(dateString).getTime();
-  const diffMs = now - then;
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHr = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHr / 24);
-
-  if (diffSec < 60) return "Just now";
-  if (diffMin < 60) return `${diffMin} min ago`;
-  if (diffHr < 24) return `${diffHr} hour${diffHr > 1 ? "s" : ""} ago`;
-  if (diffDay < 7) return `${diffDay} day${diffDay > 1 ? "s" : ""} ago`;
-  return new Date(dateString).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+function notificationIcon(type: INotification["type"]) {
+  switch (type) {
+    case "team_access":
+      return <UserPlus className="h-4 w-4 text-emerald-600" />;
+    case "team_removed":
+      return <UserMinus className="h-4 w-4 text-red-500" />;
+    case "team_role_changed":
+      return <ArrowUpCircle className="h-4 w-4 text-blue-600" />;
+    case "team_update":
+      return <Users className="h-4 w-4 text-violet-600" />;
+    case "task_assignment":
+      return <ClipboardList className="h-4 w-4 text-amber-600" />;
+    case "task_update":
+      return <RefreshCw className="h-4 w-4 text-amber-500" />;
+    case "Registration":
+      return <ClipboardList className="h-4 w-4 text-emerald-600" />;
+    default:
+      return <Bell className="h-4 w-4 text-zinc-500" />;
+  }
 }
 
 export default function NotificationsPage() {
@@ -45,7 +47,6 @@ export default function NotificationsPage() {
   });
 
   const notifications = data?.data ?? [];
-  const total = data?.total ?? 0;
   const totalPages = data?.totalPages ?? 1;
   const unreadCount = notifications.filter(
     (n: INotification) => !n.isRead
@@ -60,7 +61,7 @@ export default function NotificationsPage() {
         toast.error(res?.message || "Failed to mark notification as read.");
       }
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err?.message || "Error marking notification as read.");
     },
   });
@@ -74,7 +75,7 @@ export default function NotificationsPage() {
         toast.error(res?.message || "Failed to mark all as read.");
       }
     },
-    onError: (err: any) => {
+    onError: (err: Error) => {
       toast.error(err?.message || "Error marking all as read.");
     },
   });
@@ -153,8 +154,14 @@ export default function NotificationsPage() {
                       !item.isRead ? "bg-red-500" : "bg-black/15"
                     )}
                   />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-black">{item.title}</p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      {notificationIcon(item.type)}
+                      <p className="text-sm font-medium text-black">{item.title}</p>
+                    </div>
+                    {item.message && (
+                      <p className="mt-1 text-xs text-black/60 line-clamp-2">{item.message}</p>
+                    )}
                     <p className="mt-1 text-xs text-black/50">
                       {timeAgo(item.createdAt)}
                     </p>

@@ -94,21 +94,26 @@ export default function ConnectStripeDialog({ open, onClose, connected }: Props)
           <button
             type="button"
             disabled={mutation.isPending}
-            className={`inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold text-white transition disabled:opacity-50 ${
+            className={`inline-flex h-10 items-center justify-center gap-2 rounded-full px-4 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-60 ${
               isConnected
                 ? "bg-primary hover:bg-primary/90"
                 : "bg-[#635bff] hover:bg-[#4f47e8]"
             }`}
             onClick={handleConnect}
           >
-            <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
-              <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.639 15.703 0 13.15 0 7.886 0 3.381 2.821 3.381 7.06c0 4.212 3.567 5.64 7.13 6.838 2.609.872 3.455 1.635 3.455 2.771 0 .927-.81 1.424-2.219 1.424-1.663 0-4.907-.965-7.05-2.041l-.955 5.96c1.972.995 4.975 1.643 6.174 1.643 5.318 0 9.372-2.858 9.372-7.311 0-4.448-3.393-5.81-7.312-6.783Z" />
-            </svg>
-            {mutation.isPending
-              ? "Opening..."
-              : isConnected
-                ? "Open Stripe dashboard"
-                : "Connect Stripe"}
+            {mutation.isPending ? (
+              <>
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                Opening...
+              </>
+            ) : (
+              <>
+                <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5">
+                  <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.639 15.703 0 13.15 0 7.886 0 3.381 2.821 3.381 7.06c0 4.212 3.567 5.64 7.13 6.838 2.609.872 3.455 1.635 3.455 2.771 0 .927-.81 1.424-2.219 1.424-1.663 0-4.907-.965-7.05-2.041l-.955 5.96c1.972.995 4.975 1.643 6.174 1.643 5.318 0 9.372-2.858 9.372-7.311 0-4.448-3.393-5.81-7.312-6.783Z" />
+                </svg>
+                {isConnected ? "Open Stripe dashboard" : "Connect Stripe"}
+              </>
+            )}
           </button>
         </div>
       </div>

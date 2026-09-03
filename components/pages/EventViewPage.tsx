@@ -2,14 +2,17 @@
 
 import { useAuth } from "../auth/AuthContext";
 import AddToCalendar from "../widgets/AddToCalendar";
+import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getEventById } from "@/service/eventService";
 import { getEventRegistrations } from "@/service/registrationService";
+import { getTeamMembers } from "@/service/teamService";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { motion, useReducedMotion } from "framer-motion";
-import { formatPrice } from "@/lib/utils";
+import { formatPrice, decodeEventId, encodeEventId } from "@/lib/utils";
 import { IRegistration } from "@/types";
+import { TeamMember } from "@/types/team";
 import ShareButton from "../widgets/ShareButton";
 import RegisterEventDialog from "../dialogs/RegisterEventDialog";
 import PaymentCheckoutDialog from "../dialogs/PaymentCheckoutDialog";
@@ -84,6 +87,7 @@ const included = [
 export default function EventViewPage({ id }: { id?: string }) {
   const { user } = useAuth();
   const reduce = useReducedMotion();
+  const eventId = id ? decodeEventId(id) : "";
   const [registerOpen, setRegisterOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [loginPromptOpen, setLoginPromptOpen] = useState(false);
@@ -122,19 +126,35 @@ export default function EventViewPage({ id }: { id?: string }) {
   }, []);
 
   const { data: backendEvent, isLoading, isError } = useQuery({
-    queryKey: ["event", id],
+    queryKey: ["event", eventId],
     queryFn: async () => {
-      const res = await getEventById(id as string);
+      const res = await getEventById(eventId);
       return res.data;
     },
-    enabled: !!id,
+    enabled: !!eventId,
   });
 
   const { data: registrationsResponse } = useQuery({
-    queryKey: ["registrations", id],
-    queryFn: () => getEventRegistrations({ data: { eventId: id as string } }),
-    enabled: !!id,
+    queryKey: ["registrations", eventId],
+    queryFn: () => getEventRegistrations({ data: { eventId } }),
+    enabled: !!eventId,
   });
+
+  const { data: teamMembers = [] } = useQuery({
+    queryKey: ["team-members", eventId],
+    queryFn: async () => {
+      const response = await getTeamMembers({ eventId });
+      return response.data as TeamMember[];
+    },
+    enabled: !!eventId && !!user,
+    retry: false,
+  });
+
+  const teamAccess = user
+    ? teamMembers.find(
+        (m) => String(m.id) === String(user.id) || m.email === user.email
+      ) || null
+    : null;
 
   if (isLoading) {
     return <EventViewLoadingSkeleton />;
@@ -453,6 +473,20 @@ export default function EventViewPage({ id }: { id?: string }) {
                     {isPaid ? "Register & pay" : "Register"}
                   </button>
                 )}
+                {teamAccess && (
+                  <Link
+                    href={`/event/manage/${encodeEventId(eventId)}/overview`}
+                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black/30 hover:bg-black/[0.03] active:scale-[0.98]"
+                  >
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className="relative flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                      </span>
+                      Manage event · {teamAccess.role === "COORDINATOR" ? "Coordinator" : "Team"}
+                    </span>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -460,7 +494,7 @@ export default function EventViewPage({ id }: { id?: string }) {
         {id && (
           isPaid ? (
             <PaymentCheckoutDialog
-              eventId={id}
+              eventId={eventId}
               title={backendEvent.title || "Untitled Event"}
               price={backendEvent.ticketPrice || 0}
               seatsLeft={event.seatsLeft}
@@ -470,7 +504,7 @@ export default function EventViewPage({ id }: { id?: string }) {
             />
           ) : (
             <RegisterEventDialog
-              eventId={id}
+              eventId={eventId}
               open={registerOpen}
               onClose={() => setRegisterOpen(false)}
               onRegistered={rememberJoined}
