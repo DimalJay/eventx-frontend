@@ -29,6 +29,7 @@ type Props = {
   users: TeamMember[];
   task: ITask | null;
   eventId: string;
+  canEdit?: boolean;
 };
 
 export default function EventTaskUpdateDialog({
@@ -37,6 +38,7 @@ export default function EventTaskUpdateDialog({
   users,
   task,
   eventId,
+  canEdit = true,
 }: Props) {
   const queryClient = useQueryClient();
   const [updateSuccessOpen, setUpdateSuccessOpen] = useState(false);
@@ -131,7 +133,55 @@ export default function EventTaskUpdateDialog({
   if (!open || !task) return null;
 
   if (updateSuccessOpen) {
+  if (!canEdit) {
+    const assignedUser = users.find((u) => String(u.id) === task.assignedTo);
     return (
+      <Dialog
+        open={open}
+        eyebrow="Task details"
+        title={task.title}
+        description="Task details. Drag to change its status between columns."
+      >
+        <div className="mt-5 grid gap-5 text-sm">
+          {task.description && (
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Description</p>
+              <p className="mt-1.5 text-zinc-700">{task.description}</p>
+            </div>
+          )}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Assigned to</p>
+              <p className="mt-1.5 font-medium text-zinc-900">{assignedUser?.name || task.assignedTo}</p>
+            </div>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Due date</p>
+              <p className="mt-1.5 font-medium text-zinc-900">
+                {task.dueDate ? new Date(task.dueDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "—"}
+              </p>
+            </div>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">Status</p>
+            <p className="mt-1.5 font-medium text-zinc-900">
+              {task.status === "TODO" ? "To Do" : task.status === "IN_PROGRESS" ? "In Progress" : "Completed"}
+            </p>
+          </div>
+        </div>
+        <div className="mt-6 flex justify-end">
+          <button
+            type="button"
+            className="inline-flex h-10 items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
+            onClick={handleCancel}
+          >
+            Close
+          </button>
+        </div>
+      </Dialog>
+    );
+  }
+
+  return (
       <Dialog
         open={open}
         eyebrow="Task updated"

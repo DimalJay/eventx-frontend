@@ -14,6 +14,8 @@ import { decodeEventId } from "@/lib/utils";
 import { toast } from "sonner";
 import { useParams } from "next/navigation";
 
+import { useEventRole } from "@/components/auth/EventManageContext";
+
 interface StatusAttributes {
   label: string;
   color: string;
@@ -42,6 +44,8 @@ export default function EventManageTasksPage() {
   const { id } = useParams() as { id: string };
   const eventId = decodeEventId(id);
   const queryClient = useQueryClient();
+  const { role } = useEventRole();
+  const canCreateTasks = role === "ORGANIZER" || role === "COORDINATOR";
   
   const { data: users = [] } = useQuery({
     queryKey: ['team-members-event-' + eventId],
@@ -150,15 +154,17 @@ export default function EventManageTasksPage() {
             </div>
           </div>
 
-          <button
-            type="button"
-            className="btn"
-            onClick={() => {
-              setAddTaskOpen(true);
-            }}
-          >
-            Add task
-          </button>
+          {canCreateTasks && (
+            <button
+              type="button"
+              className="btn"
+              onClick={() => {
+                setAddTaskOpen(true);
+              }}
+            >
+              Add task
+            </button>
+          )}
         </section>
 
         <section className="grid gap-6 lg:grid-cols-3">
@@ -184,7 +190,7 @@ export default function EventManageTasksPage() {
               <div className="grid gap-3">
                 {value.map((task) => (
                   <div key={task.id} onDragStart={(e) => handleDragStart(e, parseInt(task.id))} draggable>
-                    <TaskCard task={task} users={users} eventId={eventId} />
+                    <TaskCard task={task} users={users} eventId={eventId} canEdit={canCreateTasks} />
                   </div>
                 ))}
               </div>

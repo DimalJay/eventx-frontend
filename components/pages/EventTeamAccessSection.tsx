@@ -59,59 +59,90 @@ export default function EventTeamAccessSection() {
           ) : teamMembers.length === 0 ? (
             <p className="text-sm text-zinc-600">No team members found.</p>
           ) : (
-            teamMembers.map((member) => (
-              <div
-                key={member.id}
-                className="grid gap-4 rounded-2xl border border-zinc-200 bg-white px-5 py-4 sm:grid-cols-[1.4fr_auto] sm:items-center"
-              >
-                <div>
-                  <p className="text-base font-semibold text-zinc-900">{member.name}</p>
-                  <p className="text-sm text-zinc-600">{member.email}</p>
-                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
-                    {member.role}
-                  </p>
-                </div>
-                <div className="relative flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    aria-haspopup="menu"
-                    aria-expanded={menuOpenFor === member.email}
-                    onClick={() =>
-                      setMenuOpenFor((current) =>
-                        current === member.email ? null : member.email
-                      )
-                    }
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-lg font-semibold text-zinc-700 transition hover:border-zinc-400"
-                  >
-                    <EllipsisVertical/>
-                  </button>
-                  {menuOpenFor === member.email ? (
-                    <div className="absolute right-0 top-11 z-10 w-48 max-w-[90vw] rounded-2xl border border-zinc-200 bg-white p-2 shadow-pop sm:right-0">
-                      <button
-                        type="button"
-                        className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
-                        onClick={() => {
-                          setMenuOpenFor(null);
-                          setRoleModalMember(member);
-                        }}
-                      >
-                        Promote / demote
-                      </button>
-                      <button
-                        type="button"
-                        className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50"
-                        onClick={() => {
-                          setMenuOpenFor(null);
-                          setRemoveConfirmMember(member);
-                        }}
-                      >
-                        Remove
-                      </button>
+            teamMembers.map((member) => {
+              const isOrganizer = member.isOrganizer === true || member.role === "ORGANIZER";
+              const roleLabel = member.role === "ORGANIZER"
+                ? "Organizer"
+                : member.role === "COORDINATOR"
+                  ? "Coordinator"
+                  : member.role === "MEMBER"
+                    ? "Member"
+                    : member.role;
+              return (
+                <div
+                  key={member.id ?? member.email}
+                  className={`grid gap-4 rounded-2xl border bg-white px-5 py-4 sm:grid-cols-[1.4fr_auto] sm:items-center ${
+                    isOrganizer ? "border-primary/40 bg-primary-faint/40" : "border-zinc-200"
+                  }`}
+                >
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="text-base font-semibold text-zinc-900">{member.name}</p>
+                      {isOrganizer && (
+                        <span className="inline-flex items-center rounded-md bg-primary-soft px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.1em] text-primary">
+                          Event owner
+                        </span>
+                      )}
                     </div>
-                  ) : null}
+                    <p className="text-sm text-zinc-600">{member.email}</p>
+                    <span
+                      className={`mt-2 inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-[0.1em] ${
+                        isOrganizer
+                          ? "border-primary/30 bg-primary-soft/60 text-primary"
+                          : "border-zinc-200 bg-zinc-50 text-zinc-600"
+                      }`}
+                    >
+                      {roleLabel}
+                    </span>
+                  </div>
+                  {isOrganizer ? (
+                    <p className="text-xs font-medium text-zinc-400 sm:justify-self-end">
+                      Permanent · cannot be changed
+                    </p>
+                  ) : (
+                    <div className="relative flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        aria-haspopup="menu"
+                        aria-expanded={menuOpenFor === member.email}
+                        onClick={() =>
+                          setMenuOpenFor((current) =>
+                            current === member.email ? null : member.email
+                          )
+                        }
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 text-lg font-semibold text-zinc-700 transition hover:border-zinc-400"
+                      >
+                        <EllipsisVertical />
+                      </button>
+                      {menuOpenFor === member.email ? (
+                        <div className="absolute right-0 top-11 z-10 w-48 max-w-[90vw] rounded-2xl border border-zinc-200 bg-white p-2 shadow-pop sm:right-0">
+                          <button
+                            type="button"
+                            className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+                            onClick={() => {
+                              setMenuOpenFor(null);
+                              setRoleModalMember(member);
+                            }}
+                          >
+                            Promote / demote
+                          </button>
+                          <button
+                            type="button"
+                            className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50"
+                            onClick={() => {
+                              setMenuOpenFor(null);
+                              setRemoveConfirmMember(member);
+                            }}
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </section>
