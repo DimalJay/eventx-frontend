@@ -134,7 +134,7 @@ export default function EventTaskUpdateDialog({
 
   if (updateSuccessOpen) {
   if (!canEdit) {
-    const assignedUser = users.find((u) => String(u.id) === task.assignedTo);
+    const assignedUser = users.find((u) => String(u.id) === String(task.assignedTo));
     return (
       <Dialog
         open={open}
