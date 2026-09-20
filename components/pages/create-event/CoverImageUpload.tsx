@@ -6,18 +6,13 @@ import HelpTooltip from "../../widgets/HelpTooltip";
 
 interface CoverImageUploadProps {
   initialPreview?: string | null;
+  hideHeader?: boolean;
 }
 
-export default function CoverImageUpload({ initialPreview }: CoverImageUploadProps) {
+export default function CoverImageUpload({ initialPreview, hideHeader = false }: CoverImageUploadProps) {
   const { setValue, formState: { errors } } = useFormContext();
-  const [coverPreview, setCoverPreview] = useState<string | null>(initialPreview || null);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
   const coverUrlRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (initialPreview) {
-      setCoverPreview(initialPreview);
-    }
-  }, [initialPreview]);
 
   useEffect(() => {
     return () => {
@@ -30,18 +25,22 @@ export default function CoverImageUpload({ initialPreview }: CoverImageUploadPro
     if (coverUrlRef.current) URL.revokeObjectURL(coverUrlRef.current);
     const url = file ? URL.createObjectURL(file) : null;
     coverUrlRef.current = url;
-    setCoverPreview(url);
-    setValue("coverImage", file, { shouldValidate: true });
+    setLocalPreview(url);
+    setValue("coverImage", file, { shouldDirty: true, shouldValidate: true });
   };
+
+  const coverPreview = localPreview ?? initialPreview ?? null;
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-2">
-        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-          Cover image
-        </span>
-        <HelpTooltip text="This image becomes the event's main cover. PNG, JPG, or WEBP up to 5MB; a 4:5 portrait crop looks best." side="bottom" />
-      </div>
+      {!hideHeader && (
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+            Cover image
+          </span>
+          <HelpTooltip text="This image becomes the event's main cover. PNG, JPG, or WEBP up to 5MB; a 4:5 portrait crop looks best." side="bottom" />
+        </div>
+      )}
       <div className="group relative flex aspect-4/5 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-zinc-200 bg-white p-6 text-center shadow-card transition hover:border-primary/30">
         <input
           type="file"

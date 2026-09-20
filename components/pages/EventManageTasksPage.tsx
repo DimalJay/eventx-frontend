@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useParams } from "next/navigation";
 
 import { useEventRole } from "@/components/auth/EventManageContext";
+import { useAuth } from "@/components/auth/AuthContext";
 
 interface StatusAttributes {
   label: string;
@@ -45,7 +46,9 @@ export default function EventManageTasksPage() {
   const eventId = decodeEventId(id);
   const queryClient = useQueryClient();
   const { role } = useEventRole();
+  const { user } = useAuth();
   const canCreateTasks = role === "ORGANIZER" || role === "COORDINATOR";
+  const [showOnlyMyTasks, setShowOnlyMyTasks] = useState(false);
   
   const { data: users = [] } = useQuery({
     queryKey: ['team-members-event-' + eventId],
@@ -62,7 +65,18 @@ export default function EventManageTasksPage() {
     retry: false,
   })
 
-  const groupedTasks = tasks.reduce((groups, task) => {
+  const currentUserMemberId = users.find(
+    (member) => member.email === user?.email || String(member.id) === String(user?.id)
+  )?.id;
+
+  const isTaskEditable = (task: ITask) =>
+    role === "ORGANIZER" || String(task.assignedTo) === String(currentUserMemberId);
+
+  const visibleTasks = showOnlyMyTasks
+    ? tasks.filter((task) => String(task.assignedTo) === String(currentUserMemberId))
+    : tasks;
+
+  const groupedTasks = visibleTasks.reduce((groups, task) => {
     if (!groups[task.status]) {
       groups[task.status] = [];
     }
@@ -109,12 +123,17 @@ export default function EventManageTasksPage() {
   const [addTaskOpen, setAddTaskOpen] = useState(false);
   const [taskCreatedOpen, setTaskCreatedOpen] = useState(false);
 
-  const total = tasks.length;
+  const total = showOnlyMyTasks ? visibleTasks.length : tasks.length;
   const done = groupedTasks.DONE?.length ?? 0;
   const progress = total > 0 ? Math.round((done / total) * 100) : 0;
 
 
   const handleDragStart = (e: React.DragEvent, taskId: number) => {
+    const task = tasks.find(t => t.id.toString() === taskId.toString());
+    if (task && !isTaskEditable(task)) {
+      e.preventDefault();
+      return;
+    }
     e.dataTransfer.setData("taskId", taskId.toString());
   };
 
@@ -128,7 +147,7 @@ export default function EventManageTasksPage() {
     const draggedTaskId = e.dataTransfer.getData("taskId");
 
     const task = tasks.find(t => t.id.toString() === draggedTaskId);
-    if (task && task.status !== targetStatus) {
+    if (task && task.status !== targetStatus && isTaskEditable(task)) {
       updateTaskMutation.mutate({ taskId: draggedTaskId, status: targetStatus });
     }
   };
@@ -144,6 +163,9 @@ export default function EventManageTasksPage() {
 
             <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">
               {done} of {total} complete
+              {showOnlyMyTasks && (
+                <span className="ml-2 text-xs font-medium text-primary">(my tasks)</span>
+              )}
             </h2>
 
             <div className="mt-4 h-2 w-64 max-w-full overflow-hidden rounded-full bg-zinc-200">
@@ -154,18 +176,30 @@ export default function EventManageTasksPage() {
             </div>
           </div>
 
-          {canCreateTasks && (
-            <button
-              type="button"
-              className="btn"
-              onClick={() => {
-                setAddTaskOpen(true);
-              }}
-            >
-              Add task
-            </button>
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            {canCreateTasks && (
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  setAddTaskOpen(true);
+                }}
+              >
+                Add task
+              </button>
+            )}
+          </div>
         </section>
+
+        <label className="flex w-fit cursor-pointer select-none items-center gap-2.5">
+          <input
+            type="checkbox"
+            checked={showOnlyMyTasks}
+            onChange={(e) => setShowOnlyMyTasks(e.target.checked)}
+            className="h-4 w-4 rounded border-zinc-300 text-primary focus:ring-primary/30"
+          />
+          <span className="text-sm font-medium text-zinc-700">Show only my tasks</span>
+        </label>
 
         <section className="grid gap-6 lg:grid-cols-3">
           {Object.entries(groupedTasks).map(([key, value]) => (
@@ -188,11 +222,19 @@ export default function EventManageTasksPage() {
               </div>
 
               <div className="grid gap-3">
-                {value.map((task) => (
-                  <div key={task.id} onDragStart={(e) => handleDragStart(e, parseInt(task.id))} draggable>
-                    <TaskCard task={task} users={users} eventId={eventId} canEdit={canCreateTasks} />
-                  </div>
-                ))}
+                {value.map((task) => {
+                  const editable = isTaskEditable(task);
+                  return (
+                    <div
+                      key={task.id}
+                      onDragStart={(e) => handleDragStart(e, parseInt(task.id))}
+                      draggable={editable}
+                      className={cn(!editable && "select-none")}
+                    >
+                      <TaskCard task={task} users={users} eventId={eventId} canEdit={editable} disabled={!editable} />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           ))}

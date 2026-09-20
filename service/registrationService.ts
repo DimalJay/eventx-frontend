@@ -25,7 +25,13 @@ export const updateRegistrationStatus = async (id: string, status: string) => {
   return res;
 };
 
-export const registerForEvent = async (data: { eventId: string; email: string; firstName: string; lastName: string }) => {
+export const registerForEvent = async (data: {
+  eventId: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  customFields?: Record<string, string>;
+}) => {
   const res: Response = await request("/join-event", {
     method: "POST",
     data,

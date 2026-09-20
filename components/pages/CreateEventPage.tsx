@@ -8,12 +8,14 @@ import { Controller, useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { createEventRequest } from "@/service/eventService";
-import { useMutation } from "@tanstack/react-query";
+import { getConnectStatus } from "@/service/paymentService";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import CoverImageUpload from "./create-event/CoverImageUpload";
 import DateTimeSection from "./create-event/DateTimeSection";
 import LocationSection from "./create-event/LocationSection";
 import EventOptionsSection from "./create-event/EventOptionsSection";
+import CustomFieldsSection from "./create-event/CustomFieldsSection";
 import { TextIcon } from "./create-event/Icons";
 import HelpTooltip from "../widgets/HelpTooltip";
 import { encodeEventId } from "@/lib/utils";
@@ -32,6 +34,16 @@ const baseEventSchema = z.object({
   ticketPrice: z.number().int().optional(),
   isPaid: z.enum(["free", "paid"]),
   whiteList: z.boolean().optional(),
+  customFields: z
+    .array(
+      z.object({
+        name: z.string(),
+        key: z.string(),
+        type: z.string(),
+        options: z.array(z.string()).optional(),
+      })
+    )
+    .optional(),
   coverImage: z.instanceof(File)
     .refine(file => !file || file.size <= 5 * 1024 * 1024, "Image must be 5MB or less")
     .refine(file => !file || ["image/jpeg", "image/png", "image/webp"].includes(file.type), "Only PNG, JPG, or WEBP images are allowed")
@@ -43,6 +55,13 @@ type EventFormValues = z.infer<typeof baseEventSchema>;
 export default function CreateEventPage() {
   const router = useRouter();
   const [hasLimit, setHasLimit] = useState(false);
+
+  const { data: connectStatus } = useQuery({
+    queryKey: ["stripe-connect-status"],
+    queryFn: () => getConnectStatus(),
+    retry: false,
+  });
+  const isStripeConnected = connectStatus?.connected ?? false;
 
   const eventSchema = useMemo(() => {
     return baseEventSchema.superRefine((data, ctx) => {
@@ -105,6 +124,14 @@ export default function CreateEventPage() {
         });
       }
 
+      if (data.isPaid === "paid" && !isStripeConnected) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Connect a Stripe account to sell paid tickets",
+          path: ["isPaid"],
+        });
+      }
+
       if (hasLimit && (data.capacity === undefined || isNaN(data.capacity) || data.capacity < 1)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -113,7 +140,7 @@ export default function CreateEventPage() {
         });
       }
     });
-  }, [hasLimit]);
+  }, [hasLimit, isStripeConnected]);
 
   const methods = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),
@@ -125,6 +152,11 @@ export default function CreateEventPage() {
       capacity: 0,
       ticketPrice: 0,
       whiteList: false,
+      customFields: [
+        { name: "Phone Number", key: "phoneNumber", type: "text" },
+        { name: "Gender", key: "gender", type: "select", options: ["Male", "Female", "Other"] },
+        { name: "NIC", key: "nic", type: "text" },
+      ],
     },
   });
 
@@ -143,7 +175,7 @@ export default function CreateEventPage() {
       }
 
       Object.entries(data).forEach(([key, value]) => {
-        if (key === "coverImage" || key === "whiteList" || key === "regDeadline" || key === "isPaid") return;
+        if (key === "coverImage" || key === "whiteList" || key === "regDeadline" || key === "isPaid" || key === "customFields") return;
         if (value instanceof Date) {
           formData.append(key, toLocalISOString(value));
         } else if (value !== undefined) {
@@ -155,6 +187,18 @@ export default function CreateEventPage() {
       formData.append("waitlistEnabled", data.whiteList ? "true" : "false");
       if (data.regDeadline) {
         formData.append("regDeadline", toLocalISOString(data.regDeadline));
+      }
+
+      const customFields = (data.customFields ?? [])
+        .filter((field) => field.name.trim() !== "")
+        .map((field) => ({
+          name: field.name.trim(),
+          key: field.key.trim(),
+          type: field.type,
+          ...(field.type === "select" ? { options: field.options ?? [] } : {}),
+        }));
+      if (customFields.length > 0) {
+        formData.append("customFields", JSON.stringify(customFields));
       }
 
       const res = await createEventRequest(formData);
@@ -282,6 +326,9 @@ export default function CreateEventPage() {
 
               {/* Event Options */}
               <EventOptionsSection hasLimit={hasLimit} setHasLimit={setHasLimit} />
+
+              {/* Registration fields */}
+              <CustomFieldsSection />
 
               <button
                 type="submit"

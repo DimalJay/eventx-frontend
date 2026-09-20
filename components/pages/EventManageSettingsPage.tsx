@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import Select from "@/components/widgets/Select";
 import DateTimeSection from "@/components/pages/create-event/DateTimeSection";
 import EventOptionsSection from "@/components/pages/create-event/EventOptionsSection";
+import CustomFieldsSection from "@/components/pages/create-event/CustomFieldsSection";
 import CoverImageUpload from "@/components/pages/create-event/CoverImageUpload";
 import CloseEventDialog from "@/components/dialogs/CloseEventDialog";
 import DeleteEventDialog from "@/components/dialogs/DeleteEventDialog";
@@ -23,13 +24,16 @@ import { decodeEventId } from "@/lib/utils";
 import { EventSettingsLoadingSkeleton } from "@/components/skeleton/EventSettingsLoadingSkeleton";
 
 const inputBase =
-  "w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-primary/60 focus:ring-2 focus:ring-primary/20";
+  "h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-500 focus:border-primary/60 focus:ring-2 focus:ring-primary/20";
 
 const cardClass =
-  "rounded-2xl border border-zinc-200 bg-white p-7";
+  "card p-7";
 
 const labelClass =
-  "text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500";
+  "eyebrow";
+
+const fieldLabelClass =
+  "mb-1.5 block text-xs font-medium text-zinc-700";
 
 function parseCategoryAndDesc(rawDesc: string = "", eventCategory?: string) {
   if (eventCategory) return { category: eventCategory, description: rawDesc };
@@ -42,67 +46,43 @@ function parseCategoryAndDesc(rawDesc: string = "", eventCategory?: string) {
   return { category: "General", description: rawDesc };
 }
 
-const detailsSchema = z.object({
+const SETTINGS_SECTIONS: Array<[string, string]> = [
+  ["profile", "Profile"],
+  ["schedule", "Schedule & venue"],
+  ["access", "Access & ticketing"],
+  ["registration", "Registration form"],
+  ["status", "Status"],
+  ["danger", "Danger zone"],
+];
+
+const settingsSchema = z.object({
   title: z.string().min(1, "Event name is required").max(100, "Event name must be 100 characters or less"),
   category: z.string().optional(),
   description: z.string().optional(),
   location: z.string().optional(),
   isPublic: z.enum(["true", "false"]),
+  startDate: z.date(),
+  endDate: z.date(),
+  regDeadline: z.date().optional(),
+  eventType: z.enum(["online", "physical"]),
+  coverImage: z.union([z.instanceof(File), z.string()]).optional(),
+  isPaid: z.enum(["free", "paid"]),
+  ticketPrice: z.number().int().optional(),
+  capacity: z.number().int().optional(),
+  whiteList: z.boolean().optional(),
+  customFields: z
+    .array(
+      z.object({
+        name: z.string(),
+        key: z.string(),
+        type: z.string(),
+        options: z.array(z.string()).optional(),
+      })
+    )
+    .optional(),
 });
 
-type DetailsValues = z.infer<typeof detailsSchema>;
-
-const scheduleSchema = z
-  .object({
-    startDate: z.date(),
-    endDate: z.date(),
-    regDeadline: z.date().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (data.startDate && data.endDate && data.endDate <= data.startDate) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "End date must be after start date",
-        path: ["endDate"],
-      });
-    }
-
-    if (data.regDeadline && data.startDate && data.regDeadline > data.startDate) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Registration deadline must be before or equal to the start date",
-        path: ["regDeadline"],
-      });
-    }
-  });
-
-type ScheduleValues = z.infer<typeof scheduleSchema>;
-
-const optionsSchema = z
-  .object({
-    eventType: z.enum(["online", "physical"]),
-    coverImage: z.union([z.instanceof(File), z.string()]).optional(),
-    isPaid: z.enum(["free", "paid"]),
-    ticketPrice: z.number().int().optional(),
-    capacity: z.number().int().optional(),
-    whiteList: z.boolean().optional(),
-  })
-  .superRefine((data, ctx) => {
-    if (
-      data.isPaid === "paid" &&
-      (data.ticketPrice === undefined ||
-        Number.isNaN(data.ticketPrice) ||
-        data.ticketPrice <= 0)
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Ticket price must be greater than 0",
-        path: ["ticketPrice"],
-      });
-    }
-  });
-
-type OptionsValues = z.infer<typeof optionsSchema>;
+type SettingsValues = z.infer<typeof settingsSchema>;
 
 function toLocalISOString(date: Date) {
   const pad = (num: number) => String(num).padStart(2, "0");
@@ -115,6 +95,28 @@ export default function EventManageSettingsPage() {
   const queryClient = useQueryClient();
   const [closeDialogOpen, setCloseDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState(SETTINGS_SECTIONS[0][0]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visible) {
+          setActiveSection(visible.target.id);
+        }
+      },
+      { rootMargin: "-20% 0px -70% 0px", threshold: [0, 0.1, 0.25, 0.5] },
+    );
+
+    SETTINGS_SECTIONS.forEach(([id]) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const { data: event, isLoading } = useQuery({
     queryKey: ["event", eventId],
@@ -146,64 +148,55 @@ export default function EventManageSettingsPage() {
     [event?.description, event?.category],
   );
 
-  const optionsForm = useForm<OptionsValues>({
-    resolver: zodResolver(optionsSchema),
-    defaultValues: {
-      eventType: "online",
-      isPaid: "free",
-      capacity: 0,
-      ticketPrice: 0,
-      whiteList: false,
-    },
-    values: event
-      ? {
-          eventType: event.eventType || "online",
-          coverImage: event.coverImage || "",
-          isPaid: (event.ticketPrice ?? 0) > 0 ? "paid" : "free",
-          ticketPrice: event.ticketPrice || 0,
-          capacity: event.capacity || 0,
-          whiteList: (event.waitlistEnabled ?? false) === true || event.waitlistEnabled === 1,
-        }
-      : undefined,
-  });
-
-  const optionsMutation = useMutation({
-    mutationFn: async (data: OptionsValues) => {
-      let finalCoverImage = typeof data.coverImage === "string" ? data.coverImage : "";
-
-      if (data.coverImage instanceof File) {
-        const uploadRes = await uploadEventCoverRequest(data.coverImage);
-        finalCoverImage = uploadRes.data?.path || uploadRes.data?.url || uploadRes.data || "";
-      }
-
-      return updateEventRequest(eventId, {
-        eventType: data.eventType,
-        ticketPrice: data.ticketPrice,
-        capacity: data.capacity,
-        waitlistEnabled: data.whiteList,
-        coverImage: finalCoverImage || undefined,
+  const eventSchema = settingsSchema.superRefine((data, ctx) => {
+    if (data.startDate && data.endDate && data.endDate <= data.startDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "End date must be after start date",
+        path: ["endDate"],
       });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["event", eventId] });
-      toast.success("Event options updated successfully.");
-    },
-    onError: (error: HTTPError) => onError(error, "Failed to update event options."),
+    }
+
+    if (data.regDeadline && data.startDate && data.regDeadline > data.startDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Registration deadline must be before or equal to the start date",
+        path: ["regDeadline"],
+      });
+    }
+
+    if (
+      data.isPaid === "paid" &&
+      (data.ticketPrice === undefined ||
+        Number.isNaN(data.ticketPrice) ||
+        data.ticketPrice <= 0)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Ticket price must be greater than 0",
+        path: ["ticketPrice"],
+      });
+    }
   });
 
-  const onUpdated = () => {
-    queryClient.invalidateQueries({ queryKey: ["event", eventId] });
-    toast.success("Event updated successfully.");
-  };
-
-  const onError = (error: HTTPError, fallback: string) => {
-    const message = error?.response?.data?.message || error?.message || fallback;
-    toast.error(message);
-  };
-
-  const detailsForm = useForm<DetailsValues>({
-    resolver: zodResolver(detailsSchema),
-    defaultValues: { isPublic: "true", category: "General" },
+  const settingsForm = useForm<SettingsValues>({
+    resolver: zodResolver(eventSchema),
+    defaultValues: {
+      title: "",
+      category: "General",
+      description: "",
+      location: "",
+      isPublic: "true",
+      startDate: new Date(),
+      endDate: new Date(),
+      eventType: "online",
+      coverImage: "",
+      isPaid: "free",
+      ticketPrice: 0,
+      capacity: 0,
+      whiteList: false,
+      customFields: [],
+    },
     values: event
       ? {
           title: event.title || "",
@@ -211,249 +204,223 @@ export default function EventManageSettingsPage() {
           description: parsedDesc.description,
           location: event.location || "",
           isPublic: event.isPublic ? "true" : "false",
+          startDate: new Date(event.startDate),
+          endDate: new Date(event.endDate),
+          regDeadline: event.regDeadline ? new Date(event.regDeadline) : undefined,
+          eventType: event.eventType || "online",
+          coverImage: event.coverImage || "",
+          isPaid: (event.ticketPrice ?? 0) > 0 ? "paid" : "free",
+          ticketPrice: event.ticketPrice || 0,
+          capacity: event.capacity || 0,
+          whiteList: (event.waitlistEnabled ?? false) === true || event.waitlistEnabled === 1,
+          customFields: event.customFields ?? [],
         }
       : undefined,
   });
 
-  const detailsMutation = useMutation({
-    mutationFn: async (data: DetailsValues) => {
+  const saveMutation = useMutation({
+    mutationFn: async (data: SettingsValues) => {
+      let finalCoverImage = typeof data.coverImage === "string" ? data.coverImage : "";
+
+      if (data.coverImage instanceof File) {
+        const uploadRes = await uploadEventCoverRequest(data.coverImage);
+        finalCoverImage = uploadRes.data?.path || uploadRes.data?.url || uploadRes.data || "";
+      }
+
+      const customFields = (data.customFields ?? [])
+        .filter((field) => field.name.trim() !== "")
+        .map((field) => ({
+          name: field.name.trim(),
+          key: field.key.trim(),
+          type: field.type,
+          ...(field.type === "select" ? { options: field.options ?? [] } : {}),
+        }));
+
       return updateEventRequest(eventId, {
         title: data.title,
         category: data.category || "",
         description: data.description || "",
         location: data.location || "",
         isPublic: data.isPublic === "true",
-      });
-    },
-    onSuccess: onUpdated,
-    onError: (error: HTTPError) => onError(error, "Event update failed. Please try again."),
-  });
-
-  const deadlineRaw = event?.regDeadline;
-
-  const scheduleForm = useForm<ScheduleValues>({
-    resolver: zodResolver(scheduleSchema),
-    values: event?.startDate && event.endDate
-      ? {
-          startDate: new Date(event.startDate),
-          endDate: new Date(event.endDate),
-          regDeadline: deadlineRaw ? new Date(deadlineRaw) : undefined,
-        }
-      : undefined,
-  });
-
-  const scheduleMutation = useMutation({
-    mutationFn: async (data: ScheduleValues) => {
-      return updateEventRequest(eventId, {
         startDate: data.startDate ? toLocalISOString(data.startDate) : undefined,
         endDate: data.endDate ? toLocalISOString(data.endDate) : undefined,
         regDeadline: data.regDeadline ? toLocalISOString(data.regDeadline) : undefined,
+        eventType: data.eventType,
+        ticketPrice: data.ticketPrice,
+        capacity: hasLimit ? data.capacity : 0,
+        waitlistEnabled: data.whiteList,
+        coverImage: finalCoverImage || undefined,
+        customFields,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event", eventId] });
-      toast.success("Event rescheduled successfully.");
+      toast.success("Event settings saved.");
     },
-    onError: (error: HTTPError) => onError(error, "Rescheduling failed. Please try again."),
+    onError: (error: HTTPError) => {
+      const message = error?.response?.data?.message || error?.message || "Failed to save event settings.";
+      toast.error(message);
+    },
   });
+
+  const isSaving = saveMutation.isPending;
+
+  const onSubmit = (data: SettingsValues) => {
+    if (hasLimit && (data.capacity === undefined || Number.isNaN(data.capacity) || data.capacity < 1)) {
+      settingsForm.setError("capacity", {
+        type: "manual",
+        message: "Capacity must be at least 1",
+      });
+      document.getElementById("capacity")?.focus();
+      return;
+    }
+    saveMutation.mutate(data);
+  };
 
   if (isLoading) {
     return <EventSettingsLoadingSkeleton />;
   }
-
 
   if (!event) {
     return <div className="p-8 text-center text-danger">Failed to load event settings.</div>;
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      {/* Update details */}
-      <section className={cardClass}>
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className={labelClass}>General</p>
-            <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">Update event</h2>
-            <p className="mt-1 text-sm text-zinc-600">
-              Change the core details of your event. The cover image, event type,
-              ticketing, and capacity live in the options below.
-            </p>
-          </div>
-        </div>
+    <FormProvider {...settingsForm}>
+      <div className="grid gap-8 lg:grid-cols-[200px_minmax(0,1fr)]">
+        {/* Section sidebar */}
+        <aside className="hidden self-start lg:sticky lg:top-24 lg:block">
+          <p className="eyebrow">On this page</p>
+          <nav className="mt-3 flex flex-col gap-1">
+            {SETTINGS_SECTIONS.map(([id, label]) => {
+              const isActive = activeSection === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() =>
+                    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" })
+                  }
+                  aria-current={isActive ? "true" : undefined}
+                  className={`rounded-lg px-2.5 py-1.5 text-left text-sm transition ${
+                    isActive
+                      ? "bg-primary-soft font-semibold text-primary"
+                      : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                  }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </nav>
+        </aside>
 
         <form
-          className="mt-6 flex flex-col gap-4"
-          onSubmit={detailsForm.handleSubmit((data) => detailsMutation.mutate(data))}
+          className="flex min-w-0 flex-col gap-8"
+          onSubmit={settingsForm.handleSubmit(onSubmit)}
         >
-          <div>
-            <label htmlFor="settings-title" className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-              Event name
-            </label>
-            <input
-              id="settings-title"
-              type="text"
-              autoComplete="off"
-              {...detailsForm.register("title")}
-              className={`mt-2 h-11 ${inputBase}`}
-            />
-            {detailsForm.formState.errors.title && (
-              <span className="mt-1 block text-xs text-red-600">
-                {detailsForm.formState.errors.title.message}
-              </span>
-            )}
-          </div>
-
-          <div>
-            <label htmlFor="settings-description" className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-              Description
-            </label>
-            <textarea
-              id="settings-description"
-              rows={3}
-              {...detailsForm.register("description")}
-              placeholder="Describe the audience, goals, and main outcomes."
-              className={`mt-2 resize-none py-2 ${inputBase}`}
-            />
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div>
-              <label htmlFor="settings-location" className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-                Location / link
-              </label>
-              <input
-                id="settings-location"
-                type="text"
-                autoComplete="off"
-                {...detailsForm.register("location")}
-                placeholder="Offline location or virtual link"
-                className={`mt-2 h-11 ${inputBase}`}
-              />
+          {/* Profile: identity & branding */}
+          <section id="profile" className="scroll-mt-24 card overflow-hidden">
+            <div className="border-b border-zinc-200 px-6 py-4">
+              <p className={labelClass}>Profile</p>
+              <p className="mt-1 text-sm leading-6 text-zinc-600">
+                The name, cover, and description that identify your event to attendees.
+              </p>
             </div>
-            <div>
-              <span className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-                Category
-              </span>
-              <Controller
-                name="category"
-                control={detailsForm.control}
-                render={({ field }) => (
-                  <Select
-                    name={field.name}
-                    ariaLabel="Event category"
-                    value={field.value ?? "General"}
-                    onChange={field.onChange}
-                    className="mt-2 h-11 w-full px-3"
-                    options={[
-                      { value: "General", label: "General" },
-                      { value: "Technology", label: "Technology" },
-                      { value: "Business", label: "Business" },
-                      { value: "Design", label: "Design" },
-                      { value: "Marketing", label: "Marketing" },
-                      { value: "Entertainment", label: "Entertainment & Music" },
-                      { value: "Workshop", label: "Workshop & Training" },
-                      { value: "Networking", label: "Networking" },
-                      { value: "Sports", label: "Sports & Fitness" },
-                      { value: "Other", label: "Other" },
-                    ]}
+            <div className="grid gap-6 px-6 py-5 lg:grid-cols-[240px_minmax(0,1fr)]">
+              <CoverImageUpload initialPreview={initialCoverPreview} hideHeader />
+              <div className="flex min-w-0 flex-col gap-5">
+                <div>
+                  <label htmlFor="settings-title" className={fieldLabelClass}>
+                    Event name
+                  </label>
+                  <input
+                    id="settings-title"
+                    type="text"
+                    autoComplete="off"
+                    {...settingsForm.register("title")}
+                    className={inputBase}
                   />
-                )}
-              />
-            </div>
-            <div>
-              <span className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-                Visibility
-              </span>
-              <Controller
-                name="isPublic"
-                control={detailsForm.control}
-                render={({ field }) => (
-                  <Select
-                    name={field.name}
-                    ariaLabel="Event visibility"
-                    value={field.value}
-                    onChange={field.onChange}
-                    className="mt-2 h-11 w-full px-3"
-                    options={[
-                      { value: "true", label: "Public - anyone can find it" },
-                      { value: "false", label: "Private - invite only" },
-                    ]}
-                  />
-                )}
-              />
-            </div>
-          </div>
+                  {settingsForm.formState.errors.title && (
+                    <p className="mt-1 text-xs text-red-600">
+                      {settingsForm.formState.errors.title.message}
+                    </p>
+                  )}
+                </div>
 
-          <div className="flex justify-end border-t border-zinc-200 pt-4">
-            <button
-              type="submit"
-              disabled={detailsMutation.isPending}
-              className="btn disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {detailsMutation.isPending ? "Saving..." : "Save changes"}
-            </button>
-          </div>
-        </form>
-      </section>
-
-      {/* Reschedule */}
-      <section className={cardClass}>
-        <p className={labelClass}>Schedule</p>
-        <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">Reschedule event</h2>
-        <p className="mt-1 text-sm text-zinc-600">
-          Move the start, end, or registration deadline. Attendees see the updated times immediately.
-        </p>
-
-        <FormProvider {...scheduleForm}>
-          <form
-            className="mt-6 flex flex-col gap-4"
-            onSubmit={scheduleForm.handleSubmit((data: ScheduleValues) => scheduleMutation.mutate(data))}
-          >
-            <DateTimeSection />
-
-            <div className="flex justify-end border-t border-zinc-200 pt-4">
-              <button
-                type="submit"
-                disabled={scheduleMutation.isPending}
-                className="btn disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {scheduleMutation.isPending ? "Saving..." : "Save new schedule"}
-              </button>
-            </div>
-          </form>
-        </FormProvider>
-      </section>
-
-      {/* Cover & event options */}
-      <section className={cardClass}>
-        <p className={labelClass}>Options</p>
-        <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">Cover & event options</h2>
-        <p className="mt-1 text-sm text-zinc-600">
-          Set the cover image, event type, ticket price, and capacity for this event.
-        </p>
-
-        <FormProvider {...optionsForm}>
-          <form
-            className="mt-6 flex flex-col gap-4"
-            onSubmit={optionsForm.handleSubmit((data: OptionsValues) => optionsMutation.mutate(data))}
-          >
-            <div className="grid gap-5 lg:grid-cols-[240px_1fr]">
-              <CoverImageUpload initialPreview={initialCoverPreview} />
-              <div className="flex min-w-0 flex-col gap-4">
-                <div className="rounded-xl border border-zinc-200 bg-white p-4">
-                  <span className="block text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
-                    Event type
+                <div>
+                  <span className={fieldLabelClass}>
+                    Category
                   </span>
                   <Controller
-                    name="eventType"
-                    control={optionsForm.control}
+                    name="category"
+                    control={settingsForm.control}
                     render={({ field }) => (
                       <Select
                         name={field.name}
-                        ariaLabel="Event type"
+                        ariaLabel="Event category"
+                        value={field.value ?? "General"}
+                        onChange={field.onChange}
+                        className="h-11 w-full px-3"
+                        options={[
+                          { value: "General", label: "General" },
+                          { value: "Technology", label: "Technology" },
+                          { value: "Business", label: "Business" },
+                          { value: "Design", label: "Design" },
+                          { value: "Marketing", label: "Marketing" },
+                          { value: "Entertainment", label: "Entertainment & Music" },
+                          { value: "Workshop", label: "Workshop & Training" },
+                          { value: "Networking", label: "Networking" },
+                          { value: "Sports", label: "Sports & Fitness" },
+                          { value: "Other", label: "Other" },
+                        ]}
+                      />
+                    )}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="settings-description" className={fieldLabelClass}>
+                    Description
+                  </label>
+                  <textarea
+                    id="settings-description"
+                    rows={4}
+                    {...settingsForm.register("description")}
+                    placeholder="Describe the audience, goals, and main outcomes."
+                    className={`resize-none py-2 ${inputBase}`}
+                  />
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Schedule & venue */}
+          <section id="schedule" className="scroll-mt-24 card overflow-hidden">
+            <div className="border-b border-zinc-200 px-6 py-4">
+              <p className={labelClass}>Schedule & venue</p>
+              <p className="mt-1 text-sm leading-6 text-zinc-600">
+                When the event happens and where attendees join it.
+              </p>
+            </div>
+            <div className="flex flex-col gap-5 px-6 py-5">
+              <DateTimeSection />
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <span className={fieldLabelClass}>
+                    Format
+                  </span>
+                  <Controller
+                    name="eventType"
+                    control={settingsForm.control}
+                    render={({ field }) => (
+                      <Select
+                        name={field.name}
+                        ariaLabel="Event format"
                         value={field.value}
                         onChange={field.onChange}
-                        className="mt-2 h-11 w-full px-3"
+                        className="h-11 w-full px-3"
                         options={[
                           { value: "online", label: "Online" },
                           { value: "physical", label: "In person" },
@@ -462,70 +429,139 @@ export default function EventManageSettingsPage() {
                     )}
                   />
                 </div>
-                <EventOptionsSection hasLimit={hasLimit} setHasLimit={setLimitOverride} />
+                <div>
+                  <label htmlFor="settings-location" className={fieldLabelClass}>
+                    Location / link
+                  </label>
+                  <input
+                    id="settings-location"
+                    type="text"
+                    autoComplete="off"
+                    {...settingsForm.register("location")}
+                    placeholder="Offline location or virtual link"
+                    className={inputBase}
+                  />
+                </div>
               </div>
             </div>
+          </section>
 
-            <div className="flex justify-end border-t border-zinc-200 pt-4">
+          {/* Access & ticketing */}
+          <section id="access" className="scroll-mt-24 card overflow-hidden">
+            <div className="border-b border-zinc-200 px-6 py-4">
+              <p className={labelClass}>Access &amp; ticketing</p>
+              <p className="mt-1 text-sm leading-6 text-zinc-600">
+                Who can see the event, ticket pricing, capacity, and waitlist.
+              </p>
+            </div>
+            <div className="flex flex-col gap-5 px-6 py-5">
+              <div>
+                <span className={fieldLabelClass}>
+                  Visibility
+                </span>
+                <Controller
+                  name="isPublic"
+                  control={settingsForm.control}
+                  render={({ field }) => (
+                    <Select
+                      name={field.name}
+                      ariaLabel="Event visibility"
+                      value={field.value}
+                      onChange={field.onChange}
+                      className="h-11 w-full px-3"
+                      options={[
+                        { value: "true", label: "Public - anyone can find it" },
+                        { value: "false", label: "Private - invite only" },
+                      ]}
+                    />
+                  )}
+                />
+              </div>
+              <EventOptionsSection hasLimit={hasLimit} setHasLimit={setLimitOverride} hideHeader />
+            </div>
+          </section>
+
+          {/* Registration form */}
+          <section id="registration" className="scroll-mt-24 card overflow-hidden">
+            <div className="border-b border-zinc-200 px-6 py-4">
+              <p className={labelClass}>Registration form</p>
+              <p className="mt-1 text-sm leading-6 text-zinc-600">
+                Extra details attendees fill in when they register, including the built-in
+                phone, gender, and NIC templates.
+              </p>
+            </div>
+            <div className="px-6 py-5">
+              <CustomFieldsSection hideHeader />
+            </div>
+          </section>
+
+          {/* Sticky save bar */}
+          <div className="sticky bottom-0 z-10 -mx-4 border-t border-zinc-200 bg-white/85 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6">
+            <div className="flex items-center justify-end gap-3">
+              {settingsForm.formState.isDirty && (
+                <span className="text-xs text-zinc-500">
+                  You have unsaved changes
+                </span>
+              )}
               <button
                 type="submit"
-                disabled={optionsMutation.isPending}
-                className="btn disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={isSaving || !settingsForm.formState.isDirty}
+                className="btn px-6 disabled:opacity-60"
               >
-                {optionsMutation.isPending ? "Saving..." : "Save options"}
+                {isSaving ? "Saving..." : "Save changes"}
               </button>
             </div>
-          </form>
-        </FormProvider>
-      </section>
+          </div>
 
-      {/* Close event */}
-      <section className={`${cardClass} flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}>
-        <div>
-          <p className={labelClass}>Status</p>
-          <h2 className="mt-2 flex items-center gap-3 font-display text-2xl font-medium tracking-tight text-zinc-900">
-            {isClosed ? "Closed" : "Active"}
-            <span
-              className={`inline-flex h-6 items-center rounded-full px-3 text-[10px] font-semibold uppercase tracking-widest ${
-                isClosed ? "bg-danger-soft text-danger" : "bg-success-soft text-success"
-              }`}
+          {/* Close event */}
+          <section id="status" className={`scroll-mt-24 ${cardClass} flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}>
+            <div>
+              <p className={labelClass}>Status</p>
+              <h2 className="mt-2 flex items-center gap-3 text-xl font-semibold tracking-tight text-zinc-900">
+                {isClosed ? "Closed" : "Active"}
+                <span
+                  className={`inline-flex h-6 items-center rounded-full px-3 text-[10px] font-semibold uppercase tracking-widest ${
+                    isClosed ? "bg-danger-soft text-danger" : "bg-success-soft text-success"
+                  }`}
+                >
+                  {isClosed ? "Closed" : "Live"}
+                </span>
+              </h2>
+              <p className="mt-1 max-w-xl text-sm text-zinc-600">
+                {isClosed
+                  ? "This event is closed. Reopen it if things are back on."
+                  : "Closing an event marks it as closed for attendees. You can reopen it at any time."}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setCloseDialogOpen(true)}
+              className="btn-ghost shrink-0"
             >
-              {isClosed ? "Closed" : "Live"}
-            </span>
-          </h2>
-          <p className="mt-1 max-w-xl text-sm text-zinc-600">
-            {isClosed
-              ? "This event is closed. Reopen it if things are back on."
-              : "Closing an event marks it as closed for attendees. You can reopen it at any time."}
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setCloseDialogOpen(true)}
-          className="inline-flex h-10 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white px-5 text-sm font-medium text-zinc-700 transition hover:border-primary/50 hover:text-primary"
-        >
-          {isClosed ? "Reopen event" : "Close event"}
-        </button>
-      </section>
+              {isClosed ? "Reopen event" : "Close event"}
+            </button>
+          </section>
 
-      {/* Danger zone */}
-      <section className="rounded-2xl border border-danger-soft bg-danger-soft/40 p-7">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-danger">
-          Danger zone
-        </p>
-        <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-danger">Delete event</h2>
-        <p className="mt-1 max-w-xl text-sm text-zinc-600">
-          Permanently delete &quot;{event.title}&quot; along with its registrations, agenda, and tasks.
-          This cannot be undone.
-        </p>
-        <button
-          type="button"
-          onClick={() => setDeleteDialogOpen(true)}
-          className="mt-4 inline-flex h-10 items-center justify-center rounded-full bg-danger px-5 text-sm font-medium text-white transition hover:bg-red-700"
-        >
-          Delete event
-        </button>
-      </section>
+          {/* Danger zone */}
+          <section id="danger" className="scroll-mt-24 card border-danger-soft bg-danger-soft/40 p-7">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-danger">
+              Danger zone
+            </p>
+            <h2 className="mt-2 text-xl font-semibold tracking-tight text-danger">Delete event</h2>
+            <p className="mt-1 max-w-xl text-sm text-zinc-600">
+              Permanently delete &quot;{event.title}&quot; along with its registrations, agenda, and tasks.
+              This cannot be undone.
+            </p>
+            <button
+              type="button"
+              onClick={() => setDeleteDialogOpen(true)}
+              className="btn mt-4 bg-danger hover:bg-red-700"
+            >
+              Delete event
+            </button>
+          </section>
+        </form>
+      </div>
 
       <CloseEventDialog
         open={closeDialogOpen}
@@ -541,6 +577,6 @@ export default function EventManageSettingsPage() {
         eventId={eventId}
         eventTitle={event.title}
       />
-    </div>
+    </FormProvider>
   );
 }

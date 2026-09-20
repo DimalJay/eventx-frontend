@@ -15,11 +15,13 @@ const inputBase =
 interface EventOptionsSectionProps {
   hasLimit: boolean;
   setHasLimit: (val: boolean) => void;
+  hideHeader?: boolean;
 }
 
 export default function EventOptionsSection({
   hasLimit,
   setHasLimit,
+  hideHeader = false,
 }: EventOptionsSectionProps) {
   const { register, control, watch, setValue, formState: { errors } } = useFormContext();
   const [connectStripeOpen, setConnectStripeOpen] = useState(false);
@@ -34,10 +36,12 @@ export default function EventOptionsSection({
 
   return (
     <div>
-      <span className="px-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-        Event Options
-      </span>
-      <div className="mt-2 divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white">
+      {!hideHeader && (
+        <span className="px-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+          Event Options
+        </span>
+      )}
+      <div className={`divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white ${hideHeader ? "" : "mt-2"}`}>
         {/* Ticket price */}
         <div>
           <OptionRow icon={<TicketIcon />} label="Ticket Price" help="Leave Free for no-cost entry. Choosing Paid opens Stripe checkout so attendees can buy tickets online.">
@@ -98,6 +102,13 @@ export default function EventOptionsSection({
               )}
             </div>
           </div>
+          {errors.isPaid && (
+            <div className="px-4 pb-3 border-t border-zinc-200 pt-2">
+              <span className="text-red-600 text-xs">
+                {errors.isPaid.message as string}
+              </span>
+            </div>
+          )}
           {errors.ticketPrice && (
             <div className="px-4 pb-3 border-t border-zinc-200 pt-2">
               <span className="text-red-600 text-xs">
@@ -138,6 +149,7 @@ export default function EventOptionsSection({
             <div className="overflow-hidden">
               <div className="flex flex-col gap-2 px-4 pb-3.5 sm:flex-row">
                 <input
+                  id="capacity"
                   type="number"
                   placeholder="Max attendees, e.g. 350"
                   {...register("capacity", { valueAsNumber: true })}
