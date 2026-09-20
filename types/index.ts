@@ -86,6 +86,7 @@ export interface IRegistration {
   ticketCode: string;
   checkingTime?: Date;
   chekingTime?: string | Date;
+  customFields?: Record<string, string>;
 }
 
 export interface IFeedback {
