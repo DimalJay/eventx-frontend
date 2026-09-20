@@ -202,7 +202,7 @@ export default function CustomFieldsSection({ hideHeader = false }: { hideHeader
         {customFields.map((field, index) => {
           const fixed = isTemplate(field);
           return (
-            <div key={`${field.key}-${index}`} className="flex flex-col gap-3 px-4 py-3.5">
+            <div key={index} className="flex flex-col gap-3 px-4 py-3.5">
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3 text-zinc-500">
                   <FormIcon />
