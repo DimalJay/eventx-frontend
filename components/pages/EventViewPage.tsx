@@ -472,6 +472,7 @@ export default function EventViewPage({ id }: { id?: string }) {
           ) : (
             <RegisterEventDialog
               eventId={eventId}
+              customFields={backendEvent.customFields ?? []}
               open={registerOpen}
               onClose={() => setRegisterOpen(false)}
               onRegistered={rememberJoined}

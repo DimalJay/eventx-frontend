@@ -1,43 +1,66 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useForm } from "react-hook-form";
+import { Controller, useForm, Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { registerForEvent } from "@/service/registrationService";
 import { toast } from "sonner";
 import Dialog from "@/components/widgets/Dialog";
+import Select from "@/components/widgets/Select";
+import { ICustomFieldDef } from "@/types";
 
 type Props = {
   eventId: string;
+  customFields?: ICustomFieldDef[];
   open: boolean;
   onClose: () => void;
   onRegistered?: (email: string) => void;
 };
 
-const schema = z.object({
+const baseSchema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
+  customFields: z.record(z.string(), z.string()),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = z.infer<typeof baseSchema>;
 
-export default function RegisterEventDialog({ eventId, open, onClose, onRegistered }: Props) {
+export default function RegisterEventDialog({ eventId, customFields = [], open, onClose, onRegistered }: Props) {
+  const schema = baseSchema.superRefine((data, ctx) => {
+    for (const field of customFields) {
+      if (!field.key) continue;
+      const value = data.customFields?.[field.key];
+      if (value === undefined || value.trim() === "") {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `${field.name} is required`,
+          path: ["customFields", field.key],
+        });
+      }
+    }
+  });
+
   const {
     register,
     handleSubmit,
+    control,
     reset,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "", firstName: "", lastName: "" },
+    defaultValues: { email: "", firstName: "", lastName: "", customFields: {} },
   });
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: async (data: FormValues) => {
-      return registerForEvent({ eventId, ...data });
+      const customFieldAnswers: Record<string, string> = {};
+      for (const field of customFields) {
+        if (field.key) customFieldAnswers[field.key] = data.customFields?.[field.key] ?? "";
+      }
+      return registerForEvent({ eventId, ...data, customFields: customFieldAnswers });
     },
     onSuccess: (res, variables) => {
       const email = variables.email.toLowerCase().trim();
@@ -58,6 +81,8 @@ export default function RegisterEventDialog({ eventId, open, onClose, onRegister
       toast.error(err?.message || "Error registering for event.");
     },
   });
+
+  const fieldError = (key: string) => errors.customFields?.[key]?.message;
 
   return (
     <Dialog
@@ -108,6 +133,47 @@ export default function RegisterEventDialog({ eventId, open, onClose, onRegister
               )}
             </label>
           </div>
+
+          {customFields.length > 0 && (
+            <div className="mt-5">
+              <div className="grid gap-4">
+                {customFields.map((field) => (
+                  <label key={field.key} className="grid gap-2 text-sm font-semibold text-zinc-900">
+                    {field.name}
+                    {field.type === "select" ? (
+                      <Controller
+                        control={control}
+                        name={`customFields.${field.key}` as Path<FormValues>}
+                        render={({ field: input }) => (
+                          <Select
+                            name={input.name}
+                            ariaLabel={field.name}
+                            value={typeof input.value === "string" ? input.value : ""}
+                            onChange={input.onChange as (value: string) => void}
+                            className="h-11 w-full px-4"
+                            options={[
+                              { value: "", label: `Select ${field.name}...` },
+                              ...(field.options ?? []).map((option) => ({ value: option, label: option })),
+                            ]}
+                          />
+                        )}
+                      />
+                    ) : (
+                      <input
+                        type={field.type === "number" ? "number" : field.type === "date" ? "date" : "text"}
+                        placeholder={field.type === "date" ? "YYYY-MM-DD" : field.name}
+                        {...register(`customFields.${field.key}`)}
+                        className="h-11 rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20"
+                      />
+                    )}
+                    {fieldError(field.key) && (
+                      <p className="text-xs text-red-600">{fieldError(field.key)}</p>
+                    )}
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
             <button

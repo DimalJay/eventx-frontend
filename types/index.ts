@@ -8,6 +8,13 @@ export type Response<T = any> = {
 export type WithID<T> = { _id: string } & T;
 
 
+export interface ICustomFieldDef {
+  name: string;
+  key: string;
+  type: string;
+  options?: string[];
+}
+
 export interface IEvent {
   id?: string | number;
   organizerId?: string | number;
@@ -25,6 +32,7 @@ export interface IEvent {
   agenda?: string;
   regDeadline?: string;
   waitlistEnabled?: boolean | number;
+  customFields?: ICustomFieldDef[];
   status?: string;
 }
 

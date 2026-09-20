@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import Select from "@/components/widgets/Select";
 import DateTimeSection from "@/components/pages/create-event/DateTimeSection";
 import EventOptionsSection from "@/components/pages/create-event/EventOptionsSection";
+import CustomFieldsSection from "@/components/pages/create-event/CustomFieldsSection";
 import CoverImageUpload from "@/components/pages/create-event/CoverImageUpload";
 import CloseEventDialog from "@/components/dialogs/CloseEventDialog";
 import DeleteEventDialog from "@/components/dialogs/DeleteEventDialog";
@@ -103,6 +104,21 @@ const optionsSchema = z
   });
 
 type OptionsValues = z.infer<typeof optionsSchema>;
+
+const customFieldsSchema = z.object({
+  customFields: z
+    .array(
+      z.object({
+        name: z.string(),
+        key: z.string(),
+        type: z.string(),
+        options: z.array(z.string()).optional(),
+      })
+    )
+    .optional(),
+});
+
+type CustomFieldsValues = z.infer<typeof customFieldsSchema>;
 
 function toLocalISOString(date: Date) {
   const pad = (num: number) => String(num).padStart(2, "0");
@@ -255,6 +271,31 @@ export default function EventManageSettingsPage() {
       toast.success("Event rescheduled successfully.");
     },
     onError: (error: HTTPError) => onError(error, "Rescheduling failed. Please try again."),
+  });
+
+  const customFieldsForm = useForm<CustomFieldsValues>({
+    resolver: zodResolver(customFieldsSchema),
+    defaultValues: { customFields: [] },
+    values: event ? { customFields: event.customFields ?? [] } : undefined,
+  });
+
+  const customFieldsMutation = useMutation({
+    mutationFn: async (data: CustomFieldsValues) => {
+      const customFields = (data.customFields ?? [])
+        .filter((field) => field.name.trim() !== "")
+        .map((field) => ({
+          name: field.name.trim(),
+          key: field.key.trim(),
+          type: field.type,
+          ...(field.type === "select" ? { options: field.options ?? [] } : {}),
+        }));
+      return updateEventRequest(eventId, { customFields });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event", eventId] });
+      toast.success("Registration fields updated successfully.");
+    },
+    onError: (error: HTTPError) => onError(error, "Failed to update registration fields."),
   });
 
   if (isLoading) {
@@ -473,6 +514,35 @@ export default function EventManageSettingsPage() {
                 className="btn disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {optionsMutation.isPending ? "Saving..." : "Save options"}
+              </button>
+            </div>
+          </form>
+        </FormProvider>
+      </section>
+
+      {/* Registration fields */}
+      <section className={cardClass}>
+        <p className={labelClass}>Registration fields</p>
+        <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">Custom registration inputs</h2>
+        <p className="mt-1 text-sm text-zinc-600">
+          Control which extra details attendees fill in when they register, including the built-in
+          phone, gender, and NIC templates.
+        </p>
+
+        <FormProvider {...customFieldsForm}>
+          <form
+            className="mt-6 flex flex-col gap-4"
+            onSubmit={customFieldsForm.handleSubmit((data) => customFieldsMutation.mutate(data))}
+          >
+            <CustomFieldsSection />
+
+            <div className="flex justify-end border-t border-zinc-200 pt-4">
+              <button
+                type="submit"
+                disabled={customFieldsMutation.isPending}
+                className="btn disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {customFieldsMutation.isPending ? "Saving..." : "Save fields"}
               </button>
             </div>
           </form>
