@@ -1,10 +1,10 @@
-﻿"use client";
+"use client";
 
 import { motion, useReducedMotion } from "framer-motion";
 import { Ticket, ScanLine, Activity } from "lucide-react";
 
-const BENTO_TALL = "https://picsum.photos/seed/eventx-workshop/760/880";
-const BENTO_SQUARE = "https://picsum.photos/seed/eventx-conference/640/640";
+const BENTO_TALL = "/images/bento-workshop.png";
+const BENTO_SQUARE = "/images/bento-conference.png";
 
 const features = [
   {

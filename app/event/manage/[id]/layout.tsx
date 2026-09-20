@@ -123,6 +123,7 @@ export default function ManageLayout({ children }: Readonly<{ children: React.Re
                     <TabView defaultPage="overview">
                         <TabItem url={`/event/manage/${encodeEventId(eventId)}/overview`} name="overview" >Overview</TabItem>
                         <TabItem url={`/event/manage/${encodeEventId(eventId)}/registration`} name="registration" >Registration</TabItem>
+                        <TabItem url={`/event/manage/${encodeEventId(eventId)}/guests`} name="guests" >Guests</TabItem>
                         {isOrganizerOrCoordinator && (
                             <TabItem url={`/event/manage/${encodeEventId(eventId)}/agenda`} name="agenda" >Agenda</TabItem>
                         )}

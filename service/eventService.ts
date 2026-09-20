@@ -79,3 +79,19 @@ export const deleteEventRequest = async (eventId: string) => {
   });
   return res;
 }
+
+export const getEventGuestsRequest = async (eventId: string) => {
+  const res: Response = await request("/event/guests", {
+    method: "GET",
+    params: { eventId },
+  });
+  return res;
+};
+
+export const sendGuestInvitationsRequest = async (eventId: string, role: string, emails: string[]) => {
+  const res: Response = await request("/invitation/send", {
+    method: "POST",
+    data: { eventId, role, emails },
+  });
+  return res;
+};
