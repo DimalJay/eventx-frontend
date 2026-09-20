@@ -8,6 +8,8 @@ import { EllipsisVertical } from "lucide-react";
 import RoleChangeDialog from "../dialogs/RoleChangeDialog";
 import AddMemberDialog from "../dialogs/AddMemberDialog";
 import RemoveMemberDialog from "../dialogs/RemoveMemberDialog";
+import TeamLabelsDialog from "../dialogs/TeamLabelsDialog";
+import ChangeMemberLabelDialog from "../dialogs/ChangeMemberLabelDialog";
 import { TeamAccessLoadingSkeleton } from "@/components/skeleton/TeamAccessLoadingSkeleton";
 import { decodeEventId } from "@/lib/utils";
 import type { TeamMember } from "@/types/team";
@@ -30,7 +32,9 @@ export default function EventTeamAccessSection() {
   const [menuOpenFor, setMenuOpenFor] = useState<string | null>(null);
   const [roleModalMember, setRoleModalMember] = useState<TeamMember | null>(null);
   const [removeConfirmMember, setRemoveConfirmMember] = useState<TeamMember | null>(null);
+  const [labelModalMember, setLabelModalMember] = useState<TeamMember | null>(null);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
+  const [teamLabelsOpen, setTeamLabelsOpen] = useState(false);
 
   return (
     <>
@@ -44,13 +48,22 @@ export default function EventTeamAccessSection() {
               Manage event operators
             </h2>
           </div>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => setAddMemberOpen(true)}
-          >
-            Add member
-          </button>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setTeamLabelsOpen(true)}
+            >
+              Team Labels
+            </button>
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setAddMemberOpen(true)}
+            >
+              Add member
+            </button>
+          </div>
         </div>
 
         <div className="mt-6 grid gap-4">
@@ -85,15 +98,22 @@ export default function EventTeamAccessSection() {
                       )}
                     </div>
                     <p className="text-sm text-zinc-600">{member.email}</p>
-                    <span
-                      className={`mt-2 inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-[0.1em] ${
-                        isOrganizer
-                          ? "border-primary/30 bg-primary-soft/60 text-primary"
-                          : "border-zinc-200 bg-zinc-50 text-zinc-600"
-                      }`}
-                    >
-                      {roleLabel}
-                    </span>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <span
+                        className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-[0.1em] ${
+                          isOrganizer
+                            ? "border-primary/30 bg-primary-soft/60 text-primary"
+                            : "border-zinc-200 bg-zinc-50 text-zinc-600"
+                        }`}
+                      >
+                        {roleLabel}
+                      </span>
+                      {member.label ? (
+                        <span className="inline-flex rounded-full border border-primary/30 bg-primary-faint/40 px-2.5 py-0.5 text-xs font-semibold text-primary">
+                          {member.label}
+                        </span>
+                      ) : null}
+                    </div>
                   </div>
                   {isOrganizer ? (
                     <p className="text-xs font-medium text-zinc-400 sm:justify-self-end">
@@ -128,6 +148,16 @@ export default function EventTeamAccessSection() {
                           </button>
                           <button
                             type="button"
+                            className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100"
+                            onClick={() => {
+                              setMenuOpenFor(null);
+                              setLabelModalMember(member);
+                            }}
+                          >
+                            Change label
+                          </button>
+                          <button
+                            type="button"
                             className="flex w-full items-center justify-start rounded-xl px-3 py-2 text-sm font-medium text-rose-700 transition hover:bg-rose-50"
                             onClick={() => {
                               setMenuOpenFor(null);
@@ -154,6 +184,14 @@ export default function EventTeamAccessSection() {
         onClose={() => setRoleModalMember(null)}
       />
 
+      <ChangeMemberLabelDialog
+        key={labelModalMember?.id ?? "none"}
+        eventId={eventId}
+        member={labelModalMember!}
+        open={!!labelModalMember}
+        onClose={() => setLabelModalMember(null)}
+      />
+
       <AddMemberDialog
         eventId={eventId}
         open={addMemberOpen}
@@ -165,6 +203,12 @@ export default function EventTeamAccessSection() {
         member={removeConfirmMember!}
         open={!!removeConfirmMember}
         onClose={() => setRemoveConfirmMember(null)}
+      />
+
+      <TeamLabelsDialog
+        eventId={eventId}
+        open={teamLabelsOpen}
+        onClose={() => setTeamLabelsOpen(false)}
       />
     </>
   );

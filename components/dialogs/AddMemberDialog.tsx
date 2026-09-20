@@ -4,11 +4,12 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { addTeamMember } from "@/service/teamService";
+import { addTeamMember, getTeamLabels } from "@/service/teamService";
 import { toast } from "sonner";
 import HelpTooltip from "@/components/widgets/HelpTooltip";
 import Select from "@/components/widgets/Select";
 import Dialog from "@/components/widgets/Dialog";
+import { useQuery } from "@tanstack/react-query";
 
 type Props = {
   eventId: string;
@@ -19,11 +20,20 @@ type Props = {
 const schema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email"),
   role: z.string().min(1, "Role is required"),
+  label: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
 
 const roleOptions = ["Member", "Coordinator"] as const;
+
+function parseLabels(labels: string | undefined | null): string[] {
+  if (!labels || !labels.trim()) return [];
+  return labels
+    .split(",")
+    .map((label) => label.trim())
+    .filter(Boolean);
+}
 
 export default function AddMemberDialog({ eventId, open, onClose }: Props) {
   const {
@@ -31,16 +41,34 @@ export default function AddMemberDialog({ eventId, open, onClose }: Props) {
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { email: "", role: roleOptions[0] },
+    defaultValues: { email: "", role: roleOptions[0], label: "" },
   });
   const queryClient = useQueryClient();
 
+  const { data: labelsData } = useQuery({
+    queryKey: ["team-labels", eventId],
+    queryFn: async () => {
+      const res = await getTeamLabels({ eventId });
+      return res.data?.labels ?? "";
+    },
+    enabled: open && !!eventId,
+    retry: false,
+  });
+
+  const eventLabels = open ? parseLabels(labelsData) : [];
+
   const mutation = useMutation({
-    mutationFn: async ({ email, role }: { email: string; role: string }) => {
-      return addTeamMember({ eventId, email, role: role.toUpperCase() });
+    mutationFn: async ({ email, role, label }: FormValues) => {
+      return addTeamMember({
+        eventId,
+        email,
+        role: role.toUpperCase(),
+        label: label?.trim() || undefined,
+      });
     },
     onSuccess: (res) => {
       if (res?.success) {
@@ -64,7 +92,7 @@ export default function AddMemberDialog({ eventId, open, onClose }: Props) {
       title="Invite a team member"
       description="Enter an email and assign a role for event access."
     >
-      <form onSubmit={handleSubmit(({ email, role }) => mutation.mutate({ email, role }))}>
+      <form onSubmit={handleSubmit((values) => mutation.mutate(values))}>
           <label className="mt-5 grid gap-2 text-sm font-semibold text-zinc-900">
             Email address
             <input
@@ -99,6 +127,41 @@ export default function AddMemberDialog({ eventId, open, onClose }: Props) {
               )}
             />
           </div>
+
+          <div className="mt-4 grid gap-2">
+            <label htmlFor="member-label-input" className="text-sm font-semibold text-zinc-900">
+              Label <span className="text-xs font-normal text-zinc-400">(optional)</span>
+            </label>
+            <Controller
+              name="label"
+              control={control}
+              render={({ field }) => (
+                <input
+                  id="member-label-input"
+                  type="text"
+                  placeholder="e.g. Speaker, VIP, Press"
+                  value={field.value ?? ""}
+                  onChange={field.onChange}
+                  className="h-11 rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20"
+                />
+              )}
+            />
+          </div>
+
+          {eventLabels.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {eventLabels.map((eventLabel) => (
+                <button
+                  key={eventLabel}
+                  type="button"
+                  onClick={() => setValue("label", eventLabel)}
+                  className="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-700 transition hover:border-primary/40 hover:text-primary"
+                >
+                  {eventLabel}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
             <button

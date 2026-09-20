@@ -30,7 +30,7 @@ export default function Select({
   const menuRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const geom = usePopoverPosition(open, wrapperRef, menuRef, "bottom", align);
-  const selected = options.find((o) => o.value === value);
+  const selected = options.find((o) => String(o.value) === String(value));
 
   return (
     <div ref={wrapperRef} className="relative">
@@ -46,7 +46,7 @@ export default function Select({
           className
         )}
       >
-        <span className="truncate">{selected?.label ?? ""}</span>
+        <span className="truncate">{selected?.label ?? (value ? String(value) : "")}</span>
         <FiChevronDown
           className={cn("h-4 w-4 shrink-0 text-zinc-400 transition-transform duration-200", open && "rotate-180")}
         />

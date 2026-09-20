@@ -3,5 +3,6 @@ export interface TeamMember {
   email: string;
   role: string;
   id: number;
+  label?: string | null;
   isOrganizer?: boolean;
 }
