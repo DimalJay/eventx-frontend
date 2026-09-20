@@ -55,13 +55,7 @@ export default function UpcomingEvents({ events, isLoading }: UpcomingEventsProp
               Organizers are already taking signups. Grab a spot while it lasts.
             </p>
           </div>
-          <Link
-            href="/discover-events"
-            className="inline-flex shrink-0 items-center gap-2 rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-semibold text-zinc-900 shadow-xs transition hover:border-zinc-300 hover:bg-zinc-100"
-          >
-            <span>See all events</span>
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          
         </motion.div>
 
         {isLoading ? (

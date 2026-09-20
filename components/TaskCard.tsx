@@ -2,8 +2,9 @@ import { ITask } from "@/types";
 import EventTaskUpdateDialog from "./dialogs/EventTaskUpdate";
 import { useState } from "react";
 import { TeamMember } from "@/types/team";
+import { FiLock } from "react-icons/fi";
 
-export default function TaskCard({ task , users, eventId, canEdit = true }: { task: ITask , users: TeamMember[], eventId: string, canEdit?: boolean }) {
+export default function TaskCard({ task , users, eventId, canEdit = true, disabled = false }: { task: ITask , users: TeamMember[], eventId: string, canEdit?: boolean, disabled?: boolean }) {
     const [open, setOpen] = useState(false);
 
     const assignedUser = users.find((user) => String(user.id) == task.assignedTo);
@@ -22,11 +23,18 @@ export default function TaskCard({ task , users, eventId, canEdit = true }: { ta
         <>
         <article
             key={`${task.id}`}
-            className="rounded-2xl border border-zinc-200 bg-white px-4 py-4 transition hover:border-primary/30 hover:shadow-card"
-            onClick={() => setOpen(true)}
+            className={`rounded-2xl border bg-white px-4 py-4 transition ${
+                disabled
+                    ? "cursor-not-allowed border-zinc-200 opacity-60"
+                    : "cursor-pointer border-zinc-200 hover:border-primary/30 hover:shadow-card"
+            }`}
+            onClick={() => {
+                if (!disabled) setOpen(true);
+            }}
         >
-            <h3 className="text-sm font-semibold text-zinc-900">
-                {task.title}
+            <h3 className="flex items-center gap-1.5 text-sm font-semibold text-zinc-900">
+                {disabled && <FiLock className="h-3.5 w-3.5 shrink-0 text-zinc-400" />}
+                <span className="min-w-0 flex-1 truncate">{task.title}</span>
             </h3>
 
             <p className="mt-1 text-xs text-zinc-500">
