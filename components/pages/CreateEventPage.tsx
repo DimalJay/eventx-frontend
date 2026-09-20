@@ -8,7 +8,8 @@ import { Controller, useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { createEventRequest } from "@/service/eventService";
-import { useMutation } from "@tanstack/react-query";
+import { getConnectStatus } from "@/service/paymentService";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 import CoverImageUpload from "./create-event/CoverImageUpload";
 import DateTimeSection from "./create-event/DateTimeSection";
@@ -43,6 +44,13 @@ type EventFormValues = z.infer<typeof baseEventSchema>;
 export default function CreateEventPage() {
   const router = useRouter();
   const [hasLimit, setHasLimit] = useState(false);
+
+  const { data: connectStatus } = useQuery({
+    queryKey: ["stripe-connect-status"],
+    queryFn: () => getConnectStatus(),
+    retry: false,
+  });
+  const isStripeConnected = connectStatus?.connected ?? false;
 
   const eventSchema = useMemo(() => {
     return baseEventSchema.superRefine((data, ctx) => {
@@ -105,6 +113,14 @@ export default function CreateEventPage() {
         });
       }
 
+      if (data.isPaid === "paid" && !isStripeConnected) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Connect a Stripe account to sell paid tickets",
+          path: ["isPaid"],
+        });
+      }
+
       if (hasLimit && (data.capacity === undefined || isNaN(data.capacity) || data.capacity < 1)) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -113,7 +129,7 @@ export default function CreateEventPage() {
         });
       }
     });
-  }, [hasLimit]);
+  }, [hasLimit, isStripeConnected]);
 
   const methods = useForm<EventFormValues>({
     resolver: zodResolver(eventSchema),

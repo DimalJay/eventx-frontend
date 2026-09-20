@@ -98,6 +98,13 @@ export default function EventOptionsSection({
               )}
             </div>
           </div>
+          {errors.isPaid && (
+            <div className="px-4 pb-3 border-t border-zinc-200 pt-2">
+              <span className="text-red-600 text-xs">
+                {errors.isPaid.message as string}
+              </span>
+            </div>
+          )}
           {errors.ticketPrice && (
             <div className="px-4 pb-3 border-t border-zinc-200 pt-2">
               <span className="text-red-600 text-xs">
