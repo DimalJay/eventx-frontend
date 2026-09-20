@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
@@ -8,8 +8,8 @@ import TiltCard from "./TiltCard";
 import ShaderBackground from "./ShaderBackground";
 import { encodeEventId } from "@/lib/utils";
 
-const HERO_MAIN = "https://picsum.photos/seed/eventx-stage-lights/820/1024";
-const HERO_SUB = "https://picsum.photos/seed/eventx-audience/640/640";
+const HERO_MAIN = "/images/hero-main.png";
+const HERO_SUB = "/images/hero-sub.png";
 
 type HeroProps = {
   isAuthenticated: boolean;

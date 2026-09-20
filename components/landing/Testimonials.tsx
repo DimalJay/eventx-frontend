@@ -1,12 +1,12 @@
-﻿"use client";
+"use client";
 
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 
 const avatars = {
-  aisha: "https://randomuser.me/api/portraits/women/68.jpg",
-  marcus: "https://randomuser.me/api/portraits/men/32.jpg",
-  dilini: "https://randomuser.me/api/portraits/women/44.jpg",
+  aisha: "/images/avatar-aisha.png",
+  marcus: "/images/avatar-marcus.png",
+  dilini: "/images/avatar-dilini.png",
 };
 
 const featured = {
