@@ -360,6 +360,7 @@ export default function EventManageRegistraionPage() {
       />
 
       <CheckInDialog
+        key={checkInOpen ? "open" : "closed"}
         open={checkInOpen}
         onClose={() => setCheckInOpen(false)}
         registrations={registrations}

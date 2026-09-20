@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import { IRegistration } from "@/types";
 import { toast } from "sonner";
@@ -15,17 +15,22 @@ type Props = {
   isPending: boolean;
 };
 
+function extractTicketCode(raw: string): string {
+  const cleaned = raw.trim().split(/[?#]/)[0];
+  if (!cleaned.includes("/")) return cleaned;
+  const segments = cleaned.replace(/\/+$/, "").split("/");
+  const last = segments[segments.length - 1];
+  if (!last) return cleaned;
+  try {
+    return decodeURIComponent(last);
+  } catch {
+    return last;
+  }
+}
+
 export default function CheckInDialog({ open, onClose, registrations, onCheckIn, onNotGoing, isPending }: Props) {
   const [scannedReg, setScannedReg] = useState<IRegistration | null>(null);
   const [input, setInput] = useState("");
-  const scannerRef = useRef<any>(null);
-
-  useEffect(() => {
-    if (open) {
-      setScannedReg(null);
-      setInput("");
-    }
-  }, [open]);
 
   if (!open) return null;
 
@@ -68,7 +73,7 @@ export default function CheckInDialog({ open, onClose, registrations, onCheckIn,
               onNotGoing(scannedReg.id)
             }
           >
-            Not going
+            Reject
           </button>
         </div>
 
@@ -96,9 +101,8 @@ export default function CheckInDialog({ open, onClose, registrations, onCheckIn,
     >
       <div className="mt-4 overflow-hidden rounded-2xl bg-zinc-100">
               <Scanner
-                ref={scannerRef}
                 onScan={(detectedCodes) => {
-                  const code = detectedCodes?.[0]?.rawValue;
+                  const code = extractTicketCode(detectedCodes?.[0]?.rawValue ?? "");
                   if (code) {
                     const match = registrations.find(
                       (r) => r.ticketCode === code
@@ -135,11 +139,14 @@ export default function CheckInDialog({ open, onClose, registrations, onCheckIn,
                 disabled={!input.trim()}
                 className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:opacity-40"
                 onClick={() => {
-                  const match = registrations.find(
-                    (r) =>
-                      r.email.toLowerCase() === input.trim().toLowerCase() ||
-                      r.ticketCode === input.trim()
-                  );
+                  const normalized = input.trim();
+                  const match =
+                    registrations.find(
+                      (r) => r.email.toLowerCase() === normalized.toLowerCase()
+                    ) ??
+                    registrations.find(
+                      (r) => r.ticketCode === extractTicketCode(normalized)
+                    );
                   if (match) {
                     setScannedReg(match);
                     setInput("");

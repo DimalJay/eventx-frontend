@@ -13,9 +13,9 @@ type Props = {
 };
 
 const dialogOptions = [
-  { value: "GOING", label: "Going" },
+  { value: "GOING", label: "Checked in" },
   { value: "WAITLIST", label: "Waitlist" },
-  { value: "NOT_GOING", label: "Not going" },
+  { value: "NOT_GOING", label: "Not checked in" },
 ];
 
 export default function RegistrationStatusDialog({ reg, open, onClose, onUpdateStatus, isPending, pendingStatus }: Props) {
