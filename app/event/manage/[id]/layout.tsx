@@ -116,7 +116,7 @@ export default function ManageLayout({ children }: Readonly<{ children: React.Re
 
     return (
         <EventManageProvider value={{ role, eventId }}>
-            <main className="relative flex flex-1 justify-center overflow-hidden bg-white">
+            <main className="relative flex flex-1 justify-center bg-white">
                 <ShaderBackground />
                 <div className="relative z-10 flex w-full max-w-6xl flex-col gap-10 px-6 py-16 lg:py-20">
                     <EventHeader id={eventId} />

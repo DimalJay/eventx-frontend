@@ -161,7 +161,7 @@ function OptionsEditor({
   );
 }
 
-export default function CustomFieldsSection() {
+export default function CustomFieldsSection({ hideHeader = false }: { hideHeader?: boolean }) {
   const { setValue, control } = useFormContext();
   const [adding, setAdding] = useState(false);
   const customFields: CustomField[] = useWatch({ name: "customFields", control }) ?? [];
@@ -193,10 +193,12 @@ export default function CustomFieldsSection() {
 
   return (
     <div>
-      <span className="px-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
-        Registration fields
-      </span>
-      <div className="mt-2 divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white">
+      {!hideHeader && (
+        <span className="px-1 text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+          Registration fields
+        </span>
+      )}
+      <div className={`divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white ${hideHeader ? "" : "mt-2"}`}>
         {customFields.map((field, index) => {
           const fixed = isTemplate(field);
           return (
