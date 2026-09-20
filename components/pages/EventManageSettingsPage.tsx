@@ -31,7 +31,8 @@ const cardClass =
 const labelClass =
   "text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500";
 
-function parseCategoryAndDesc(rawDesc: string = "") {
+function parseCategoryAndDesc(rawDesc: string = "", eventCategory?: string) {
+  if (eventCategory) return { category: eventCategory, description: rawDesc };
   const match = rawDesc.match(/^\[Category:\s*([^\]]+)\]\n\n?/);
   if (match) {
     const category = match[1].trim();
@@ -133,14 +134,17 @@ export default function EventManageSettingsPage() {
 
   const initialCoverPreview = useMemo(() => {
     if (!event) return null;
-    const coverPath = event.coverImage || event.imageUrl || "";
+    const coverPath = event.coverImage || "";
     if (!coverPath) return null;
     if (coverPath.startsWith("http")) return coverPath;
     const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace("/api/v1", "");
     return `${backendBase}${coverPath}`;
   }, [event]);
 
-  const parsedDesc = useMemo(() => parseCategoryAndDesc(event?.description || ""), [event?.description]);
+  const parsedDesc = useMemo(
+    () => parseCategoryAndDesc(event?.description || "", event?.category),
+    [event?.description, event?.category],
+  );
 
   const optionsForm = useForm<OptionsValues>({
     resolver: zodResolver(optionsSchema),
@@ -154,11 +158,11 @@ export default function EventManageSettingsPage() {
     values: event
       ? {
           eventType: event.eventType || "online",
-          coverImage: event.coverImage || event.imageUrl || "",
+          coverImage: event.coverImage || "",
           isPaid: (event.ticketPrice ?? 0) > 0 ? "paid" : "free",
           ticketPrice: event.ticketPrice || 0,
           capacity: event.capacity || 0,
-          whiteList: event.whiteList || false,
+          whiteList: (event.waitlistEnabled ?? false) === true || event.waitlistEnabled === 1,
         }
       : undefined,
   });
@@ -176,7 +180,7 @@ export default function EventManageSettingsPage() {
         eventType: data.eventType,
         ticketPrice: data.ticketPrice,
         capacity: data.capacity,
-        whiteList: data.whiteList,
+        waitlistEnabled: data.whiteList,
         coverImage: finalCoverImage || undefined,
       });
     },
@@ -213,11 +217,10 @@ export default function EventManageSettingsPage() {
 
   const detailsMutation = useMutation({
     mutationFn: async (data: DetailsValues) => {
-      const catPrefix = data.category ? `[Category: ${data.category}]\n\n` : "";
-      const finalDesc = `${catPrefix}${data.description || ""}`;
       return updateEventRequest(eventId, {
         title: data.title,
-        description: finalDesc,
+        category: data.category || "",
+        description: data.description || "",
         location: data.location || "",
         isPublic: data.isPublic === "true",
       });
@@ -226,7 +229,7 @@ export default function EventManageSettingsPage() {
     onError: (error: HTTPError) => onError(error, "Event update failed. Please try again."),
   });
 
-  const deadlineRaw = event?.regDeadline ?? event?.registrationDeadline;
+  const deadlineRaw = event?.regDeadline;
 
   const scheduleForm = useForm<ScheduleValues>({
     resolver: zodResolver(scheduleSchema),

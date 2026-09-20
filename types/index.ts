@@ -13,22 +13,22 @@ export interface IEvent {
   organizerId?: string | number;
   title: string;
   description?: string;
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | string;
+  endDate: Date | string;
   location?: string;
   eventType?: "online" | "physical" | string;
-  imageUrl?: string;
-  isPublic: boolean;
+  category?: string;
+  coverImage?: string;
+  isPublic: boolean | number;
   capacity: number;
   ticketPrice: number;
-  agenda: string;
-  registrationDeadline?: string;
+  agenda?: string;
   regDeadline?: string;
-  waitlistEnabled?: boolean;
+  waitlistEnabled?: boolean | number;
   status?: string;
 }
 
-export interface IEventResponse extends WithID<IEvent> {
+export interface IEventResponse extends IEvent {
   createdAt: string;
   updatedAt: string;
 }

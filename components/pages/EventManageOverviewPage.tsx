@@ -44,7 +44,7 @@ export default function EventManageOverviewPage() {
   }
 
   const coverUrl = (() => {
-    const coverPath = event.imageUrl || event.coverImage || "";
+    const coverPath = event.coverImage || "";
     if (!coverPath) return "";
     if (coverPath.startsWith("http")) return coverPath;
 

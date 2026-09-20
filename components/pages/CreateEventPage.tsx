@@ -142,23 +142,19 @@ export default function CreateEventPage() {
         formData.append("coverImage", data.coverImage);
       }
 
-      let descriptionHandled = false;
       Object.entries(data).forEach(([key, value]) => {
-        if (key === "isPaid" || key === "coverImage" || key === "category") return;
-        if (key === "description") {
-          descriptionHandled = true;
-          const catPrefix = data.category ? `[Category: ${data.category}]\n\n` : "";
-          const finalDesc = `${catPrefix}${value || ""}`;
-          formData.append("description", finalDesc);
-        } else if (value instanceof Date) {
+        if (key === "coverImage" || key === "whiteList" || key === "regDeadline" || key === "isPaid") return;
+        if (value instanceof Date) {
           formData.append(key, toLocalISOString(value));
         } else if (value !== undefined) {
           formData.append(key, String(value));
         }
       });
 
-      if (!descriptionHandled && data.category) {
-        formData.append("description", `[Category: ${data.category}]`);
+      formData.append("category", data.category || "");
+      formData.append("waitlistEnabled", data.whiteList ? "true" : "false");
+      if (data.regDeadline) {
+        formData.append("regDeadline", toLocalISOString(data.regDeadline));
       }
 
       const res = await createEventRequest(formData);
@@ -166,10 +162,11 @@ export default function CreateEventPage() {
     },
     onSuccess: (data) => {
       toast.success("Event created successfully.");
-      console.log("Event created:", data);
       const eventId = data?.id;
       if (eventId) {
         router.push(`/event/manage/${encodeEventId(eventId)}`);
+      } else {
+        router.push("/home");
       }
     },
     onError: (error: Error) => {

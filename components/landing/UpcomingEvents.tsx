@@ -12,8 +12,7 @@ type UpcomingEventsProps = {
 };
 
 function eventImage(event: IEvent): string | null {
-  const rawImg =
-    (event as IEvent & { coverImage?: string }).coverImage || event.imageUrl;
+  const rawImg = event.coverImage;
 
   if (!rawImg || rawImg === "null" || rawImg === "undefined" || rawImg.trim() === "") {
     return null;
@@ -92,7 +91,7 @@ export default function UpcomingEvents({ events, isLoading }: UpcomingEventsProp
 
               return (
                 <motion.div
-                  key={event.id}
+                  key={String(event.id)}
                   {...reveal}
                   transition={{ ...reveal.transition, delay: idx * 0.06 }}
                   className="group flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200/70 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-zinc-900/5"

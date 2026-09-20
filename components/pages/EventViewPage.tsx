@@ -208,7 +208,7 @@ export default function EventViewPage({ id }: { id?: string }) {
   const event = {
     name: backendEvent.title || "Untitled Event",
     tagline: backendEvent.description || "No description provided.",
-    status: backendEvent.isPaid || backendEvent.ticketPrice > 0 ? "Tickets live" : "Free Event",
+    status: backendEvent.ticketPrice > 0 ? "Tickets live" : "Free Event",
     date: startDateObj.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }),
     time: `${startDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo', hour12: true })} - ${endDateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Colombo', hour12: true })}`,
     start: backendEvent.startDate || startDateObj.toISOString(),
@@ -218,7 +218,7 @@ export default function EventViewPage({ id }: { id?: string }) {
     location: backendEvent.location || "TBA",
     organizer: "EventX Studio",
     cover: (() => {
-      const coverPath = backendEvent.imageUrl || backendEvent.coverImage || "";
+      const coverPath = backendEvent.coverImage || "";
       if (!coverPath) return "";
       if (coverPath.startsWith("http")) return coverPath;
 
@@ -238,7 +238,7 @@ export default function EventViewPage({ id }: { id?: string }) {
     agenda = [];
   }
 
-  const isPaid = backendEvent.isPaid || backendEvent.ticketPrice > 0;
+  const isPaid = backendEvent.ticketPrice > 0;
 
   const hasRegistered =
     (registrationsResponse?.data ?? []).some(
