@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getPublicEvents } from "@/service/eventService";
-import { IEvent, WithID } from "@/types";
+import { IEvent } from "@/types";
 import Select from "../widgets/Select";
 import { formatPrice, encodeEventId } from "@/lib/utils";
 import { Search, RotateCcw, AlertCircle, Video, CalendarDays, MapPin, ArrowRight } from "lucide-react";
@@ -33,7 +33,7 @@ export default function DiscoverEvents() {
 
   // Safe typed list of events (only show public events)
   const events = useMemo(() => {
-    return (rawEvents as WithID<IEvent>[]).filter(
+    return (rawEvents as IEvent[]).filter(
       (event) => event.isPublic !== false && String(event.isPublic) !== "false"
     );
   }, [rawEvents]);
@@ -266,7 +266,7 @@ export default function DiscoverEvents() {
           {!isLoading && !isError && sortedEvents.length > 0 && (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {sortedEvents.map((event) => {
-                const eventId = event.id || (event as WithID<IEvent>)._id;
+                const eventId = event.id;
                 const isFree = Number(event.ticketPrice) || 0;
                 const displayPrice = isFree === 0 ? "Free entry" : formatPrice(event.ticketPrice);
 
@@ -284,7 +284,7 @@ export default function DiscoverEvents() {
                   event.location?.toLowerCase().includes("http");
 
                 // Get cover image path from database or mockup
-                const rawImg = (event as IEvent & { coverImage?: string }).coverImage || event.imageUrl;
+                const rawImg = event.coverImage;
                 const backendBaseUrl = process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL?.replace("/api/v1", "") || "";
                 const imageUrl = (rawImg && rawImg !== "null" && rawImg !== "undefined" && rawImg.trim() !== "")
                   ? (rawImg.startsWith("http") ? rawImg : `${backendBaseUrl}${rawImg}`)
