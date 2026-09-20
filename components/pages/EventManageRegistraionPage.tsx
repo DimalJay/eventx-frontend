@@ -9,8 +9,9 @@ import { IRegistration, IEvent } from "@/types";
 import { formatPrice } from "@/lib/utils";
 import { registrationCSVRows, downloadCSV } from "@/lib/utils";
 import { decodeEventId } from "@/lib/utils";
-import { Download } from "lucide-react";
+import { Download, SlidersHorizontal, X } from "lucide-react";
 import { toast } from "sonner";
+import Select from "@/components/widgets/Select";
 import RegistrationStatusDialog from "../dialogs/RegistrationStatusDialog";
 import CheckInDialog from "../dialogs/CheckInDialog";
 import SendFeedbackDialog from "../dialogs/SendFeedbackDialog";
@@ -40,6 +41,9 @@ export default function EventManageRegistraionPage() {
   const [sendFeedbackOpen, setSendFeedbackOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [customFilterKey, setCustomFilterKey] = useState("");
+  const [customFilterValue, setCustomFilterValue] = useState("");
   const { role } = useEventRole();
   const canManageGuests = role === "ORGANIZER" || role === "COORDINATOR";
 
@@ -111,14 +115,41 @@ export default function EventManageRegistraionPage() {
     },
   ];
 
+  const customFields = event?.customFields ?? [];
+  const selectedCustomField = customFields.find((f) => f.key === customFilterKey) ?? null;
+  const customFieldOptions = [
+    { value: "", label: "All custom fields" },
+    ...customFields.map((f) => ({ value: f.key, label: f.name })),
+  ];
+  const customFieldValueOptions = [
+    { value: "", label: "Any value" },
+    ...(selectedCustomField?.options ?? []).map((option) => ({ value: option, label: option })),
+  ];
+
   const filteredRegistrations = registrations.filter((reg) => {
     const name = `${reg.firstName ?? ""} ${reg.lastName ?? ""}`.trim().toLowerCase();
     const email = (reg.email ?? "").toLowerCase();
     const q = searchQuery.toLowerCase().trim();
     const matchesSearch = !q || name.includes(q) || email.includes(q);
     const matchesStatus = !statusFilter || reg.status === statusFilter;
-    return matchesSearch && matchesStatus;
+
+    let matchesCustom = true;
+    if (selectedCustomField && customFilterValue) {
+      const answer = reg.customFields?.[selectedCustomField.key] ?? "";
+      if (selectedCustomField.type === "select") {
+        matchesCustom = answer.toLowerCase() === customFilterValue.toLowerCase();
+      } else {
+        matchesCustom = answer.toLowerCase().includes(customFilterValue.toLowerCase());
+      }
+    }
+    return matchesSearch && matchesStatus && matchesCustom;
   });
+
+  const hasCustomFilter = !!selectedCustomField || !!customFilterValue;
+  const clearCustomFilters = () => {
+    setCustomFilterKey("");
+    setCustomFilterValue("");
+  };
 
   const handleExport = () => {
     if (filteredRegistrations.length === 0) return;
@@ -215,13 +246,28 @@ export default function EventManageRegistraionPage() {
         ) : (
           <div>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="relative w-full max-w-xs">
               <input
                 type="text"
                 placeholder="Search by name or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-10 w-full max-w-xs rounded-full border border-zinc-200 bg-white px-4 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+                className="h-10 w-full rounded-full border border-zinc-200 bg-white pl-4 pr-11 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
               />
+              <button
+                type="button"
+                aria-label="Advanced filters"
+                aria-expanded={advancedOpen}
+                onClick={() => setAdvancedOpen((v) => !v)}
+                className={`absolute right-1.5 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full transition ${
+                  advancedOpen
+                    ? "bg-primary text-white"
+                    : "text-zinc-400 hover:bg-zinc-100 hover:text-primary"
+                }`}
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+              </button>
+            </div>
               <div className="flex flex-wrap gap-1.5">
                 <button
                   type="button"
@@ -251,6 +297,69 @@ export default function EventManageRegistraionPage() {
               </div>
             </div>
 
+            <p className="mt-2 text-xs font-medium text-zinc-500">
+              Showing {filteredRegistrations.length} of {registrations.length}{" "}
+              registration{registrations.length !== 1 ? "s" : ""}
+            </p>
+
+            <div className="mt-3 flex flex-col gap-3 border-t border-zinc-100 pt-3">
+              {advancedOpen && (
+                <div className="flex flex-col gap-3 rounded-2xl border border-zinc-200 bg-zinc-50/60 p-3 sm:flex-row sm:items-center">
+                  <div className="grid gap-1.5 sm:w-56">
+                    <span className="text-xs font-semibold text-zinc-500">Custom field</span>
+                    <Select
+                      name="custom-filter-field"
+                      ariaLabel="Custom field"
+                      value={customFilterKey}
+                      onChange={(value) => {
+                        setCustomFilterKey(value);
+                        setCustomFilterValue("");
+                      }}
+                      className="h-10 w-full px-3.5 text-sm"
+                      options={customFieldOptions}
+                    />
+                  </div>
+
+                  {selectedCustomField && (
+                    <div className="grid gap-1.5 sm:w-56">
+                      <span className="text-xs font-semibold text-zinc-500">
+                        {selectedCustomField.name}
+                      </span>
+                      {selectedCustomField.type === "select" ? (
+                        <Select
+                          name="custom-filter-value"
+                          ariaLabel={selectedCustomField.name}
+                          value={customFilterValue}
+                          onChange={setCustomFilterValue}
+                          className="h-10 w-full px-3.5 text-sm"
+                          options={customFieldValueOptions}
+                        />
+                      ) : (
+                        <input
+                          type="text"
+                          placeholder="Value contains..."
+                          value={customFilterValue}
+                          onChange={(e) => setCustomFilterValue(e.target.value)}
+                          className="h-10 rounded-xl border border-zinc-200 bg-white px-3.5 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+                        />
+                      )}
+                    </div>
+                  )}
+
+                  {hasCustomFilter && (
+                    <button
+                      type="button"
+                      onClick={clearCustomFilters}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-zinc-600 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 sm:ml-auto"
+                    >
+                      <X className="h-3 w-3" />
+                      Clear
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
             {filteredRegistrations.length === 0 ? (
               <p className="mt-6 px-5 py-8 text-center text-sm text-zinc-500">
                 No registrations match your filters.
@@ -263,6 +372,9 @@ export default function EventManageRegistraionPage() {
                       <th className="px-5 py-3 font-medium">Attendee</th>
                       <th className="px-5 py-3 font-medium">Registered</th>
                       <th className="px-5 py-3 font-medium">Amount</th>
+                      {selectedCustomField && (
+                        <th className="px-5 py-3 font-medium">{selectedCustomField.name}</th>
+                      )}
                       <th className="px-5 py-3 font-medium">Status</th>
                     </tr>
                   </thead>
@@ -313,6 +425,11 @@ export default function EventManageRegistraionPage() {
                           </td>
                           <td className="px-5 py-4 text-sm text-zinc-700 align-middle whitespace-nowrap">{date}</td>
                           <td className="px-5 py-4 text-sm font-semibold text-zinc-900 align-middle whitespace-nowrap">{amount}</td>
+                          {selectedCustomField && (
+                            <td className="px-5 py-4 text-sm text-zinc-700 align-middle whitespace-nowrap">
+                              {reg.customFields?.[selectedCustomField.key] || "—"}
+                            </td>
+                          )}
                           <td className="px-5 py-4 align-middle">
                             <span
                               className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap ${statusStyles[reg.status] || "border-zinc-200 bg-zinc-100 text-zinc-600"}`}

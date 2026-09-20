@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { Star, MessageSquareText, Users, Sparkles, Megaphone } from "lucide-react";
+import { Star, MessageSquareText, Users, Sparkles, Megaphone, ThumbsUp, ThumbsDown, Minus } from "lucide-react";
 import { getFeedbacks } from "@/service/feedbackService";
 import { getEventById } from "@/service/eventService";
 import { IFeedback, IEvent } from "@/types";
@@ -25,6 +25,40 @@ function parseFeedbackDate(value?: string): string {
 
 function nameOf(f: IFeedback): string {
   return `${f.firstName ?? ""} ${f.lastName ?? ""}`.trim() || "Guest";
+}
+
+const SENTIMENT_META: Record<
+  string,
+  { label: string; icon: React.ReactNode; badge: string; soft: string }
+> = {
+  positive: {
+    label: "Positive",
+    icon: <ThumbsUp className="h-3 w-3" />,
+    badge: "border-success bg-success-soft text-success",
+    soft: "bg-success-soft",
+  },
+  negative: {
+    label: "Negative",
+    icon: <ThumbsDown className="h-3 w-3" />,
+    badge: "border-danger bg-danger-soft text-danger",
+    soft: "bg-danger-soft",
+  },
+  neutral: {
+    label: "Neutral",
+    icon: <Minus className="h-3 w-3" />,
+    badge: "border-zinc-300 bg-zinc-100 text-zinc-600",
+    soft: "bg-zinc-100",
+  },
+};
+
+function sentimentMeta(value?: string) {
+  const key = String(value ?? "").toLowerCase();
+  return (
+    SENTIMENT_META[key] || {
+      ...SENTIMENT_META.neutral,
+      icon: <Minus className="h-3 w-3" />,
+    }
+  );
 }
 
 export default function EventManageFeedbacksPage() {
@@ -76,6 +110,19 @@ export default function EventManageFeedbacksPage() {
     }));
   }, [feedbacks]);
   const distributionMax = Math.max(1, ...distribution.map((d) => d.count));
+
+  const sentiment = useMemo(() => {
+    const groups = ["positive", "neutral", "negative"].map((key) => ({
+      key,
+      count: feedbacks.filter(
+        (f) => String(f.sentiment ?? "").toLowerCase() === key
+      ).length,
+    }));
+    const total = groups.reduce((sum, g) => sum + g.count, 0);
+    const top = [...groups].sort((a, b) => b.count - a.count)[0];
+    return { groups, total, top };
+  }, [feedbacks]);
+  const sentimentMax = Math.max(1, ...sentiment.groups.map((g) => g.count));
 
   if (isLoading) {
     return <EventFeedbacksLoadingSkeleton />;
@@ -145,33 +192,81 @@ export default function EventManageFeedbacksPage() {
         />
       </section>
 
-      {/* Experience distribution + list */}
+      {/* Experience distribution + sentiment + list */}
       <div className="flex flex-col gap-6 lg:grid lg:grid-cols-[1fr_1.7fr] lg:items-start">
-        <section className="rounded-2xl border border-zinc-200 bg-white p-6">
-          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
-            Experience rating
-          </p>
-          <h3 className="mt-2 font-display text-xl font-medium tracking-tight text-zinc-900">
-            Star distribution
-          </h3>
-          <div className="mt-6 grid gap-4">
-            {distribution.map((d) => (
-              <div key={d.star} className="grid grid-cols-[2.75rem_1fr] items-center gap-3 text-sm">
-                <span className="inline-flex items-center justify-end gap-1 font-semibold tabular-nums text-zinc-900">
-                  {d.star}
-                  <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                </span>
-                <div className="flex h-2.5 items-center overflow-hidden rounded-full bg-zinc-100">
-                  <div
-                    className="h-full rounded-full bg-primary transition-all"
-                    style={{ width: `${(d.count / distributionMax) * 100}%` }}
-                  />
+        <div className="flex flex-col gap-6">
+          <section className="rounded-2xl border border-zinc-200 bg-white p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Experience rating
+            </p>
+            <h3 className="mt-2 font-display text-xl font-medium tracking-tight text-zinc-900">
+              Star distribution
+            </h3>
+            <div className="mt-6 grid gap-4">
+              {distribution.map((d) => (
+                <div key={d.star} className="grid grid-cols-[2.75rem_1fr] items-center gap-3 text-sm">
+                  <span className="inline-flex items-center justify-end gap-1 font-semibold tabular-nums text-zinc-900">
+                    {d.star}
+                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                  </span>
+                  <div className="flex h-2.5 items-center overflow-hidden rounded-full bg-zinc-100">
+                    <div
+                      className="h-full rounded-full bg-primary transition-all"
+                      style={{ width: `${(d.count / distributionMax) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-xs tabular-nums text-zinc-400">{d.count}</span>
                 </div>
-                <span className="text-xs tabular-nums text-zinc-400">{d.count}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-2xl border border-zinc-200 bg-white p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              AI sentiment
+            </p>
+            <h3 className="mt-2 font-display text-xl font-medium tracking-tight text-zinc-900">
+              Comment analysis
+            </h3>
+            {sentiment.total === 0 ? (
+              <p className="mt-4 text-sm text-zinc-400">
+                Sentiment appears once attendees leave written feedback.
+              </p>
+            ) : (
+              <>
+                <p className="mt-4 text-sm text-zinc-600">
+                  {sentiment.top?.count} of {sentiment.total} comments are{" "}
+                  <span className="font-semibold text-zinc-900">
+                    {sentimentMeta(sentiment.top?.key).label.toLowerCase()}
+                  </span>.
+                </p>
+                <div className="mt-5 grid gap-4">
+                  {sentiment.groups.map((g) => {
+                    const meta = sentimentMeta(g.key);
+                    const pct = Math.round((g.count / Math.max(1, sentiment.total)) * 100);
+                    return (
+                      <div key={g.key} className="grid grid-cols-[2.75rem_1fr] items-center gap-3 text-sm">
+                        <span className="inline-flex items-center justify-end gap-1 font-semibold tabular-nums text-zinc-900">
+                          {meta.icon}
+                          {meta.label}
+                        </span>
+                        <div className="flex h-2.5 items-center overflow-hidden rounded-full bg-zinc-100">
+                          <div
+                            className={cn("h-full rounded-full transition-all", meta.soft)}
+                            style={{ width: `${(g.count / sentimentMax) * 100}%` }}
+                          />
+                        </div>
+                        <span className="text-xs tabular-nums text-zinc-400">
+                          {g.count} · {pct}%
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+          </section>
+        </div>
 
         <section className="flex flex-col gap-4">
           {feedbacks.length === 0 ? (
@@ -213,6 +308,7 @@ export default function EventManageFeedbacksPage() {
 function FeedbackCard({ feedback }: { feedback: IFeedback }) {
   const name = nameOf(feedback);
   const experience = Number(feedback.experienceRating) || 0;
+  const sentiment = sentimentMeta(feedback.sentiment);
 
   return (
     <article className="rounded-2xl border border-zinc-200 bg-white p-6">
@@ -229,10 +325,23 @@ function FeedbackCard({ feedback }: { feedback: IFeedback }) {
             </p>
           </div>
         </div>
-        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
-          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-          {experience} {experience === 1 ? "star" : "stars"}
-        </span>
+        <div className="flex shrink-0 items-center gap-2">
+          {feedback.sentiment ? (
+            <span
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold",
+                sentiment.badge
+              )}
+            >
+              {sentiment.icon}
+              {sentiment.label}
+            </span>
+          ) : null}
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-800">
+            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+            {experience} {experience === 1 ? "star" : "stars"}
+          </span>
+        </div>
       </div>
 
       <div className="mt-5 grid gap-2.5">
