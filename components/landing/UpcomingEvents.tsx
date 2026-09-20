@@ -30,8 +30,17 @@ function eventImage(event: IEvent): string | null {
 }
 
 function placeholderImage(title: string): string {
-  const seed = title.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-  return `https://picsum.photos/seed/eventx-${seed}/720/400`;
+  const lowerTitle = title.toLowerCase();
+  if (lowerTitle.includes("sport") || lowerTitle.includes("meet") || lowerTitle.includes("run")) {
+    return "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&auto=format&fit=crop&q=80";
+  }
+  if (lowerTitle.includes("tech") || lowerTitle.includes("code") || lowerTitle.includes("hackathon") || lowerTitle.includes("ai")) {
+    return "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80";
+  }
+  if (lowerTitle.includes("music") || lowerTitle.includes("night") || lowerTitle.includes("concert") || lowerTitle.includes("party")) {
+    return "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&auto=format&fit=crop&q=80";
+  }
+  return "/images/default-event.jpg";
 }
 
 export default function UpcomingEvents({ events, isLoading }: UpcomingEventsProps) {
@@ -44,7 +53,7 @@ export default function UpcomingEvents({ events, isLoading }: UpcomingEventsProp
   };
 
   return (
-    <section id="events" className="scroll-mt-24 bg-zinc-50/70">
+    <section id="events" className="scroll-mt-24 bg-zinc-50/70 border-y border-zinc-200/50">
       <div className="mx-auto w-full max-w-6xl px-6 py-20 lg:py-28">
         <motion.div {...reveal} className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div className="max-w-2xl">
