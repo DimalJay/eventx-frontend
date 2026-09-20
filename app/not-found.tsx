@@ -1,12 +1,11 @@
 import Link from "next/link";
 import Logo from "../components/widgets/Logo";
+import ShaderBackground from "../components/landing/ShaderBackground";
 
 export default function NotFound() {
   return (
-    <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-[#f5f1ea]">
-      <div className="pointer-events-none absolute -left-24 top-10 h-56 w-56 rounded-full bg-[#ffc9a7] opacity-40 blur-3xl" />
-      <div className="pointer-events-none absolute right-8 top-24 h-64 w-64 rounded-full bg-[#9fd3ff] opacity-35 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-10 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-[#ffe8a3] opacity-45 blur-3xl" />
+    <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-white">
+      <ShaderBackground />
 
       <main className="relative flex w-full max-w-xl flex-col items-center gap-8 px-6 py-20 text-center">
         <Logo className="h-12 w-12" />

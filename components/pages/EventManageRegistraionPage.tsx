@@ -108,8 +108,8 @@ export default function EventManageRegistraionPage() {
     },
     {
       label: "Seats left",
-      value: event ? seatsLeft.toLocaleString() : "-",
-      delta: event ? `of ${event.capacity} capacity` : "-",
+      value: event ? (event.capacity === 0 ? "Unlimited" : seatsLeft.toLocaleString()) : "-",
+      delta: event ? (event.capacity === 0 ? "No capacity limit" : `of ${event.capacity} capacity`) : "-",
     },
   ];
 
