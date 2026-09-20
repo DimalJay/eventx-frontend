@@ -41,7 +41,6 @@ export default function AddMemberDialog({ eventId, open, onClose }: Props) {
     handleSubmit,
     control,
     reset,
-    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -128,40 +127,29 @@ export default function AddMemberDialog({ eventId, open, onClose }: Props) {
             />
           </div>
 
-          <div className="mt-4 grid gap-2">
-            <label htmlFor="member-label-input" className="text-sm font-semibold text-zinc-900">
-              Label <span className="text-xs font-normal text-zinc-400">(optional)</span>
-            </label>
+          <div className="mt-4">
+            <div className="flex items-center gap-1.5 text-sm font-semibold text-zinc-900">
+              Team Label
+              <span className="text-xs font-normal text-zinc-400">(optional)</span>
+            </div>
             <Controller
               name="label"
               control={control}
               render={({ field }) => (
-                <input
-                  id="member-label-input"
-                  type="text"
-                  placeholder="e.g. Speaker, VIP, Press"
+                <Select
+                  name={field.name}
+                  ariaLabel="Team Label"
                   value={field.value ?? ""}
                   onChange={field.onChange}
-                  className="h-11 rounded-xl border border-zinc-200 bg-white px-4 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-primary/60 focus:ring-primary/20"
+                  className="mt-2 h-11 w-full px-4"
+                  options={[
+                    { value: "", label: "No label" },
+                    ...eventLabels.map((eventLabel) => ({ value: eventLabel, label: eventLabel })),
+                  ]}
                 />
               )}
             />
           </div>
-
-          {eventLabels.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-2">
-              {eventLabels.map((eventLabel) => (
-                <button
-                  key={eventLabel}
-                  type="button"
-                  onClick={() => setValue("label", eventLabel)}
-                  className="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-700 transition hover:border-primary/40 hover:text-primary"
-                >
-                  {eventLabel}
-                </button>
-              ))}
-            </div>
-          )}
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
             <button

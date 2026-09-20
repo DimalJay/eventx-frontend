@@ -60,13 +60,17 @@ function LabelsEditor({
     },
   });
 
-  const addFromInput = () => {
-    const incoming = parseLabels(input);
+  const addLabels = (raw: string) => {
+    const incoming = parseLabels(raw);
     if (incoming.length === 0) return;
     setLabels((prev) => {
       const next = [...prev, ...incoming];
       return next.filter((label, index) => next.indexOf(label) === index);
     });
+  };
+
+  const addFromInput = () => {
+    addLabels(input);
     setInput("");
   };
 
@@ -176,7 +180,15 @@ function LabelsEditor({
             <input
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                const raw = e.target.value;
+                if (raw.includes(",")) {
+                  addLabels(raw);
+                  setInput("");
+                } else {
+                  setInput(raw);
+                }
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
