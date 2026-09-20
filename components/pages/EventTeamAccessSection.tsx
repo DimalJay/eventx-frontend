@@ -108,6 +108,17 @@ export default function EventTeamAccessSection() {
                       >
                         {roleLabel}
                       </span>
+                      {member.status ? (
+                        <span
+                          className={`inline-flex rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-[0.1em] ${
+                            member.status === "ACTIVE"
+                              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+                              : "border-amber-200 bg-amber-50 text-amber-700"
+                          }`}
+                        >
+                          {member.status === "ACTIVE" ? "Active" : "Pending"}
+                        </span>
+                      ) : null}
                       {member.label ? (
                         <span className="inline-flex rounded-full border border-primary/30 bg-primary-faint/40 px-2.5 py-0.5 text-xs font-semibold text-primary">
                           {member.label}
