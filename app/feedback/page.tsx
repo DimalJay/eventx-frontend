@@ -72,7 +72,7 @@ function FeedbackForm() {
         </div>
         <h2 className="text-3xl font-extrabold text-foreground mb-2 font-display">Thank You!</h2>
         <p className="text-muted-subtle mb-6 max-w-md mx-auto">
-          Your feedback has been submitted successfully. We appreciate your time and comments to help us improve future events!
+          Your feedback has been submitted successfully. We appreciate your time and support to help us improve future events!
         </p>
         <button
           onClick={() => router.push(`/event/${encodeEventId(eventId)}`)}

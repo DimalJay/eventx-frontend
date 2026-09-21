@@ -34,6 +34,14 @@ export const getEvents = async () => {
   return res;
 };
 
+// GET request to fetch events the current user joined (not created)
+export const getMyEvents = async () => {
+  const res: Response = await request("/my-events", {
+    method: "GET",
+  });
+  return res;
+};
+
 // GET request to fetch public events (for DiscoverEvents page)
 export const getPublicEvents = async () => {
   const res: Response = await request("/discover-events", {

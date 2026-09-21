@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../auth/AuthContext";
 import { cn } from "@/lib/utils";
-import { FiUser, FiSettings, FiLogOut } from "react-icons/fi";
+import { FiUser, FiSettings, FiLogOut, FiCalendar } from "react-icons/fi";
 
 const itemClass =
   "flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-black transition hover:bg-black/5";
@@ -64,6 +64,15 @@ export default function UserMenu({ className }: { className?: string }) {
             >
               <FiUser className="h-4 w-4" />
               Dashboard
+            </Link>
+            <Link
+              role="menuitem"
+              href="/events"
+              onClick={() => setOpen(false)}
+              className={itemClass}
+            >
+              <FiCalendar className="h-4 w-4" />
+              My events
             </Link>
             <Link
               role="menuitem"
