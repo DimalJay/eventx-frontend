@@ -66,7 +66,7 @@ export default function ResetPasswordPage() {
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-500">
                 <KeyRound className="h-8 w-8" strokeWidth={1.5} />
               </div>
-              <h1 className="mt-6 text-center text-3xl font-semibold leading-tight tracking-tight text-black">
+              <h1 className="mt-6 text-center font-display text-3xl font-medium leading-[1.1] tracking-tight text-zinc-900">
                 Invalid reset link
               </h1>
               <p className="mt-3 text-center text-sm leading-6 text-black/70">
@@ -75,7 +75,7 @@ export default function ResetPasswordPage() {
               </p>
               <Link
                 href="/forgot-password"
-                className="mt-6 flex w-full items-center justify-center rounded-full bg-black px-6 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+                className="mt-6 flex w-full items-center justify-center rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-black/90"
               >
                 Request a new link
               </Link>
@@ -85,7 +85,7 @@ export default function ResetPasswordPage() {
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-black/5 text-black">
                 <ShieldCheck className="h-8 w-8" strokeWidth={1.5} />
               </div>
-              <h1 className="mt-6 text-center text-3xl font-semibold leading-tight tracking-tight text-black">
+              <h1 className="mt-6 text-center font-display text-3xl font-medium leading-[1.1] tracking-tight text-zinc-900">
                 Password updated
               </h1>
               <p className="mt-3 text-center text-sm leading-6 text-black/70">
@@ -93,7 +93,7 @@ export default function ResetPasswordPage() {
               </p>
               <Link
                 href="/login"
-                className="mt-6 flex w-full items-center justify-center rounded-full bg-black px-6 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+                className="mt-6 flex w-full items-center justify-center rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-black/90"
               >
                 Go to login
               </Link>
@@ -106,7 +106,7 @@ export default function ResetPasswordPage() {
               <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-black">
                 New password
               </p>
-              <h1 className="mt-4 text-3xl font-semibold leading-tight tracking-tight text-black">
+              <h1 className="mt-4 text-center font-display text-3xl font-medium leading-[1.1] tracking-tight text-zinc-900">
                 Choose a new password
               </h1>
               <p className="mt-3 text-sm leading-6 text-black/70">
@@ -147,7 +147,7 @@ export default function ResetPasswordPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="mt-1 flex h-12 items-center justify-center gap-2 rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/60"
+                  className="mt-1 flex h-12 items-center justify-center gap-2 rounded-full bg-black px-6 text-sm font-semibold text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/60"
                 >
                   {isSubmitting ? (
                     <>

@@ -14,10 +14,10 @@ export default function NotFound() {
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-black/40">
             Error 404
           </p>
-          <h1 className="text-7xl font-semibold tracking-tight text-black sm:text-8xl">
+          <h1 className="font-display text-7xl font-medium tracking-tight text-zinc-900 sm:text-8xl">
             404
           </h1>
-          <h2 className="text-2xl font-semibold tracking-tight text-black">
+          <h2 className="font-display text-2xl font-medium tracking-tight text-zinc-900">
             This page took a different route.
           </h2>
           <p className="max-w-md text-base leading-7 text-black/60">
@@ -29,13 +29,13 @@ export default function NotFound() {
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
             href="/"
-            className="inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+            className="inline-flex h-12 items-center justify-center rounded-full bg-black px-6 text-sm font-semibold text-white transition hover:bg-black/90"
           >
             Back to home
           </Link>
           <Link
             href="/home"
-            className="inline-flex h-12 items-center justify-center rounded-full border border-black/20 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black hover:bg-black/5"
+            className="inline-flex h-12 items-center justify-center rounded-full border border-black/20 px-6 text-sm font-semibold text-black transition hover:border-black hover:bg-black/5"
           >
             Go to dashboard
           </Link>

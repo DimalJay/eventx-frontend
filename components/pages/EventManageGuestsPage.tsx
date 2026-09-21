@@ -180,7 +180,7 @@ export default function EventManageGuestsPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm text-zinc-600">
-                <thead className="border-b border-zinc-100 bg-zinc-50/50 font-mono text-xs uppercase tracking-wider text-zinc-500">
+                <thead className="border-b border-zinc-100 bg-zinc-50/50 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
                   <tr>
                     <th scope="col" className="px-6 py-4 font-semibold">
                       Guest Email

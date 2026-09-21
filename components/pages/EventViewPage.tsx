@@ -290,7 +290,7 @@ export default function EventViewPage({ id }: { id?: string }) {
               <span className="text-sm font-medium text-black/55">{event.date}</span>
             </div>
 
-            <h1 className="max-w-xl text-balance text-4xl font-semibold leading-[1.04] tracking-tight text-black sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-xl text-balance font-display text-4xl font-medium leading-[1.04] tracking-tight text-zinc-900 sm:text-5xl lg:text-6xl">
               {event.name}
             </h1>
 
@@ -373,7 +373,7 @@ export default function EventViewPage({ id }: { id?: string }) {
 
         {/* About - generous editorial prose */}
         <section className="mt-20 max-w-2xl">
-          <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">
+          <h2 className="font-display text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
             About this event
           </h2>
           <p className="mt-5 text-base leading-8 text-black/70 sm:text-lg">{event.tagline}</p>
@@ -382,7 +382,7 @@ export default function EventViewPage({ id }: { id?: string }) {
         {/* Agenda - ruled timeline, no cards */}
         {agenda && agenda.length > 0 && (
           <section className="mt-20">
-            <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">Agenda</h2>
+            <h2 className="font-display text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">Agenda</h2>
             <ol className="mt-7 divide-y divide-black/10 border-y border-black/10">
               {agenda.map((slot: { time?: string; task?: string; title?: string; location?: string; track?: string }, index: number) => (
                 <li key={index} className="grid gap-1 py-5 sm:grid-cols-[120px_1fr_auto] sm:items-baseline sm:gap-6">

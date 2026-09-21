@@ -61,7 +61,7 @@ function StatusContent() {
           )}
         </div>
 
-        <h2 className="mt-6 text-2xl font-bold tracking-tight text-black">
+        <h2 className="mt-6 font-display text-2xl font-medium tracking-tight text-zinc-900">
           {titleText}
         </h2>
 
@@ -72,7 +72,7 @@ function StatusContent() {
         <div className="mt-8 flex flex-col gap-3">
           <Link
             href={buttonHref}
-            className="flex h-11 w-full items-center justify-center rounded-full bg-black text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+            className="flex h-11 w-full items-center justify-center rounded-full bg-black text-sm font-semibold text-white transition hover:bg-black/90"
           >
             {buttonText}
           </Link>

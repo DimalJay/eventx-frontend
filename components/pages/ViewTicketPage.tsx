@@ -83,7 +83,7 @@ export default function ViewTicketPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
             Ticket
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-black">
+          <h1 className="font-display text-3xl font-medium tracking-tight text-zinc-900">
             Ticket not found
           </h1>
           <p className="text-sm leading-6 text-black/60">
@@ -93,7 +93,7 @@ export default function ViewTicketPage() {
           </p>
           <Link
             href="/discover-events"
-            className="inline-flex h-12 items-center justify-center rounded-full bg-black px-7 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+            className="inline-flex h-12 items-center justify-center rounded-full bg-black px-7 text-sm font-semibold text-white transition hover:bg-black/90"
           >
             Browse events
           </Link>
@@ -137,7 +137,7 @@ export default function ViewTicketPage() {
               </span>
             </div>
 
-            <h1 className="text-2xl font-semibold leading-tight tracking-tight text-black">
+            <h1 className="font-display text-2xl font-medium leading-tight tracking-tight text-zinc-900">
               {event.title || "Untitled Event"}
             </h1>
 

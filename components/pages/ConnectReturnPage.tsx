@@ -20,7 +20,7 @@ export default function ConnectReturnPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
             Stripe
           </p>
-          <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight text-black">
+          <h1 className="mt-3 font-display text-3xl font-medium leading-[1.1] tracking-tight text-zinc-900 sm:text-4xl">
             Stripe account connected
           </h1>
           <p className="mt-3 text-base leading-7 text-black/70">
@@ -31,13 +31,13 @@ export default function ConnectReturnPage() {
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link
             href="/event/create"
-            className="inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 sm:w-auto"
+            className="inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-sm font-semibold text-white transition hover:bg-black/90 sm:w-auto"
           >
             Create an event
           </Link>
           <Link
             href="/home"
-            className="inline-flex h-12 w-full items-center justify-center rounded-full border border-black/15 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black/40 sm:w-auto"
+            className="inline-flex h-12 w-full items-center justify-center rounded-full border border-black/15 px-6 text-sm font-semibold text-black transition hover:border-black/40 sm:w-auto"
           >
             Go to dashboard
           </Link>
