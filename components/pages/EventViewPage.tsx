@@ -109,6 +109,7 @@ export default function EventViewPage({ id }: { id?: string }) {
     } catch {
       /* ignore */
     }
+    refetchRegistrations();
   };
 
   useEffect(() => {
@@ -132,7 +133,7 @@ export default function EventViewPage({ id }: { id?: string }) {
     enabled: !!eventId,
   });
 
-  const { data: registrationsResponse } = useQuery({
+  const { data: registrationsResponse, refetch: refetchRegistrations } = useQuery({
     queryKey: ["registrations", eventId],
     queryFn: () => getEventRegistrations({ data: { eventId } }),
     enabled: !!eventId,
@@ -182,8 +183,8 @@ export default function EventViewPage({ id }: { id?: string }) {
 
   const visibilityText = backendEvent.isPublic ? "Public Event" : "Private Event";
 
-  // Fetch registrations count
-  const totalRegistered = registrationsResponse?.data?.length || 0;
+  // Fetch registrations count (favor backendEvent.registrationsCount if provided, fallback to response total or data length)
+  const totalRegistered = (backendEvent as any).registrationsCount ?? registrationsResponse?.total ?? registrationsResponse?.data?.length ?? 0;
   const seatsLeftText = backendEvent.capacity === 0 ? "Unlimited" : String(Math.max(0, backendEvent.capacity - totalRegistered));
 
   // Mapping Backend Data to Frontend Variables
@@ -240,8 +241,8 @@ export default function EventViewPage({ id }: { id?: string }) {
 
   const isSeatsFull = Boolean(
     backendEvent.capacity &&
-      backendEvent.capacity > 0 &&
-      event.seatsLeft <= 0,
+    backendEvent.capacity > 0 &&
+    event.seatsLeft <= 0,
   );
 
   const openTicket = () => {
@@ -270,9 +271,18 @@ export default function EventViewPage({ id }: { id?: string }) {
     return trimmed;
   };
 
+  const isSuspended = backendEvent.status && backendEvent.status.toLowerCase() === 'suspended';
+
   return (
     <div className="relative flex min-h-screen flex-1 justify-center overflow-hidden bg-zinc-50/70">
       <main className="relative w-full max-w-6xl flex-1 px-5 py-12 sm:px-10 sm:py-16 lg:px-14">
+        {isSuspended && (
+          <div className="mb-8 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-amber-800 flex items-center justify-center gap-2">
+            <span className="font-semibold uppercase tracking-widest text-sm">Suspended</span>
+            <span className="text-sm border-l border-amber-300 pl-2">This event has been suspended by the administrator. Registration and other actions are disabled.</span>
+          </div>
+        )}
+
         {/* Hero - asymmetric split cover + title */}
         <motion.section
           className="grid items-center gap-10 lg:grid-cols-[minmax(0,400px)_1fr] lg:gap-16"
@@ -483,7 +493,11 @@ export default function EventViewPage({ id }: { id?: string }) {
                   <button
                     type="button"
                     onClick={openTicket}
-                    className="inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 active:scale-[0.98]"
+                    disabled={isSuspended}
+                    className={`inline-flex h-12 w-full items-center justify-center rounded-full px-6 text-sm font-semibold uppercase tracking-widest transition ${isSuspended
+                      ? "bg-black/20 text-white/50 cursor-not-allowed"
+                      : "bg-black text-white hover:bg-black/90 active:scale-[0.98]"
+                      }`}
                   >
                     {isPaid ? "Register & pay" : "Register"}
                   </button>

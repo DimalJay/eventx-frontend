@@ -22,7 +22,7 @@ export default function HomePage() {
     queryFn: async () => {
       try {
         const response = await getEvents();
-        return response.data;
+        return response.data ?? [];
       } catch {
         return null;
       }
@@ -70,7 +70,7 @@ export default function HomePage() {
     queryFn: async () => {
       if (!nextEvent?.id) return [];
       const response = await getTasksRequest({ eventId: String(nextEvent.id) });
-      return response.data;
+      return response.data ?? [];
     },
     enabled: !!nextEvent?.id,
   });
@@ -110,9 +110,9 @@ export default function HomePage() {
   });
   const featuredEndTime = nextEvent?.endDate
     ? new Date(nextEvent.endDate).toLocaleTimeString("en-US", {
-        hour: "numeric",
-        minute: "2-digit",
-      })
+      hour: "numeric",
+      minute: "2-digit",
+    })
     : null;
   const featuredIsFree = nextEvent ? nextEvent.ticketPrice === 0 : false;
   const featuredDateLine = featuredDate?.toLocaleDateString("en-US", {
@@ -296,44 +296,43 @@ export default function HomePage() {
         </section>
 
         <section className="mt-6">
-            <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
-                  Workspace Events
-                </p>
-                <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">
-                  All events in your workspace
-                </h2>
-              </div>
-
-              <div className="flex w-fit gap-1 rounded-full border border-zinc-200 bg-white p-1">
-                {(["upcoming", "ended"] as const).map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setEventFilter(type)}
-                    className={`rounded-full px-4 py-1.5 text-xs font-medium capitalize transition-all ${
-                      eventFilter === type
-                        ? "bg-primary text-white"
-                        : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
-                    }`}
-                  >
-                    {type}
-                  </button>
-                ))}
-              </div>
+          <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                Workspace Events
+              </p>
+              <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">
+                All events in your workspace
+              </h2>
             </div>
 
-            {filteredEvents.length > 0 ? (
-              <EventTimeline events={filteredEvents} />
-            ) : (
-              <div className="rounded-2xl border border-zinc-200 bg-zinc-50/70 p-12 text-center">
-                <p className="text-sm font-medium text-zinc-500">
-                  No {eventFilter} events found.
-                </p>
-              </div>
-            )}
-          </section>
+            <div className="flex w-fit gap-1 rounded-full border border-zinc-200 bg-white p-1">
+              {(["upcoming", "ended"] as const).map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setEventFilter(type)}
+                  className={`rounded-full px-4 py-1.5 text-xs font-medium capitalize transition-all ${eventFilter === type
+                    ? "bg-primary text-white"
+                    : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                    }`}
+                >
+                  {type}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {filteredEvents.length > 0 ? (
+            <EventTimeline events={filteredEvents} />
+          ) : (
+            <div className="rounded-2xl border border-zinc-200 bg-zinc-50/70 p-12 text-center">
+              <p className="text-sm font-medium text-zinc-500">
+                No {eventFilter} events found.
+              </p>
+            </div>
+          )}
+        </section>
       </main>
     </div>
   );
