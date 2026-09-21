@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { MailCheck, RefreshCw, ArrowRight } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 import { resendVerification } from "@/service/userService";
+import { HTTPError } from "@/lib/request";
 import { toast } from "sonner";
 
 export default function CheckEmailPage() {
   const searchParams = useSearchParams();
   const email = searchParams.get("email") ?? "";
-  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     if (email) {
@@ -18,21 +19,23 @@ export default function CheckEmailPage() {
     }
   }, [email]);
 
-  const handleResend = async () => {
-    if (!email || sending) return;
-    setSending(true);
-    try {
-      const res = await resendVerification(email);
+  const resendMutation = useMutation({
+    mutationFn: (emailAddress: string) => resendVerification(emailAddress),
+    onSuccess: (res) => {
       if (res?.success) {
         toast.success("Verification email sent. Check your inbox.");
       } else {
         toast.error(res?.message || "Could not resend the email.");
       }
-    } catch (error: any) {
+    },
+    onError: (error: HTTPError) => {
       toast.error(error?.response?.data?.message || error?.message || "Could not resend the email.");
-    } finally {
-      setSending(false);
-    }
+    },
+  });
+
+  const handleResend = () => {
+    if (!email || resendMutation.isPending) return;
+    resendMutation.mutate(email);
   };
 
   return (
@@ -56,11 +59,11 @@ export default function CheckEmailPage() {
 
           <button
             onClick={handleResend}
-            disabled={!email || sending}
+            disabled={!email || resendMutation.isPending}
             className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/60"
           >
-            <RefreshCw className={`h-4 w-4 ${sending ? "animate-spin" : ""}`} strokeWidth={2} />
-            {sending ? "Sending..." : "Resend email"}
+            <RefreshCw className={`h-4 w-4 ${resendMutation.isPending ? "animate-spin" : ""}`} strokeWidth={2} />
+            {resendMutation.isPending ? "Sending..." : "Resend email"}
           </button>
 
           <Link

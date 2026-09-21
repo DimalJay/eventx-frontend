@@ -5,6 +5,7 @@ import { Controller, useForm, Path } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { registerForEvent } from "@/service/registrationService";
+import { HTTPError } from "@/lib/request";
 import { toast } from "sonner";
 import Dialog from "@/components/widgets/Dialog";
 import Select from "@/components/widgets/Select";
@@ -76,6 +77,9 @@ export default function RegisterEventDialog({
         onClose();
         reset();
         queryClient.invalidateQueries({ queryKey: ["event", eventId] });
+        queryClient.invalidateQueries({ queryKey: ["registrations", eventId] });
+        queryClient.invalidateQueries({ queryKey: ["manage-registrations", eventId] });
+        queryClient.invalidateQueries({ queryKey: ["my-events"] });
         onRegistered?.(email);
         toast.success("Successfully registered for the event!");
       } else {
@@ -85,7 +89,7 @@ export default function RegisterEventDialog({
         toast.error(res?.message || "Registration failed.");
       }
     },
-    onError: (err: any) => {
+    onError: (err: HTTPError) => {
       toast.error(err?.message || "Error registering for event.");
     },
   });

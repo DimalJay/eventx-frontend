@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Star, MessageSquareCode, CheckCircle, Award, Users } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { completeFeedback } from "@/service/feedbackService";
 import { encodeEventId } from "@/lib/utils";
@@ -20,7 +21,6 @@ function FeedbackForm() {
   const [contentRating, setContentRating] = useState(0);
   const [comment, setComment] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!eventId || !participantId || !token) {
@@ -28,7 +28,31 @@ function FeedbackForm() {
     }
   }, [eventId, participantId, token]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const mutation = useMutation({
+    mutationFn: () =>
+      completeFeedback({
+        eventId,
+        participantId,
+        organizationRating: orgRating,
+        contentRating: contentRating,
+        experienceRating: initialRating > 0 ? initialRating : undefined,
+        comment,
+        token,
+      }),
+    onSuccess: (res) => {
+      if (res.success) {
+        setIsSubmitted(true);
+        toast.success("Feedback submitted successfully!");
+      } else {
+        toast.error(res.message || "Failed to submit feedback.");
+      }
+    },
+    onError: () => {
+      toast.error("An error occurred while submitting feedback.");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!eventId || !participantId || !token) {
       toast.error("Missing required feedback details.");
@@ -38,30 +62,7 @@ function FeedbackForm() {
       toast.error("Please provide ratings for both questions.");
       return;
     }
-
-    setLoading(true);
-    try {
-      const res = await completeFeedback({
-        eventId,
-        participantId,
-        organizationRating: orgRating,
-        contentRating: contentRating,
-        experienceRating: initialRating > 0 ? initialRating : undefined,
-        comment,
-        token,
-      });
-
-      if (res.success) {
-        setIsSubmitted(true);
-        toast.success("Feedback submitted successfully!");
-      } else {
-        toast.error(res.message || "Failed to submit feedback.");
-      }
-    } catch {
-      toast.error("An error occurred while submitting feedback.");
-    } finally {
-      setLoading(false);
-    }
+    mutation.mutate();
   };
 
   if (isSubmitted) {
@@ -161,10 +162,10 @@ function FeedbackForm() {
 
         <button
           type="submit"
-          disabled={loading || !eventId}
+          disabled={mutation.isPending || !eventId}
           className="btn w-full disabled:opacity-60"
         >
-          {loading ? "Submitting..." : "Submit Feedback"}
+          {mutation.isPending ? "Submitting..." : "Submit Feedback"}
         </button>
       </form>
     </div>

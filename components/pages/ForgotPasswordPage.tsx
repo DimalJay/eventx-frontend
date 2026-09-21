@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight, KeyRound, Mail, LoaderCircle } from "lucide-react";
 import { forgotPasswordRequest } from "@/service/userService";
+import { useMutation } from "@tanstack/react-query";
+import { HTTPError } from "@/lib/request";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,18 +29,23 @@ export default function ForgotPasswordPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ForgotFormValues>({ resolver: zodResolver(forgotSchema) });
 
-  const onSubmit = async (data: ForgotFormValues) => {
-    try {
-      await forgotPasswordRequest(data.email);
-      setSubmittedEmail(data.email);
-    } catch (error: any) {
+  const mutation = useMutation({
+    mutationFn: (email: string) => forgotPasswordRequest(email),
+    onSuccess: (_res, email) => {
+      setSubmittedEmail(email);
+    },
+    onError: (error: HTTPError) => {
       const message =
         error?.response?.data?.message || error?.message || "Something went wrong. Please try again.";
       toast.error(message);
-    }
+    },
+  });
+
+  const onSubmit = (data: ForgotFormValues) => {
+    mutation.mutate(data.email);
   };
 
   return (
@@ -81,10 +88,10 @@ export default function ForgotPasswordPage() {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={mutation.isPending}
                 className="mt-1 flex h-12 items-center justify-center gap-2 rounded-full bg-black px-6 text-sm font-semibold text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/60"
               >
-                {isSubmitting ? (
+                {mutation.isPending ? (
                   <>
                     <LoaderCircle className="h-4 w-4 animate-spin" /> Sending...
                   </>

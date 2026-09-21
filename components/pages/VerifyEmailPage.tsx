@@ -4,7 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { LoaderCircle, ShieldCheck, ShieldAlert, RefreshCw, ArrowRight } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
 import { verifyEmail, resendVerification } from "@/service/userService";
+import { HTTPError } from "@/lib/request";
 import { toast } from "sonner";
 
 type Status = "pending" | "success" | "error";
@@ -19,47 +21,49 @@ export default function VerifyEmailPage() {
   const [message, setMessage] = useState(
     token ? "Verifying your email address..." : "Missing verification token.",
   );
-  const [resending, setResending] = useState(false);
+
+  const verifyMutation = useMutation({
+    mutationFn: verifyEmail,
+    onSuccess: (res) => {
+      if (res?.success) {
+        setStatus("success");
+        setMessage("Your email has been verified. You can now log in.");
+      } else {
+        setStatus("error");
+        setMessage(res?.message || "We could not verify your email.");
+      }
+    },
+    onError: (error: HTTPError) => {
+      setStatus("error");
+      setMessage(error?.response?.data?.message || error?.message || "We could not verify your email.");
+    },
+  });
 
   useEffect(() => {
-    if (!token) return;
-    let active = true;
-    verifyEmail(token)
-      .then((res) => {
-        if (!active) return;
-        if (res?.success) {
-          setStatus("success");
-          setMessage("Your email has been verified. You can now log in.");
-        } else {
-          setStatus("error");
-          setMessage(res?.message || "We could not verify your email.");
-        }
-      })
-      .catch((err: any) => {
-        if (!active) return;
-        setStatus("error");
-        setMessage(err?.response?.data?.message || err?.message || "We could not verify your email.");
-      });
-    return () => {
-      active = false;
-    };
+    if (token && !verifyMutation.isIdle) return;
+    if (token) {
+      verifyMutation.mutate(token);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  const handleResend = async () => {
-    if (!email || resending) return;
-    setResending(true);
-    try {
-      const res = await resendVerification(email);
+  const resendMutation = useMutation({
+    mutationFn: (emailAddress: string) => resendVerification(emailAddress),
+    onSuccess: (res) => {
       if (res?.success) {
         toast.success("Verification email sent. Check your inbox.");
       } else {
         toast.error(res?.message || "Could not resend the email.");
       }
-    } catch (error: any) {
+    },
+    onError: (error: HTTPError) => {
       toast.error(error?.response?.data?.message || error?.message || "Could not resend the email.");
-    } finally {
-      setResending(false);
-    }
+    },
+  });
+
+  const handleResend = () => {
+    if (!email || resendMutation.isPending) return;
+    resendMutation.mutate(email);
   };
 
   const icon =
@@ -102,11 +106,11 @@ export default function VerifyEmailPage() {
           {status === "error" && email && (
             <button
               onClick={handleResend}
-              disabled={resending}
+              disabled={resendMutation.isPending}
               className="mt-6 flex w-full items-center justify-center gap-2 rounded-full border border-black/15 bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <RefreshCw className={`h-4 w-4 ${resending ? "animate-spin" : ""}`} strokeWidth={2} />
-              {resending ? "Sending..." : "Resend verification email"}
+              <RefreshCw className={`h-4 w-4 ${resendMutation.isPending ? "animate-spin" : ""}`} strokeWidth={2} />
+              {resendMutation.isPending ? "Sending..." : "Resend verification email"}
             </button>
           )}
 
