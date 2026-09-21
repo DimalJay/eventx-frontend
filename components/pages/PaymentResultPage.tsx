@@ -5,6 +5,7 @@ import { motion, useReducedMotion } from "framer-motion";
 
 type Props = {
   kind: "success" | "cancelled";
+  sessionId?: string;
 };
 
 const EASE = [0.16, 1, 0.3, 1] as const;
