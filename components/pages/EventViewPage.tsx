@@ -223,9 +223,15 @@ export default function EventViewPage({ id }: { id?: string }) {
   const isPaid = backendEvent.ticketPrice > 0;
 
   const hasRegistered =
-    (registrationsResponse?.data ?? []).some(
-      (r: IRegistration) => r.userId === String(user?.id),
-    ) ||
+    (!!user?.id &&
+      (registrationsResponse?.data ?? []).some(
+        (r: IRegistration) => String(r.userId) === String(user.id),
+      )) ||
+    (!!user?.email &&
+      (registrationsResponse?.data ?? []).some(
+        (r: IRegistration) =>
+          String(r.email ?? "").toLowerCase() === user.email.toLowerCase(),
+      )) ||
     (!!joinedEmail &&
       (registrationsResponse?.data ?? []).some(
         (r: IRegistration) =>
@@ -347,12 +353,18 @@ export default function EventViewPage({ id }: { id?: string }) {
 
             {/* Actions - one primary, two quiet utilities */}
             <div className="flex flex-wrap items-center gap-3 pt-1">
-              <a
-                href="#tickets"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-black px-7 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 active:scale-[0.98]"
-              >
-                {isPaid ? "Get your ticket" : "Register free"}
-              </a>
+              {hasRegistered && isPaid ? (
+                <span className="inline-flex h-12 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-7 text-sm font-semibold uppercase tracking-widest text-emerald-700">
+                  Already paid
+                </span>
+              ) : (
+                <a
+                  href="#tickets"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-black px-7 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 active:scale-[0.98]"
+                >
+                  {isPaid ? "Get your ticket" : "Register free"}
+                </a>
+              )}
               <AddToCalendar
                 title={event.name}
                 description={event.tagline}
@@ -440,9 +452,9 @@ export default function EventViewPage({ id }: { id?: string }) {
                     </div>
                   </>
                 )}
-                {hasRegistered ? (
+                {hasRegistered && isPaid ? (
                   <span className="inline-flex h-12 w-full items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-6 text-sm font-semibold uppercase tracking-widest text-emerald-700">
-                    You&apos;re registered
+                    Already paid
                   </span>
                 ) : (
                   <button

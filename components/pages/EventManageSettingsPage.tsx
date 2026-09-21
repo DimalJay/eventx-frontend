@@ -477,7 +477,12 @@ export default function EventManageSettingsPage() {
                   )}
                 />
               </div>
-              <EventOptionsSection hasLimit={hasLimit} setHasLimit={setLimitOverride} hideHeader />
+              <EventOptionsSection
+                hasLimit={hasLimit}
+                setHasLimit={setLimitOverride}
+                hideHeader
+                disablePricing
+              />
             </div>
           </section>
 
