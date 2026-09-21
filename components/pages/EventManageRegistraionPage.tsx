@@ -86,9 +86,14 @@ export default function EventManageRegistraionPage() {
     },
   });
 
-  const total = registrations.length;
-  const checkedIn = registrations.filter((r) => !!r.chekingTime).length;
-  const goingCount = registrations.filter((r) => r.status === "GOING").length;
+  // Only count standard public attendee registrations (exclude VIP/Speaker guest invitations)
+  const attendeeRegistrations = registrations.filter(
+    (reg) => !reg.ticketCode?.startsWith("INVITE-")
+  );
+
+  const total = attendeeRegistrations.length;
+  const checkedIn = attendeeRegistrations.filter((r) => !!r.chekingTime).length;
+  const goingCount = attendeeRegistrations.filter((r) => r.status === "GOING").length;
   const seatsLeft = event ? event.capacity - total : 0;
   const revenue = event && event.ticketPrice > 0 ? total * event.ticketPrice : 0;
 
@@ -126,7 +131,7 @@ export default function EventManageRegistraionPage() {
     ...(selectedCustomField?.options ?? []).map((option) => ({ value: option, label: option })),
   ];
 
-  const filteredRegistrations = registrations.filter((reg) => {
+  const filteredRegistrations = attendeeRegistrations.filter((reg) => {
     const name = `${reg.firstName ?? ""} ${reg.lastName ?? ""}`.trim().toLowerCase();
     const email = (reg.email ?? "").toLowerCase();
     const q = searchQuery.toLowerCase().trim();
@@ -393,9 +398,6 @@ export default function EventManageRegistraionPage() {
                         ? formatPrice(event.ticketPrice)
                         : "Free";
 
-                      const isSpeaker = reg.ticketCode?.startsWith("INVITE-GUEST_SPEAKER-");
-                      const isVip = reg.ticketCode?.startsWith("INVITE-VVIP_VIP-");
-
                       return (
                         <tr
                           key={reg.id}
@@ -407,19 +409,7 @@ export default function EventManageRegistraionPage() {
                               {name.charAt(0)}
                             </span>
                             <div className="min-w-0">
-                              <div className="flex items-center gap-2">
-                                <p className="text-sm font-semibold text-zinc-900 truncate">{name}</p>
-                                {isSpeaker && (
-                                  <span className="rounded-md bg-primary-soft px-2 py-0.5 text-[10px] font-semibold uppercase text-primary">
-                                    Speaker
-                                  </span>
-                                )}
-                                {isVip && (
-                                  <span className="rounded-md bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-amber-700">
-                                    VIP
-                                  </span>
-                                )}
-                              </div>
+                              <p className="text-sm font-semibold text-zinc-900 truncate">{name}</p>
                               <p className="text-sm text-zinc-600 truncate">{reg.email}</p>
                             </div>
                           </td>
