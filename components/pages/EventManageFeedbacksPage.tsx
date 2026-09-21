@@ -173,11 +173,15 @@ export default function EventManageFeedbacksPage() {
 
     const commentsCount = feedbacks.filter((f) => f.comment && f.comment.trim() !== "").length;
 
+    const allScores = categoryStats.map((c) => c.score).filter((s) => s > 0);
+    const overallScore = avg(allScores);
+
     return {
       total,
       categoryStats,
       sentiments,
       commentsCount,
+      overallScore,
     };
   }, [feedbacks]);
 
@@ -264,23 +268,143 @@ export default function EventManageFeedbacksPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-400">
                 Total Submissions
               </p>
-              <p className="mt-2 font-display text-4xl font-extrabold tabular-nums text-zinc-900">
+              <p className="mt-1 font-display text-4xl font-extrabold tabular-nums text-zinc-900">
                 {analytics.total}
               </p>
             </div>
-            <p className="mt-3 text-xs text-zinc-500">
-              {analytics.commentsCount} attendee{analytics.commentsCount === 1 ? "" : "s"} included written feedback.
-            </p>
+
+            {/* AI Sentiment 3-Color Donut Pie Chart */}
+            {(() => {
+              const pos = analytics.sentiments.positive;
+              const neu = analytics.sentiments.neutral;
+              const neg = analytics.sentiments.negative;
+              const totalSent = pos + neu + neg;
+
+              const posPct = totalSent > 0 ? Math.round((pos / totalSent) * 100) : 0;
+              const neuPct = totalSent > 0 ? Math.round((neu / totalSent) * 100) : 0;
+              const negPct = totalSent > 0 ? Math.round((neg / totalSent) * 100) : 0;
+
+              const radius = 36;
+              const C = 2 * Math.PI * radius;
+
+              const posLen = totalSent > 0 ? (pos / totalSent) * C : 0;
+              const neuLen = totalSent > 0 ? (neu / totalSent) * C : 0;
+              const negLen = totalSent > 0 ? (neg / totalSent) * C : 0;
+
+              return (
+                <div className="mt-4 flex flex-col items-center justify-center text-center rounded-2xl border border-zinc-100 bg-zinc-50/60 p-4">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-2">
+                    Sentiment Breakdown Pie
+                  </p>
+
+                  {/* 3-Segment SVG Donut Chart */}
+                  <div className="relative flex items-center justify-center my-1">
+                    <svg className="h-28 w-28 -rotate-90 transform" viewBox="0 0 90 90">
+                      {/* Empty Background Ring when totalSent is 0 */}
+                      {totalSent === 0 && (
+                        <circle
+                          cx="45"
+                          cy="45"
+                          r={radius}
+                          className="stroke-zinc-200"
+                          strokeWidth="9"
+                          fill="transparent"
+                        />
+                      )}
+
+                      {/* Positive Segment (Emerald) */}
+                      {posLen > 0 && (
+                        <circle
+                          cx="45"
+                          cy="45"
+                          r={radius}
+                          className="stroke-emerald-500 transition-all duration-700 ease-out"
+                          strokeWidth="9"
+                          strokeDasharray={`${posLen} ${C - posLen}`}
+                          strokeDashoffset={0}
+                          fill="transparent"
+                        />
+                      )}
+
+                      {/* Neutral Segment (Zinc) */}
+                      {neuLen > 0 && (
+                        <circle
+                          cx="45"
+                          cy="45"
+                          r={radius}
+                          className="stroke-zinc-400 transition-all duration-700 ease-out"
+                          strokeWidth="9"
+                          strokeDasharray={`${neuLen} ${C - neuLen}`}
+                          strokeDashoffset={-posLen}
+                          fill="transparent"
+                        />
+                      )}
+
+                      {/* Negative Segment (Rose) */}
+                      {negLen > 0 && (
+                        <circle
+                          cx="45"
+                          cy="45"
+                          r={radius}
+                          className="stroke-rose-500 transition-all duration-700 ease-out"
+                          strokeWidth="9"
+                          strokeDasharray={`${negLen} ${C - negLen}`}
+                          strokeDashoffset={-(posLen + neuLen)}
+                          fill="transparent"
+                        />
+                      )}
+                    </svg>
+
+                    {/* Center Text inside Donut */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      <span className="font-display text-2xl font-black text-emerald-600 tabular-nums">
+                        {posPct}%
+                      </span>
+                      <span className="text-[9px] font-extrabold uppercase tracking-wider text-zinc-400">
+                        Positive
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Mini Sentiment Legend */}
+                  <div className="mt-3 flex flex-col gap-1.5 w-full text-xs font-semibold text-zinc-700 border-t border-zinc-200/60 pt-2.5">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="flex items-center gap-1.5 text-emerald-700">
+                        <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" /> Positive
+                      </span>
+                      <span className="font-bold text-zinc-900 tabular-nums">{posPct}% ({pos})</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="flex items-center gap-1.5 text-zinc-600">
+                        <span className="h-2.5 w-2.5 rounded-full bg-zinc-400" /> Neutral
+                      </span>
+                      <span className="font-bold text-zinc-900 tabular-nums">{neuPct}% ({neu})</span>
+                    </div>
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="flex items-center gap-1.5 text-rose-700">
+                        <span className="h-2.5 w-2.5 rounded-full bg-rose-500" /> Negative
+                      </span>
+                      <span className="font-bold text-zinc-900 tabular-nums">{negPct}% ({neg})</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
 
-          {/* Sentiment Gauge Summary */}
+          {/* AI Sentiment Overview: Bi-polar Spectrum Line & 3-Part Percentage Breakdown */}
           <div className="flex flex-col justify-between md:col-span-3 md:pl-8">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-400">
-                AI Sentiment Overall Breakdown
-              </p>
-              <span className="inline-flex items-center gap-1 rounded-full bg-primary-faint px-3 py-1 text-xs font-semibold text-primary">
-                <Sparkles className="h-3.5 w-3.5" /> Real-time Sentiment AI
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-400">
+                  AI Sentiment Overview & Analysis
+                </p>
+                <p className="text-xs font-medium text-zinc-500 mt-0.5">
+                  Overall audience perception leaning & exact sentiment distribution
+                </p>
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-semibold text-primary">
+                <Sparkles className="h-3.5 w-3.5" /> AI Sentiment Index
               </span>
             </div>
 
@@ -288,58 +412,143 @@ export default function EventManageFeedbacksPage() {
               <p className="mt-4 text-sm text-zinc-400">
                 No feedback received yet. Send feedback invitations to your attendees to gather sentiment data.
               </p>
-            ) : (
-              <div className="mt-4 grid gap-4">
-                {/* Horizontal Bar Chart */}
-                <div className="flex h-4 w-full overflow-hidden rounded-full bg-zinc-100 p-0.5 shadow-inner">
-                  {analytics.sentiments.positive > 0 && (
-                    <div
-                      style={{ width: `${(analytics.sentiments.positive / analytics.total) * 100}%` }}
-                      className="bg-emerald-500 transition-all duration-500 first:rounded-l-full last:rounded-r-full"
-                      title={`Positive: ${analytics.sentiments.positive}`}
-                    />
-                  )}
-                  {analytics.sentiments.neutral > 0 && (
-                    <div
-                      style={{ width: `${(analytics.sentiments.neutral / analytics.total) * 100}%` }}
-                      className="bg-zinc-400 transition-all duration-500 first:rounded-l-full last:rounded-r-full"
-                      title={`Neutral: ${analytics.sentiments.neutral}`}
-                    />
-                  )}
-                  {analytics.sentiments.negative > 0 && (
-                    <div
-                      style={{ width: `${(analytics.sentiments.negative / analytics.total) * 100}%` }}
-                      className="bg-rose-500 transition-all duration-500 first:rounded-l-full last:rounded-r-full"
-                      title={`Negative: ${analytics.sentiments.negative}`}
-                    />
-                  )}
-                </div>
+            ) : (() => {
+              const pos = analytics.sentiments.positive;
+              const neu = analytics.sentiments.neutral;
+              const neg = analytics.sentiments.negative;
+              const totalSent = pos + neu + neg;
 
-                <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-medium">
-                  <div className="flex items-center gap-2">
-                    <span className="h-3 w-3 rounded-full bg-emerald-500" />
-                    <span className="text-zinc-700">Positive:</span>
-                    <span className="font-bold tabular-nums text-zinc-900">
-                      {analytics.sentiments.positive} ({Math.round((analytics.sentiments.positive / Math.max(1, analytics.total)) * 100)}%)
-                    </span>
+              // Calculate Sentiment Leaning Score (0 = Fully Negative, 50 = Balanced, 100 = Fully Positive)
+              const score = totalSent > 0 ? Math.round(((pos * 100) + (neu * 50) + (neg * 0)) / totalSent) : 50;
+
+              // Determine Leaning Status
+              let leanLabel = "Balanced / Neutral";
+              let leanBadge = "bg-amber-50 text-amber-700 border-amber-200";
+              let pointerColor = "bg-amber-500 ring-amber-200";
+              if (score >= 65) {
+                leanLabel = "Leaning Positive";
+                leanBadge = "bg-emerald-50 text-emerald-700 border-emerald-200";
+                pointerColor = "bg-emerald-500 ring-emerald-200";
+              } else if (score < 45) {
+                leanLabel = "Leaning Negative";
+                leanBadge = "bg-rose-50 text-rose-700 border-rose-200";
+                pointerColor = "bg-rose-500 ring-rose-200";
+              }
+
+              const posPct = totalSent > 0 ? Math.round((pos / totalSent) * 100) : 0;
+              const neuPct = totalSent > 0 ? Math.round((neu / totalSent) * 100) : 0;
+              const negPct = totalSent > 0 ? Math.round((neg / totalSent) * 100) : 0;
+
+              return (
+                <div className="mt-6 flex flex-col gap-6">
+                  {/* 1. Dynamic Sentiment Spectrum Bar (Positive vs Negative Line) */}
+                  <div className="rounded-2xl border border-zinc-100 bg-zinc-50/70 p-4">
+                    <div className="flex items-center justify-between text-xs font-bold mb-3">
+                      <div className="flex items-center gap-1.5 text-rose-600">
+                        <ThumbsDown className="h-4 w-4" />
+                        <span>Negative Side</span>
+                      </div>
+                      <div className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${leanBadge}`}>
+                        <span>{leanLabel}</span>
+                        <span className="font-bold">({score}%)</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-emerald-600">
+                        <span>Positive Side</span>
+                        <ThumbsUp className="h-4 w-4" />
+                      </div>
+                    </div>
+
+                    {/* Gradient Spectrum Track with Indicator Marker */}
+                    <div className="relative my-3">
+                      {/* Track background with gradient */}
+                      <div className="h-4 w-full rounded-full bg-gradient-to-r from-rose-500 via-amber-400 to-emerald-500 p-0.5 shadow-inner opacity-90" />
+                      
+                      {/* Center Midpoint Tick */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 h-4 w-0.5 bg-white/80 rounded-full" title="Neutral Midpoint (50%)" />
+
+                      {/* Animated Pointer Needle */}
+                      <div
+                        className="absolute top-1/2 -translate-y-1/2 transition-all duration-700 ease-out z-10"
+                        style={{ left: `calc(${score}% - 10px)` }}
+                      >
+                        <div className={`h-5 w-5 rounded-full border-2 border-white shadow-md ring-4 ${pointerColor} transition-transform hover:scale-125`} />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between text-[11px] font-semibold text-zinc-400">
+                      <span>0% (Strong Negative)</span>
+                      <span>50% (Neutral)</span>
+                      <span>100% (Strong Positive)</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="h-3 w-3 rounded-full bg-zinc-400" />
-                    <span className="text-zinc-700">Neutral:</span>
-                    <span className="font-bold tabular-nums text-zinc-900">
-                      {analytics.sentiments.neutral} ({Math.round((analytics.sentiments.neutral / Math.max(1, analytics.total)) * 100)}%)
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="h-3 w-3 rounded-full bg-rose-500" />
-                    <span className="text-zinc-700">Negative:</span>
-                    <span className="font-bold tabular-nums text-zinc-900">
-                      {analytics.sentiments.negative} ({Math.round((analytics.sentiments.negative / Math.max(1, analytics.total)) * 100)}%)
-                    </span>
+
+                  {/* 2. Separate 3-Part Sentiment Percentages Chart */}
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-zinc-400 mb-2.5">
+                      Detailed Percentage Breakdown
+                    </p>
+                    <div className="grid gap-3 sm:grid-cols-3">
+                      {/* Positive Card */}
+                      <div className="flex flex-col justify-between rounded-xl border border-emerald-100 bg-emerald-50/50 p-3">
+                        <div className="flex items-center justify-between text-xs font-semibold text-emerald-800">
+                          <span className="flex items-center gap-1.5">
+                            <ThumbsUp className="h-3.5 w-3.5 text-emerald-600" /> Positive
+                          </span>
+                          <span className="text-emerald-700 font-bold">{posPct}%</span>
+                        </div>
+                        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-emerald-200/60">
+                          <div
+                            className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                            style={{ width: `${posPct}%` }}
+                          />
+                        </div>
+                        <p className="mt-1.5 text-[11px] font-medium text-emerald-600 tabular-nums">
+                          {pos} attendee{pos === 1 ? "" : "s"}
+                        </p>
+                      </div>
+
+                      {/* Neutral Card */}
+                      <div className="flex flex-col justify-between rounded-xl border border-zinc-200 bg-zinc-50 p-3">
+                        <div className="flex items-center justify-between text-xs font-semibold text-zinc-800">
+                          <span className="flex items-center gap-1.5">
+                            <Minus className="h-3.5 w-3.5 text-zinc-500" /> Neutral
+                          </span>
+                          <span className="text-zinc-700 font-bold">{neuPct}%</span>
+                        </div>
+                        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-zinc-200">
+                          <div
+                            className="h-full rounded-full bg-zinc-400 transition-all duration-500"
+                            style={{ width: `${neuPct}%` }}
+                          />
+                        </div>
+                        <p className="mt-1.5 text-[11px] font-medium text-zinc-500 tabular-nums">
+                          {neu} attendee{neu === 1 ? "" : "s"}
+                        </p>
+                      </div>
+
+                      {/* Negative Card */}
+                      <div className="flex flex-col justify-between rounded-xl border border-rose-100 bg-rose-50/50 p-3">
+                        <div className="flex items-center justify-between text-xs font-semibold text-rose-800">
+                          <span className="flex items-center gap-1.5">
+                            <ThumbsDown className="h-3.5 w-3.5 text-rose-600" /> Negative
+                          </span>
+                          <span className="text-rose-700 font-bold">{negPct}%</span>
+                        </div>
+                        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-rose-200/60">
+                          <div
+                            className="h-full rounded-full bg-rose-500 transition-all duration-500"
+                            style={{ width: `${negPct}%` }}
+                          />
+                        </div>
+                        <p className="mt-1.5 text-[11px] font-medium text-rose-600 tabular-nums">
+                          {neg} attendee{neg === 1 ? "" : "s"}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              );
+            })()}
           </div>
         </div>
       </section>
