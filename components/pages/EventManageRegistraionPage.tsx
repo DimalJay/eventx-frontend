@@ -470,12 +470,6 @@ export default function EventManageRegistraionPage() {
             { onSuccess: () => setCheckInOpen(false) }
           )
         }
-        onNotGoing={(id) =>
-          updateMutation.mutate(
-            { id, status: "NOT_GOING" },
-            { onSuccess: () => setCheckInOpen(false) }
-          )
-        }
         isPending={updateMutation.isPending}
       />
 

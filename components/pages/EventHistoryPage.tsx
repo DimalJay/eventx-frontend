@@ -302,7 +302,10 @@ function EventHistoryCard({ event }: { event: JoinedEvent }) {
             {formatPrice(event.ticketPrice)}
           </p>
         </div>
-        <span className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white">
+        <Link
+          href={`/event/${encodeEventId(event.id)}`}
+          className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-strong"
+        >
           View event
           <svg
             viewBox="0 0 24 24"
@@ -313,7 +316,7 @@ function EventHistoryCard({ event }: { event: JoinedEvent }) {
           >
             <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
-        </span>
+        </Link>
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-3 border-t border-zinc-100 pt-3.5">
