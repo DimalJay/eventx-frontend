@@ -16,6 +16,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   onRegistered?: (email: string) => void;
+  isSeatsFull?: boolean;
 };
 
 const baseSchema = z.object({
@@ -27,7 +28,14 @@ const baseSchema = z.object({
 
 type FormValues = z.infer<typeof baseSchema>;
 
-export default function RegisterEventDialog({ eventId, customFields = [], open, onClose, onRegistered }: Props) {
+export default function RegisterEventDialog({
+  eventId,
+  customFields = [],
+  open,
+  onClose,
+  onRegistered,
+  isSeatsFull = false,
+}: Props) {
   const schema = baseSchema.superRefine((data, ctx) => {
     for (const field of customFields) {
       if (!field.key) continue;
@@ -185,10 +193,12 @@ export default function RegisterEventDialog({ eventId, customFields = [], open, 
             </button>
             <button
               type="submit"
-              disabled={mutation.isPending}
+              disabled={mutation.isPending || isSeatsFull}
               className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {mutation.isPending ? (
+              {isSeatsFull ? (
+                "Seats Full"
+              ) : mutation.isPending ? (
                 <>
                   <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   Registering...

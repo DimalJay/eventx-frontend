@@ -238,7 +238,14 @@ export default function EventViewPage({ id }: { id?: string }) {
           String(r.email ?? "").toLowerCase() === joinedEmail.toLowerCase(),
       ));
 
+  const isSeatsFull = Boolean(
+    backendEvent.capacity &&
+      backendEvent.capacity > 0 &&
+      event.seatsLeft <= 0,
+  );
+
   const openTicket = () => {
+    if (isSeatsFull) return;
     if (isPaid && !user) {
       setLoginPromptOpen(true);
       return;
@@ -357,6 +364,14 @@ export default function EventViewPage({ id }: { id?: string }) {
                 <span className="inline-flex h-12 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-7 text-sm font-semibold uppercase tracking-widest text-emerald-700">
                   Already paid
                 </span>
+              ) : isSeatsFull ? (
+                <button
+                  type="button"
+                  disabled
+                  className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 px-7 text-sm font-semibold uppercase tracking-widest text-zinc-400 cursor-not-allowed"
+                >
+                  Seats Full
+                </button>
               ) : (
                 <a
                   href="#tickets"
@@ -456,6 +471,14 @@ export default function EventViewPage({ id }: { id?: string }) {
                   <span className="inline-flex h-12 w-full items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-6 text-sm font-semibold uppercase tracking-widest text-emerald-700">
                     Already paid
                   </span>
+                ) : isSeatsFull ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="inline-flex h-12 w-full items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 px-6 text-sm font-semibold uppercase tracking-widest text-zinc-400 cursor-not-allowed"
+                  >
+                    Seats Full
+                  </button>
                 ) : (
                   <button
                     type="button"
@@ -487,6 +510,7 @@ export default function EventViewPage({ id }: { id?: string }) {
               open={registerOpen}
               onClose={() => setRegisterOpen(false)}
               onRegistered={rememberJoined}
+              isSeatsFull={isSeatsFull}
             />
           )
         )}
