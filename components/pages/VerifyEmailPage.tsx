@@ -85,7 +85,7 @@ export default function VerifyEmailPage() {
           <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-black">
             {status === "success" ? "Verified" : status === "error" ? "Verification failed" : "Verifying"}
           </p>
-          <h1 className="mt-4 text-3xl font-semibold leading-tight tracking-tight text-black">
+          <h1 className="mt-4 font-display text-3xl font-medium leading-[1.1] tracking-tight text-zinc-900 sm:text-4xl">
             {status === "success" ? "Email verified" : status === "error" ? "Unable to verify" : "Verifying email"}
           </h1>
           <p className="mt-3 text-sm leading-6 text-black/70">{message}</p>
@@ -93,7 +93,7 @@ export default function VerifyEmailPage() {
           {status === "success" && (
             <Link
               href="/login"
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-black/90"
             >
               Go to login <ArrowRight className="h-4 w-4" />
             </Link>
@@ -103,7 +103,7 @@ export default function VerifyEmailPage() {
             <button
               onClick={handleResend}
               disabled={resending}
-              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full border border-black/15 bg-white px-6 py-3 text-sm font-semibold uppercase tracking-widest text-black transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-6 flex w-full items-center justify-center gap-2 rounded-full border border-black/15 bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-black/5 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <RefreshCw className={`h-4 w-4 ${resending ? "animate-spin" : ""}`} strokeWidth={2} />
               {resending ? "Sending..." : "Resend verification email"}

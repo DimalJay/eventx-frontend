@@ -27,13 +27,13 @@ export default function EventParticipantsSection() {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
             Participants
           </p>
-          <h2 className="mt-2 text-2xl font-semibold text-black">
+          <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">
             Attendee overview
           </h2>
         </div>
         <button
           type="button"
-          className="inline-flex h-11 items-center justify-center rounded-full bg-black px-5 text-xs font-semibold uppercase tracking-widest text-white transition hover:bg-black/90"
+          className="inline-flex h-11 items-center justify-center rounded-full bg-black px-5 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-black/90"
         >
           Export list
         </button>

@@ -70,7 +70,7 @@ function FeedbackForm() {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success-soft text-success mb-6">
           <CheckCircle className="w-10 h-10" />
         </div>
-        <h2 className="text-3xl font-extrabold text-foreground mb-2 font-display">Thank You!</h2>
+        <h2 className="mb-2 font-display text-3xl font-medium tracking-tight text-foreground">Thank You!</h2>
         <p className="text-muted-subtle mb-6 max-w-md mx-auto">
           Your feedback has been submitted successfully. We appreciate your time and support to help us improve future events!
         </p>
@@ -88,7 +88,7 @@ function FeedbackForm() {
     <div className="w-full max-w-lg p-8 rounded-card border border-border bg-surface shadow-card">
       <div className="text-center mb-6">
         <span className="eyebrow block mb-2">Feedback</span>
-        <h2 className="text-2xl font-extrabold text-foreground font-display">Complete Your Feedback</h2>
+        <h2 className="font-display text-2xl font-medium tracking-tight text-foreground">Complete Your Feedback</h2>
         <p className="text-sm text-muted-subtle mt-1">
           {initialRating > 0
             ? `You rated your overall experience ${initialRating} ${initialRating === 1 ? "star" : "stars"} in the email. Answer two quick questions to finish.`

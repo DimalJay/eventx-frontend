@@ -83,7 +83,7 @@ export default function FeatureBento() {
                   {feature.body}
                 </p>
               </div>
-              <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.16em] text-zinc-500">
+              <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
                 {["create", "attend", "engage"][idx]}
               </p>
             </motion.div>

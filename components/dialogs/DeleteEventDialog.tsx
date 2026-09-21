@@ -68,9 +68,9 @@ export default function DeleteEventDialog({ open, onClose, eventId, eventTitle }
         type="text"
         autoComplete="off"
         value={confirmation}
-        onChange={(e) => setConfirmation(e.target.value)}
+        onChange={(e) => setConfirmation(e.target.value.toUpperCase())}
         placeholder={eventTitle || "Event name"}
-        className="mt-2 h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-500 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/10"
+        className="mt-2 h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-900 uppercase placeholder:uppercase placeholder:text-zinc-500 outline-none transition focus:border-red-400 focus:ring-2 focus:ring-red-500/10"
       />
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">

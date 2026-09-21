@@ -91,7 +91,7 @@ export default function NotificationsPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-black/50">
               Inbox
             </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-black">
+            <h1 className="mt-2 font-display text-3xl font-medium tracking-tight text-zinc-900 sm:text-4xl">
               Notifications
             </h1>
             <p className="mt-2 text-sm text-black/60">
@@ -107,7 +107,7 @@ export default function NotificationsPage() {
               type="button"
               onClick={() => readAllMutation.mutate()}
               disabled={readAllMutation.isPending}
-              className="inline-flex h-11 w-fit items-center justify-center rounded-full border border-black/15 bg-white/80 px-5 text-xs font-semibold uppercase tracking-widest text-black transition hover:border-black/40 disabled:opacity-50"
+              className="inline-flex h-11 w-fit items-center justify-center rounded-full border border-black/15 bg-white/80 px-5 text-xs font-semibold uppercase tracking-[0.14em] text-black transition hover:border-black/40 disabled:opacity-50"
             >
               {readAllMutation.isPending ? "Marking..." : "Mark all read"}
             </button>

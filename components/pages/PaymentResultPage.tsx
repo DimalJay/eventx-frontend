@@ -65,7 +65,7 @@ export default function PaymentResultPage({ kind }: Props) {
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-black/50">
             {isSuccess ? "Payment successful" : "Payment cancelled"}
           </p>
-          <h1 className="mt-3 text-3xl font-semibold leading-tight tracking-tight text-black sm:text-4xl">
+          <h1 className="mt-3 font-display text-3xl font-medium leading-[1.1] tracking-tight text-zinc-900 sm:text-4xl">
             {isSuccess ? "Payment confirmed" : "No charges were made."}
           </h1>
           <p className="mt-3 text-base leading-7 text-black/70">
@@ -80,13 +80,13 @@ export default function PaymentResultPage({ kind }: Props) {
             <>
               <Link
                 href="/discover-events"
-                className="inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 active:scale-[0.98] sm:w-auto"
+                className="inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-sm font-semibold text-white transition hover:bg-black/90 active:scale-[0.98] sm:w-auto"
               >
                 Discover events
               </Link>
               <Link
                 href="/home"
-                className="inline-flex h-12 w-full items-center justify-center rounded-full border border-black/15 px-6 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black/40 active:scale-[0.98] sm:w-auto"
+                className="inline-flex h-12 w-full items-center justify-center rounded-full border border-black/15 px-6 text-sm font-semibold text-black transition hover:border-black/40 active:scale-[0.98] sm:w-auto"
               >
                 Go to dashboard
               </Link>
@@ -94,7 +94,7 @@ export default function PaymentResultPage({ kind }: Props) {
           ) : (
             <Link
               href="/discover-events"
-              className="inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 active:scale-[0.98] sm:w-auto"
+              className="inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-sm font-semibold text-white transition hover:bg-black/90 active:scale-[0.98] sm:w-auto"
             >
               Browse events
             </Link>

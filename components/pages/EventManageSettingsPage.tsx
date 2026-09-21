@@ -51,7 +51,6 @@ const SETTINGS_SECTIONS: Array<[string, string]> = [
   ["schedule", "Schedule & venue"],
   ["access", "Access & ticketing"],
   ["registration", "Registration form"],
-  ["status", "Status"],
   ["danger", "Danger zone"],
 ];
 
@@ -477,7 +476,12 @@ export default function EventManageSettingsPage() {
                   )}
                 />
               </div>
-              <EventOptionsSection hasLimit={hasLimit} setHasLimit={setLimitOverride} hideHeader />
+              <EventOptionsSection
+                hasLimit={hasLimit}
+                setHasLimit={setLimitOverride}
+                hideHeader
+                disablePricing
+              />
             </div>
           </section>
 
@@ -514,7 +518,7 @@ export default function EventManageSettingsPage() {
           </div>
 
           {/* Close event */}
-          <section id="status" className={`scroll-mt-24 ${cardClass} flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}>
+          {/* <section id="status" className={`scroll-mt-24 ${cardClass} flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between`}>
             <div>
               <p className={labelClass}>Status</p>
               <h2 className="mt-2 flex items-center gap-3 text-xl font-semibold tracking-tight text-zinc-900">
@@ -540,7 +544,7 @@ export default function EventManageSettingsPage() {
             >
               {isClosed ? "Reopen event" : "Close event"}
             </button>
-          </section>
+          </section> */}
 
           {/* Danger zone */}
           <section id="danger" className="scroll-mt-24 card border-danger-soft bg-danger-soft/40 p-7">

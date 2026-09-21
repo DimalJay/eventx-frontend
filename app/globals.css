@@ -66,14 +66,24 @@
   --radius-pill: var(--radius-pill);
   --shadow-card: var(--shadow-card);
   --shadow-pop: var(--shadow-pop);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-roboto);
+  --font-mono: var(--font-roboto-mono);
   --font-display: var(--font-space-grotesk);
 }
 
 body {
   background: #ffffff;
   color: var(--foreground);
+  font-family: var(--font-sans), var(--font-roboto), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display), var(--font-space-grotesk), sans-serif;
 }
 
 @layer utilities {
@@ -114,11 +124,9 @@ body {
 }
 
 .taste-shader {
-  background: radial-gradient(
-    70% 60% at 72% 0%,
-    var(--primary-faint),
-    transparent 70%
-  );
+  background: radial-gradient(70% 60% at 72% 0%,
+      var(--primary-faint),
+      transparent 70%);
 }
 
 .taste-shader-blob {
@@ -134,11 +142,9 @@ body {
   height: 42rem;
   top: -16rem;
   right: -10rem;
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--primary) 16%, transparent),
-    transparent 70%
-  );
+  background: radial-gradient(circle,
+      color-mix(in srgb, var(--primary) 16%, transparent),
+      transparent 70%);
   animation: taste-shader-drift-a 26s ease-in-out infinite alternate;
 }
 
@@ -147,11 +153,9 @@ body {
   height: 34rem;
   top: 2rem;
   left: -14rem;
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--primary) 12%, transparent),
-    transparent 70%
-  );
+  background: radial-gradient(circle,
+      color-mix(in srgb, var(--primary) 12%, transparent),
+      transparent 70%);
   animation: taste-shader-drift-b 31s ease-in-out infinite alternate;
 }
 
@@ -160,11 +164,9 @@ body {
   height: 26rem;
   bottom: -10rem;
   right: -6rem;
-  background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--primary) 10%, transparent),
-    transparent 72%
-  );
+  background: radial-gradient(circle,
+      color-mix(in srgb, var(--primary) 10%, transparent),
+      transparent 72%);
   animation: taste-shader-drift-a 38s ease-in-out infinite alternate-reverse;
 }
 
@@ -172,11 +174,9 @@ body {
   position: absolute;
   inset: 0;
   opacity: 0.6;
-  background-image: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--primary) 12%, transparent) 1px,
-    transparent 1px
-  );
+  background-image: radial-gradient(circle,
+      color-mix(in srgb, var(--primary) 12%, transparent) 1px,
+      transparent 1px);
   background-size: 26px 26px;
   -webkit-mask-image: linear-gradient(to bottom, black, transparent 72%);
   mask-image: linear-gradient(to bottom, black, transparent 72%);
@@ -193,9 +193,11 @@ body {
   0% {
     transform: translate3d(0, 0, 0) scale(1);
   }
+
   50% {
     transform: translate3d(-6rem, 3rem, 0) scale(1.08);
   }
+
   100% {
     transform: translate3d(4rem, -2rem, 0) scale(0.96);
   }
@@ -205,9 +207,11 @@ body {
   0% {
     transform: translate3d(0, 0, 0) scale(1);
   }
+
   50% {
     transform: translate3d(5rem, -3rem, 0) scale(1.1);
   }
+
   100% {
     transform: translate3d(-4rem, 2rem, 0) scale(0.95);
   }

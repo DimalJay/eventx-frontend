@@ -153,9 +153,6 @@ export default function CreateEventPage() {
       ticketPrice: 0,
       whiteList: false,
       customFields: [
-        { name: "Phone Number", key: "phoneNumber", type: "text" },
-        { name: "Gender", key: "gender", type: "select", options: ["Male", "Female", "Other"] },
-        { name: "NIC", key: "nic", type: "text" },
       ],
     },
   });

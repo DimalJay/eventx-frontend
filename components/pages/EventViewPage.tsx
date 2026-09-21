@@ -224,16 +224,29 @@ export default function EventViewPage({ id }: { id?: string }) {
   const isPaid = backendEvent.ticketPrice > 0;
 
   const hasRegistered =
-    (registrationsResponse?.data ?? []).some(
-      (r: IRegistration) => r.userId === String(user?.id),
-    ) ||
+    (!!user?.id &&
+      (registrationsResponse?.data ?? []).some(
+        (r: IRegistration) => String(r.userId) === String(user.id),
+      )) ||
+    (!!user?.email &&
+      (registrationsResponse?.data ?? []).some(
+        (r: IRegistration) =>
+          String(r.email ?? "").toLowerCase() === user.email.toLowerCase(),
+      )) ||
     (!!joinedEmail &&
       (registrationsResponse?.data ?? []).some(
         (r: IRegistration) =>
           String(r.email ?? "").toLowerCase() === joinedEmail.toLowerCase(),
       ));
 
+  const isSeatsFull = Boolean(
+    backendEvent.capacity &&
+    backendEvent.capacity > 0 &&
+    event.seatsLeft <= 0,
+  );
+
   const openTicket = () => {
+    if (isSeatsFull) return;
     if (isPaid && !user) {
       setLoginPromptOpen(true);
       return;
@@ -299,7 +312,7 @@ export default function EventViewPage({ id }: { id?: string }) {
               <span className="text-sm font-medium text-black/55">{event.date}</span>
             </div>
 
-            <h1 className="max-w-xl text-balance text-4xl font-semibold leading-[1.04] tracking-tight text-black sm:text-5xl lg:text-6xl">
+            <h1 className="max-w-xl text-balance font-display text-4xl font-medium leading-[1.04] tracking-tight text-zinc-900 sm:text-5xl lg:text-6xl">
               {event.name}
             </h1>
 
@@ -357,41 +370,46 @@ export default function EventViewPage({ id }: { id?: string }) {
 
             {/* Actions - one primary, two quiet utilities */}
             <div className="flex flex-wrap items-center gap-3 pt-1">
-              <a
-                href={isSuspended ? undefined : "#tickets"}
-                className={`inline-flex h-12 items-center justify-center gap-2 rounded-full px-7 text-sm font-semibold uppercase tracking-widest transition ${
-                  isSuspended
-                    ? "bg-black/20 text-white/50 cursor-not-allowed"
-                    : "bg-black text-white hover:bg-black/90 active:scale-[0.98]"
-                }`}
-                onClick={(e) => isSuspended && e.preventDefault()}
-              >
-                {isPaid ? "Get your ticket" : "Register free"}
-              </a>
-              {!isSuspended && (
-                <>
-                  <AddToCalendar
-                    title={event.name}
-                    description={event.tagline}
-                    location={`${event.venue}, ${event.location}`}
-                    start={event.start}
-                    end={event.end}
-                    timezone={event.timezone}
-                    className="inline-flex h-12 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
-                  />
-                  <ShareButton
-                    title={event.name}
-                    text={event.tagline}
-                  />
-                </>
+              {hasRegistered && isPaid ? (
+                <span className="inline-flex h-12 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-7 text-sm font-semibold uppercase tracking-widest text-emerald-700">
+                  Already paid
+                </span>
+              ) : isSeatsFull ? (
+                <button
+                  type="button"
+                  disabled
+                  className="inline-flex h-12 items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 px-7 text-sm font-semibold uppercase tracking-widest text-zinc-400 cursor-not-allowed"
+                >
+                  Seats Full
+                </button>
+              ) : (
+                <a
+                  href="#tickets"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-black px-7 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 active:scale-[0.98]"
+                >
+                  {isPaid ? "Get your ticket" : "Register free"}
+                </a>
               )}
+              <AddToCalendar
+                title={event.name}
+                description={event.tagline}
+                location={`${event.venue}, ${event.location}`}
+                start={event.start}
+                end={event.end}
+                timezone={event.timezone}
+                className="inline-flex h-12 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+              />
+              <ShareButton
+                title={event.name}
+                text={event.tagline}
+              />
             </div>
           </motion.div>
         </motion.section>
 
         {/* About - generous editorial prose */}
         <section className="mt-20 max-w-2xl">
-          <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">
+          <h2 className="font-display text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
             About this event
           </h2>
           <p className="mt-5 text-base leading-8 text-black/70 sm:text-lg">{event.tagline}</p>
@@ -400,7 +418,7 @@ export default function EventViewPage({ id }: { id?: string }) {
         {/* Agenda - ruled timeline, no cards */}
         {agenda && agenda.length > 0 && (
           <section className="mt-20">
-            <h2 className="text-2xl font-semibold tracking-tight text-black sm:text-3xl">Agenda</h2>
+            <h2 className="font-display text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">Agenda</h2>
             <ol className="mt-7 divide-y divide-black/10 border-y border-black/10">
               {agenda.map((slot: { time?: string; task?: string; title?: string; location?: string; track?: string }, index: number) => (
                 <li key={index} className="grid gap-1 py-5 sm:grid-cols-[120px_1fr_auto] sm:items-baseline sm:gap-6">
@@ -459,20 +477,27 @@ export default function EventViewPage({ id }: { id?: string }) {
                     </div>
                   </>
                 )}
-                {hasRegistered ? (
+                {hasRegistered && isPaid ? (
                   <span className="inline-flex h-12 w-full items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 px-6 text-sm font-semibold uppercase tracking-widest text-emerald-700">
-                    You&apos;re registered
+                    Already paid
                   </span>
+                ) : isSeatsFull ? (
+                  <button
+                    type="button"
+                    disabled
+                    className="inline-flex h-12 w-full items-center justify-center rounded-full border border-zinc-200 bg-zinc-100 px-6 text-sm font-semibold uppercase tracking-widest text-zinc-400 cursor-not-allowed"
+                  >
+                    Seats Full
+                  </button>
                 ) : (
                   <button
                     type="button"
                     onClick={openTicket}
                     disabled={isSuspended}
-                    className={`inline-flex h-12 w-full items-center justify-center rounded-full px-6 text-sm font-semibold uppercase tracking-widest transition ${
-                      isSuspended
-                        ? "bg-black/20 text-white/50 cursor-not-allowed"
-                        : "bg-black text-white hover:bg-black/90 active:scale-[0.98]"
-                    }`}
+                    className={`inline-flex h-12 w-full items-center justify-center rounded-full px-6 text-sm font-semibold uppercase tracking-widest transition ${isSuspended
+                      ? "bg-black/20 text-white/50 cursor-not-allowed"
+                      : "bg-black text-white hover:bg-black/90 active:scale-[0.98]"
+                      }`}
                   >
                     {isPaid ? "Register & pay" : "Register"}
                   </button>
@@ -499,6 +524,7 @@ export default function EventViewPage({ id }: { id?: string }) {
               open={registerOpen}
               onClose={() => setRegisterOpen(false)}
               onRegistered={rememberJoined}
+              isSeatsFull={isSeatsFull}
             />
           )
         )}
