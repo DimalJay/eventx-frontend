@@ -14,10 +14,7 @@ import { getTasksRequest } from "@/service/taskService";
 import { getTeamMembers } from "@/service/teamService";
 import { IRegistration, IEvent, ITask, IFeedback } from "@/types";
 import { TeamMember } from "@/types/team";
-import { cn } from "@/lib/utils";
-import { formatPrice } from "@/lib/utils";
-import { registrationCSVRows, downloadCSV } from "@/lib/utils";
-import { decodeEventId, encodeEventId } from "@/lib/utils";
+import { cn, formatPrice, downloadCSV, decodeEventId, encodeEventId } from "@/lib/utils";
 import HelpTooltip from "@/components/widgets/HelpTooltip";
 import DonutChart from "@/components/widgets/charts/DonutChart";
 import VerticalBars from "@/components/widgets/charts/VerticalBars";
@@ -289,17 +286,58 @@ export default function EventManageInsightsPage() {
   }, [teamMembers]);
 
   const workload = useMemo(() => {
-    const counts = new Map<string, number>();
+    const map = new Map<
+      string,
+      { name: string; total: number; done: number; inProgress: number; todo: number }
+    >();
+
     for (const t of tasks) {
       const name = memberNameById.get(String(t.assignedTo));
       const key = name ?? (t.assignedTo ? `User ${t.assignedTo}` : "Unassigned");
-      counts.set(key, (counts.get(key) ?? 0) + 1);
+      const current = map.get(key) ?? { name: key, total: 0, done: 0, inProgress: 0, todo: 0 };
+
+      const s = String(t.status || "").toUpperCase();
+      const isDone = s === "DONE" || s === "COMPLETED";
+      const isInProgress = s === "IN_PROGRESS" || s === "INPROGRESS";
+
+      current.total += 1;
+      if (isDone) current.done += 1;
+      else if (isInProgress) current.inProgress += 1;
+      else current.todo += 1;
+
+      map.set(key, current);
     }
-    return [...counts.entries()]
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
+
+    return [...map.values()]
+      .map((item) => {
+        let progressPct = 25;
+        if (item.total > 0) {
+          const rawPct = (item.done * 100 + item.inProgress * 50 + item.todo * 25) / item.total;
+          progressPct = Math.round(rawPct);
+        }
+
+        let statusText = `${item.total} task${item.total === 1 ? "" : "s"}`;
+        if (item.total === 1) {
+          if (item.done === 1) statusText = "1 task (Completed)";
+          else if (item.inProgress === 1) statusText = "1 task (In Progress)";
+          else statusText = "1 task (To Do)";
+        } else {
+          statusText = `${item.total} tasks · ${progressPct}%`;
+        }
+
+        let barColor = "#38bdf8";
+        if (progressPct === 100) barColor = "#10b981";
+        else if (item.inProgress > 0 || progressPct > 25) barColor = "#7c3aed";
+
+        return {
+          ...item,
+          progressPct,
+          statusText,
+          barColor,
+        };
+      })
+      .sort((a, b) => b.total - a.total);
   }, [tasks, memberNameById]);
-  const workloadMax = Math.max(1, ...workload.map((w) => w.value));
 
   const recent = useMemo(() => {
     return [...registrations]
@@ -854,10 +892,10 @@ export default function EventManageInsightsPage() {
                 <ProgressRow
                   key={w.name}
                   label={w.name}
-                  value={w.value}
-                  max={workloadMax}
-                  color="#7c3aed"
-                  valueLabel={w.value === 1 ? "1 task" : `${w.value} tasks`}
+                  value={w.progressPct}
+                  max={100}
+                  color={w.barColor}
+                  valueLabel={w.statusText}
                 />
               ))}
             </div>
