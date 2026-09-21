@@ -117,8 +117,14 @@ export default function EventManageInsightsPage() {
 
   const timeline = useMemo(() => {
     const times = registrations
-      .map((r) => new Date(r.registeredAt))
-      .filter((d) => !Number.isNaN(d.getTime()));
+      .map((r) => {
+        if (!r.registeredAt) return null;
+        const str = String(r.registeredAt).trim();
+        const d = new Date(str.includes(" ") ? str.replace(" ", "T") : str);
+        return Number.isNaN(d.getTime()) ? null : d;
+      })
+      .filter((d): d is Date => d !== null);
+
     if (times.length === 0) return [];
 
     const min = new Date(Math.min(...times.map((t) => t.getTime())));
@@ -168,6 +174,12 @@ export default function EventManageInsightsPage() {
     }
     return buckets;
   }, [registrations]);
+
+  const busiestDay = useMemo(() => {
+    if (timeline.length === 0) return null;
+    const sorted = [...timeline].sort((a, b) => b.value - a.value);
+    return sorted[0] && sorted[0].value > 0 ? sorted[0] : null;
+  }, [timeline]);
 
   const statusSlices = (["GOING", "WAITLIST", "NOT_GOING", "PENDING"] as const)
     .map((s) => ({
@@ -330,35 +342,62 @@ export default function EventManageInsightsPage() {
 
       {/* Capacity + recent flow */}
       <section className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
-              Capacity
-            </p>
-            <span className="text-sm font-semibold tabular-nums text-zinc-900">
-              {capacity === 0 ? "Unlimited" : `${total} / ${capacity}`}
-            </span>
-          </div>
-          <div className="mt-4 flex items-center justify-between gap-4">
-            <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-zinc-100">
-              <div
-                className={cn(
-                  "h-full rounded-full",
-                  capacityPct >= 90 ? "bg-danger" : capacityPct >= 75 ? "bg-warning" : "bg-primary"
-                )}
-                style={{ width: `${capacityPct}%` }}
-              />
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                  Capacity Utilization
+                </p>
+                <p className="mt-1 font-display text-lg font-bold text-zinc-900">
+                  {capacity === 0 ? "Unlimited Capacity" : `${total} / ${capacity} seats filled`}
+                </p>
+              </div>
+
+              {capacity === 0 ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-bold text-emerald-700">
+                  <span className="text-sm">∞</span> Unlimited Seats
+                </span>
+              ) : (
+                <span className={cn(
+                  "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-bold",
+                  capacityPct >= 90 ? "bg-rose-50 text-rose-700 border-rose-200" :
+                  capacityPct >= 75 ? "bg-amber-50 text-amber-700 border-amber-200" :
+                  "bg-emerald-50 text-emerald-700 border-emerald-200"
+                )}>
+                  {capacityPct}% Filled
+                </span>
+              )}
             </div>
-            <span className="w-12 shrink-0 text-right text-sm font-semibold tabular-nums text-zinc-900">
-              {capacity === 0 ? "—" : `${capacityPct}%`}
-            </span>
+
+            <div className="mt-5 flex items-center justify-between gap-4">
+              <div className="h-3 flex-1 overflow-hidden rounded-full bg-zinc-100">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all duration-500",
+                    capacity === 0
+                      ? "bg-gradient-to-r from-emerald-500 to-teal-500"
+                      : capacityPct >= 90
+                      ? "bg-rose-500"
+                      : capacityPct >= 75
+                      ? "bg-amber-500"
+                      : "bg-emerald-500"
+                  )}
+                  style={{ width: `${capacity === 0 ? 100 : capacityPct}%` }}
+                />
+              </div>
+              <span className="w-16 shrink-0 text-right text-xs font-bold tabular-nums text-zinc-700">
+                {capacity === 0 ? `${total} Registered` : `${capacityPct}%`}
+              </span>
+            </div>
           </div>
-          <p className="mt-3 text-sm text-zinc-600">
-            {total === 0
-              ? "Registrations will fill capacity here."
-              : capacity === 0
-                ? "This event has unlimited capacity."
-                : `${Math.max(capacity - total, 0)} seat${capacity - total === 1 ? "" : "s"} remaining.`}
+
+          <p className="mt-4 text-xs font-medium text-zinc-500 leading-relaxed border-t border-zinc-100 pt-3">
+            {capacity === 0
+              ? `This event has no capacity restriction. Total registered: ${total} attendees.`
+              : total === 0
+              ? `No seats claimed yet out of ${capacity} total capacity.`
+              : `${Math.max(capacity - total, 0)} seat${capacity - total === 1 ? "" : "s"} remaining out of ${capacity}.`}
           </p>
         </div>
 
@@ -412,18 +451,25 @@ export default function EventManageInsightsPage() {
           title="Registrations over time"
           tooltip="Registration sign-ups bucketed by day. The darkest bar is your busiest day."
           action={
-            total > 0 && (
-              <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">
-                {total} total
-              </span>
-            )
+            <div className="flex items-center gap-2">
+              {busiestDay && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-semibold text-amber-700">
+                  🔥 Busiest: {busiestDay.label} ({busiestDay.value})
+                </span>
+              )}
+              {total > 0 && (
+                <span className="rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-semibold text-primary">
+                  {total} total
+                </span>
+              )}
+            </div>
           }
         >
           {timeline.length === 0 ? (
-            <EmptyState text="Registrations will show up here over time." />
+            <EmptyState text="Registrations will show up here over time as attendees sign up." />
           ) : (
             <div className="pt-6">
-              <VerticalBars data={timeline} height={240} />
+              <VerticalBars data={timeline} height={240} barClassName="bg-purple-600 hover:bg-purple-700 shadow-xs" />
             </div>
           )}
         </ChartCard>
