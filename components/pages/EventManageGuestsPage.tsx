@@ -10,8 +10,8 @@ import SendInvitationDialog from "../dialogs/SendInvitationDialog";
 import { useEventRole } from "@/components/auth/EventManageContext";
 
 interface IGuest {
-  id: number;
-  eventId: number;
+  id: number | string;
+  eventId: number | string;
   email: string;
   role: string;
   status: string;
