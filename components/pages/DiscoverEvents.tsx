@@ -330,7 +330,7 @@ export default function DiscoverEvents() {
                         </p>
                       )}
 
-                      <div className="mt-4 flex flex-col gap-1.5 text-sm text-zinc-500">
+                      <div className="mt-4 flex flex-col gap-1.5 text-sm text-zinc-500 mb-5">
                         <span className="inline-flex items-center gap-2">
                           <CalendarDays className="h-4 w-4 text-zinc-400" strokeWidth={1.75} />
                           {displayDate}
@@ -348,7 +348,7 @@ export default function DiscoverEvents() {
                       </div>
 
                       {/* Capacity details and CTA */}
-                      <div className="mt-5 flex items-center justify-between border-t border-zinc-100 pt-4">
+                      <div className="mt-auto flex items-center justify-between border-t border-zinc-100 pt-4">
                         <span className="text-sm font-semibold text-primary">
                           {displayPrice}
                         </span>
