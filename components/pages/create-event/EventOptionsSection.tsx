@@ -66,7 +66,9 @@ export default function EventOptionsSection({
                   disabled={disablePricing}
                   onChange={(next) => {
                     field.onChange(next);
-                    if (next === "paid" && !isStripeConnected) {
+                    if (next === "free") {
+                      setValue("ticketPrice", 0);
+                    } else if (next === "paid" && !isStripeConnected) {
                       setConnectStripeOpen(true);
                     }
                   }}
