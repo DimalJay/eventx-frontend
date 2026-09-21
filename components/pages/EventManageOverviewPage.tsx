@@ -360,7 +360,7 @@ export default function EventManageOverviewPage() {
               <div className="pt-2 border-t border-white/10">
                 <Link
                   href={eventStatusInfo?.href || `#`}
-                  className="inline-flex h-8 w-full items-center justify-center gap-2 rounded-full bg-white px-4 text-xs font-bold text-zinc-900 hover:bg-zinc-100 transition active:scale-[0.98]"
+                  className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-xl bg-white px-4 text-xs font-bold text-zinc-900 hover:bg-zinc-100 transition active:scale-[0.98]"
                 >
                   <span>{eventStatusInfo?.linkText}</span>
                   <ArrowRight className="h-3.5 w-3.5" />
