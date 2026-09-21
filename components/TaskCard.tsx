@@ -3,6 +3,7 @@ import EventTaskUpdateDialog from "./dialogs/EventTaskUpdate";
 import { useState } from "react";
 import { TeamMember } from "@/types/team";
 import { FiLock } from "react-icons/fi";
+import { AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function TaskCard({ task , users, eventId, canEdit = true, disabled = false }: { task: ITask , users: TeamMember[], eventId: string, canEdit?: boolean, disabled?: boolean }) {
@@ -23,8 +24,12 @@ export default function TaskCard({ task , users, eventId, canEdit = true, disabl
     const isDone = rawStatus === "DONE" || rawStatus === "COMPLETED";
     const isInProgress = rawStatus === "IN_PROGRESS" || rawStatus === "INPROGRESS";
 
-    const statusPct = isDone ? 100 : isInProgress ? 50 : 25;
     const statusLabel = isDone ? "Completed" : isInProgress ? "In Progress" : "To Do";
+
+    const isOverdue =
+        !isDone &&
+        task.dueDate &&
+        new Date(task.dueDate).getTime() < Date.now(); // eslint-disable-line react-hooks/purity
 
     return (
         <>
@@ -50,29 +55,20 @@ export default function TaskCard({ task , users, eventId, canEdit = true, disabl
                 </p>
             )}
 
-            {/* Task status progress line */}
-            <div className="mt-3 flex flex-col gap-1">
-                <div className="flex items-center justify-between text-[11px] font-semibold text-zinc-500">
-                    <span className={cn(
-                        isDone ? "text-emerald-700" :
-                        isInProgress ? "text-amber-700" : "text-sky-700"
-                    )}>
-                        {statusLabel}
+            {/* Task status */}
+            <div className="mt-3 text-[11px] font-semibold text-zinc-500">
+                <span className={cn(
+                    isDone ? "text-emerald-700" :
+                    isInProgress ? "text-amber-700" : "text-sky-700"
+                )}>
+                    {statusLabel}
+                </span>
+                {isOverdue && (
+                    <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-600">
+                        <AlertTriangle className="h-3 w-3" />
+                        Overdue
                     </span>
-                    <span className="tabular-nums text-zinc-400">{statusPct}%</span>
-                </div>
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-zinc-100">
-                    <div
-                        className={cn(
-                            "h-full rounded-full transition-all duration-500",
-                            isDone
-                                ? "w-full bg-emerald-500"
-                                : isInProgress
-                                ? "w-1/2 bg-amber-500"
-                                : "w-1/4 bg-sky-400"
-                        )}
-                    />
-                </div>
+                )}
             </div>
 
             <div className="mt-3.5 flex items-center justify-between border-t border-zinc-100 pt-3">
@@ -84,7 +80,7 @@ export default function TaskCard({ task , users, eventId, canEdit = true, disabl
                     <span className="max-w-[100px] truncate">{assignedUser ? assignedUser.name : task.assignedTo}</span>
                 </span>
 
-                <span className="text-[11px] font-semibold text-zinc-500">
+                <span className={cn("text-[11px] font-semibold", isOverdue ? "text-red-600" : "text-zinc-500")}>
                     {formatDueDate(task.dueDate)}
                 </span>
             </div>
