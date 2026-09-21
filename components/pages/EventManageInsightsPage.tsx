@@ -5,18 +5,16 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
-import { Users, CalendarCheck, ScanLine, Wallet, Download } from "lucide-react";
+import { Users, ScanLine, Wallet, Download, UserX, Sparkles, Star, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { getEventById } from "@/service/eventService";
 import { getEventRegistrations } from "@/service/registrationService";
+import { getFeedbacks } from "@/service/feedbackService";
 import { getTasksRequest } from "@/service/taskService";
 import { getTeamMembers } from "@/service/teamService";
-import { IRegistration, IEvent, ITask } from "@/types";
+import { IRegistration, IEvent, ITask, IFeedback } from "@/types";
 import { TeamMember } from "@/types/team";
-import { cn } from "@/lib/utils";
-import { formatPrice } from "@/lib/utils";
-import { registrationCSVRows, downloadCSV } from "@/lib/utils";
-import { decodeEventId, encodeEventId } from "@/lib/utils";
+import { cn, formatPrice, downloadCSV, decodeEventId, encodeEventId } from "@/lib/utils";
 import HelpTooltip from "@/components/widgets/HelpTooltip";
 import DonutChart from "@/components/widgets/charts/DonutChart";
 import VerticalBars from "@/components/widgets/charts/VerticalBars";
@@ -90,6 +88,16 @@ export default function EventManageInsightsPage() {
     retry: false,
   });
 
+  const { data: rawFeedbacks = [] } = useQuery({
+    queryKey: ["manage-feedbacks", eventId],
+    queryFn: async () => {
+      const res = await getFeedbacks(eventId);
+      return (res.data || []) as IFeedback[];
+    },
+    enabled: !!eventId,
+    retry: false,
+  });
+
   const total = registrations.length;
   const going = registrations.filter((r) => r.status === "GOING").length;
   const waitlist = registrations.filter((r) => r.status === "WAITLIST").length;
@@ -98,14 +106,61 @@ export default function EventManageInsightsPage() {
   const checkedIn = registrations.filter(
     (r) => Boolean(r.chekingTime) || Boolean(r.checkingTime)
   ).length;
+  const notCheckedIn = Math.max(0, total - checkedIn);
 
-  const attendancePct = total > 0 ? Math.round((going / total) * 100) : 0;
-  const checkInPct = going > 0 ? Math.round((checkedIn / going) * 100) : 0;
+  const checkedInPct = total > 0 ? Math.round((checkedIn / total) * 100) : 0;
+  const notCheckedInPct = total > 0 ? Math.round((notCheckedIn / total) * 100) : 0;
 
   const capacity = event?.capacity ?? 0;
   const capacityPct = capacity > 0 ? Math.min(Math.round((total / capacity) * 100), 100) : 0;
 
-  const revenue = event && event.ticketPrice > 0 ? going * event.ticketPrice : 0;
+  const revenue = event && event.ticketPrice > 0 ? total * event.ticketPrice : 0;
+
+  // Feedback & AI Sentiment Analytics Summary
+  const feedbackAnalytics = useMemo(() => {
+    const count = rawFeedbacks.length;
+    if (count === 0) {
+      return {
+        count: 0,
+        avgScore: 0,
+        posCount: 0,
+        neuCount: 0,
+        negCount: 0,
+        posPct: 0,
+        neuPct: 0,
+        negPct: 0,
+      };
+    }
+
+    const totalScore = rawFeedbacks.reduce((acc, f) => {
+      const org = Number(f.organizationRating) || 0;
+      const con = Number(f.contentRating) || 0;
+      const exp = Number(f.experienceRating) || 0;
+      return acc + (org + con + exp) / 3;
+    }, 0);
+
+    const avgScore = Math.round((totalScore / count) * 10) / 10;
+
+    const posCount = rawFeedbacks.filter((f) => String(f.sentiment).toLowerCase() === "positive").length;
+    const neuCount = rawFeedbacks.filter((f) => String(f.sentiment).toLowerCase() === "neutral").length;
+    const negCount = rawFeedbacks.filter((f) => String(f.sentiment).toLowerCase() === "negative").length;
+    const totalSent = posCount + neuCount + negCount;
+
+    const posPct = totalSent > 0 ? Math.round((posCount / totalSent) * 100) : 0;
+    const neuPct = totalSent > 0 ? Math.round((neuCount / totalSent) * 100) : 0;
+    const negPct = totalSent > 0 ? Math.round((negCount / totalSent) * 100) : 0;
+
+    return {
+      count,
+      avgScore,
+      posCount,
+      neuCount,
+      negCount,
+      posPct,
+      neuPct,
+      negPct,
+    };
+  }, [rawFeedbacks]);
   const recentCount = useMemo(
     () =>
       registrations.filter((r) => {
@@ -117,8 +172,14 @@ export default function EventManageInsightsPage() {
 
   const timeline = useMemo(() => {
     const times = registrations
-      .map((r) => new Date(r.registeredAt))
-      .filter((d) => !Number.isNaN(d.getTime()));
+      .map((r) => {
+        if (!r.registeredAt) return null;
+        const str = String(r.registeredAt).trim();
+        const d = new Date(str.includes(" ") ? str.replace(" ", "T") : str);
+        return Number.isNaN(d.getTime()) ? null : d;
+      })
+      .filter((d): d is Date => d !== null);
+
     if (times.length === 0) return [];
 
     const min = new Date(Math.min(...times.map((t) => t.getTime())));
@@ -169,6 +230,12 @@ export default function EventManageInsightsPage() {
     return buckets;
   }, [registrations]);
 
+  const busiestDay = useMemo(() => {
+    if (timeline.length === 0) return null;
+    const sorted = [...timeline].sort((a, b) => b.value - a.value);
+    return sorted[0] && sorted[0].value > 0 ? sorted[0] : null;
+  }, [timeline]);
+
   const statusSlices = (["GOING", "WAITLIST", "NOT_GOING", "PENDING"] as const)
     .map((s) => ({
       label: STATUS_LABELS[s],
@@ -180,9 +247,9 @@ export default function EventManageInsightsPage() {
   const checkedInSlices = [
     { label: "Checked in", value: checkedIn, color: "#10b981" },
     {
-      label: "Not yet",
-      value: Math.max(going - checkedIn, 0),
-      color: "#e4e4e7",
+      label: "Not Checked in",
+      value: notCheckedIn,
+      color: "#f59e0b",
     },
   ];
 
@@ -219,17 +286,58 @@ export default function EventManageInsightsPage() {
   }, [teamMembers]);
 
   const workload = useMemo(() => {
-    const counts = new Map<string, number>();
+    const map = new Map<
+      string,
+      { name: string; total: number; done: number; inProgress: number; todo: number }
+    >();
+
     for (const t of tasks) {
       const name = memberNameById.get(String(t.assignedTo));
       const key = name ?? (t.assignedTo ? `User ${t.assignedTo}` : "Unassigned");
-      counts.set(key, (counts.get(key) ?? 0) + 1);
+      const current = map.get(key) ?? { name: key, total: 0, done: 0, inProgress: 0, todo: 0 };
+
+      const s = String(t.status || "").toUpperCase();
+      const isDone = s === "DONE" || s === "COMPLETED";
+      const isInProgress = s === "IN_PROGRESS" || s === "INPROGRESS";
+
+      current.total += 1;
+      if (isDone) current.done += 1;
+      else if (isInProgress) current.inProgress += 1;
+      else current.todo += 1;
+
+      map.set(key, current);
     }
-    return [...counts.entries()]
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value);
+
+    return [...map.values()]
+      .map((item) => {
+        let progressPct = 25;
+        if (item.total > 0) {
+          const rawPct = (item.done * 100 + item.inProgress * 50 + item.todo * 25) / item.total;
+          progressPct = Math.round(rawPct);
+        }
+
+        let statusText = `${item.total} task${item.total === 1 ? "" : "s"}`;
+        if (item.total === 1) {
+          if (item.done === 1) statusText = "1 task (Completed)";
+          else if (item.inProgress === 1) statusText = "1 task (In Progress)";
+          else statusText = "1 task (To Do)";
+        } else {
+          statusText = `${item.total} tasks · ${progressPct}%`;
+        }
+
+        let barColor = "#38bdf8";
+        if (progressPct === 100) barColor = "#10b981";
+        else if (item.inProgress > 0 || progressPct > 25) barColor = "#7c3aed";
+
+        return {
+          ...item,
+          progressPct,
+          statusText,
+          barColor,
+        };
+      })
+      .sort((a, b) => b.total - a.total);
   }, [tasks, memberNameById]);
-  const workloadMax = Math.max(1, ...workload.map((w) => w.value));
 
   const recent = useMemo(() => {
     return [...registrations]
@@ -237,15 +345,114 @@ export default function EventManageInsightsPage() {
         (a, b) =>
           new Date(b.registeredAt).getTime() - new Date(a.registeredAt).getTime()
       )
-      .slice(0, 6);
+      .slice(0, 4);
   }, [registrations]);
 
   const handleExport = () => {
-    if (registrations.length === 0) return;
-    const rows = registrationCSVRows(registrations);
-    const filename = `insights-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`;
+    const isFree = !event || event.ticketPrice === 0;
+
+    const rows = [
+      {
+        Category: "Executive KPI Summary",
+        Metric: "Event Title",
+        Value: event?.title || "N/A",
+        Details: "",
+      },
+      {
+        Category: "Executive KPI Summary",
+        Metric: "Total Registrations",
+        Value: total.toLocaleString(),
+        Details: `${recentCount} registered in the last 7 days`,
+      },
+      {
+        Category: "Executive KPI Summary",
+        Metric: "Capacity Limit",
+        Value: capacity === 0 ? "Unlimited" : capacity.toLocaleString(),
+        Details: capacity === 0 ? "No capacity cap" : `${capacityPct}% seats filled`,
+      },
+      {
+        Category: "Executive KPI Summary",
+        Metric: "Estimated Revenue",
+        Value: isFree ? "Free event" : formatPrice(revenue, true),
+        Details: isFree ? "No ticket charge" : `${total} tickets × ${formatPrice(event?.ticketPrice ?? 0)}`,
+      },
+      {
+        Category: "Attendance Flow",
+        Metric: "Checked In Attendees",
+        Value: checkedIn.toLocaleString(),
+        Details: `${checkedInPct}% of registered attendees`,
+      },
+      {
+        Category: "Attendance Flow",
+        Metric: "Not Checked In Attendees",
+        Value: notCheckedIn.toLocaleString(),
+        Details: `${notCheckedInPct}% awaiting check-in`,
+      },
+      {
+        Category: "Feedback & AI Sentiment Summary",
+        Metric: "Feedback Response Count",
+        Value: feedbackAnalytics.count.toLocaleString(),
+        Details: total > 0 ? `${Math.round((feedbackAnalytics.count / total) * 100)}% response rate` : "0% response rate",
+      },
+      {
+        Category: "Feedback & AI Sentiment Summary",
+        Metric: "Average Satisfaction Rating",
+        Value: feedbackAnalytics.avgScore > 0 ? `${feedbackAnalytics.avgScore.toFixed(1)} / 5.0` : "No Ratings Yet",
+        Details: "Combined Organization, Content & Experience rating average",
+      },
+      {
+        Category: "Feedback & AI Sentiment Summary",
+        Metric: "AI Positive Sentiment",
+        Value: `${feedbackAnalytics.posCount} (${feedbackAnalytics.posPct}%)`,
+        Details: "AI classified positive feedback count",
+      },
+      {
+        Category: "Feedback & AI Sentiment Summary",
+        Metric: "AI Neutral Sentiment",
+        Value: `${feedbackAnalytics.neuCount} (${feedbackAnalytics.neuPct}%)`,
+        Details: "AI classified neutral feedback count",
+      },
+      {
+        Category: "Feedback & AI Sentiment Summary",
+        Metric: "AI Negative Sentiment",
+        Value: `${feedbackAnalytics.negCount} (${feedbackAnalytics.negPct}%)`,
+        Details: "AI classified negative feedback count",
+      },
+      {
+        Category: "Registration Breakdown",
+        Metric: "Going Status Count",
+        Value: going.toLocaleString(),
+        Details: total > 0 ? `${Math.round((going / total) * 100)}% of total` : "0%",
+      },
+      {
+        Category: "Registration Breakdown",
+        Metric: "Waitlist Status Count",
+        Value: waitlist.toLocaleString(),
+        Details: total > 0 ? `${Math.round((waitlist / total) * 100)}% of total` : "0%",
+      },
+      {
+        Category: "Registration Breakdown",
+        Metric: "Not Going Status Count",
+        Value: notGoing.toLocaleString(),
+        Details: total > 0 ? `${Math.round((notGoing / total) * 100)}% of total` : "0%",
+      },
+      {
+        Category: "Registration Breakdown",
+        Metric: "Pending Status Count",
+        Value: pending.toLocaleString(),
+        Details: total > 0 ? `${Math.round((pending / total) * 100)}% of total` : "0%",
+      },
+      {
+        Category: "Task & Operations Overview",
+        Metric: "Total Team Tasks",
+        Value: tasks.length.toLocaleString(),
+        Details: `${tasksDone} Done (${taskCompletionPct}%), ${tasksInProgress} In progress, ${tasksTodo} To do`,
+      },
+    ];
+
+    const filename = `insights-analytics-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`;
     downloadCSV(filename, rows);
-    toast.success(`Exported ${rows.length} registrations.`);
+    toast.success(`Exported Event Executive Insights report.`);
   };
 
   if (isLoading) {
@@ -303,18 +510,20 @@ export default function EventManageInsightsPage() {
           icon={<Users className="h-4 w-4" />}
         />
         <StatCard
-          label="Attending"
-          value={going.toLocaleString()}
-          delta={`${attendancePct}% of registered`}
-          icon={<CalendarCheck className="h-4 w-4" />}
-        />
-        <StatCard
           label="Checked in"
           value={checkedIn.toLocaleString()}
           delta={
-            going === 0 ? "Opens on event day" : `${checkInPct}% of attendees`
+            total === 0 ? "Opens on event day" : `${checkedInPct}% of registered`
           }
           icon={<ScanLine className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Not Checked in"
+          value={notCheckedIn.toLocaleString()}
+          delta={
+            total === 0 ? "No pending arrivals" : `${notCheckedInPct}% awaiting check-in`
+          }
+          icon={<UserX className="h-4 w-4" />}
         />
         <StatCard
           label="Estimated revenue"
@@ -322,56 +531,166 @@ export default function EventManageInsightsPage() {
           delta={
             isFree
               ? "No ticket charge"
-              : `${going} × ${formatPrice(event?.ticketPrice ?? 0)}`
+              : `${total} × ${formatPrice(event?.ticketPrice ?? 0)}`
           }
           icon={<Wallet className="h-4 w-4" />}
         />
       </section>
 
+      {/* Compact Feedback & AI Sentiment Summary Card */}
+      <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xs">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-100 pb-4">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-50 border border-amber-200">
+              <Sparkles className="h-4 w-4 text-amber-600" />
+            </div>
+            <div>
+              <h3 className="font-display text-base font-bold text-zinc-900">
+                Feedback & AI Sentiment Summary
+              </h3>
+              <p className="text-xs text-zinc-500">
+                Attendee ratings overview and AI classified sentiment leaning
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href={`/event/manage/${encodeEventId(eventId)}/feedbacks`}
+            className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+          >
+            <span>View detailed feedbacks page</span>
+            <span>→</span>
+          </Link>
+        </div>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          {/* Rating Score */}
+          <div className="flex items-center gap-3 rounded-xl border border-amber-100 bg-amber-50/60 p-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100/80 text-amber-700">
+              <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-800">
+                Avg Satisfaction
+              </p>
+              <p className="font-display text-lg font-extrabold text-zinc-900 tabular-nums">
+                {feedbackAnalytics.avgScore > 0 ? `${feedbackAnalytics.avgScore.toFixed(1)} / 5.0` : "No Ratings Yet"}
+              </p>
+              <p className="text-[11px] font-medium text-amber-700">
+                {feedbackAnalytics.count} attendee{feedbackAnalytics.count === 1 ? "" : "s"} submitted ratings
+              </p>
+            </div>
+          </div>
+
+          {/* AI Sentiment Index */}
+          <div className="flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100/80 text-emerald-700">
+              <Sparkles className="h-5 w-5 text-emerald-600" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-800">
+                AI Sentiment Index
+              </p>
+              <p className="font-display text-lg font-extrabold text-zinc-900 tabular-nums">
+                {feedbackAnalytics.count > 0 ? `${feedbackAnalytics.posPct}% Positive` : "No AI Data"}
+              </p>
+              <p className="text-[11px] font-medium text-emerald-700">
+                {feedbackAnalytics.posCount} Pos · {feedbackAnalytics.neuCount} Neu · {feedbackAnalytics.negCount} Neg
+              </p>
+            </div>
+          </div>
+
+          {/* Response Ratio */}
+          <div className="flex items-center gap-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-100/80 text-indigo-700">
+              <MessageSquare className="h-5 w-5 text-indigo-600" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-800">
+                Feedback Response Rate
+              </p>
+              <p className="font-display text-lg font-extrabold text-zinc-900 tabular-nums">
+                {total > 0 ? `${Math.round((feedbackAnalytics.count / total) * 100)}%` : "0%"}
+              </p>
+              <p className="text-[11px] font-medium text-indigo-700">
+                {feedbackAnalytics.count} of {total} registered attendees
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Capacity + recent flow */}
       <section className="grid gap-4 sm:grid-cols-2">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
-              Capacity
-            </p>
-            <span className="text-sm font-semibold tabular-nums text-zinc-900">
-              {capacity === 0 ? "Unlimited" : `${total} / ${capacity}`}
-            </span>
-          </div>
-          <div className="mt-4 flex items-center justify-between gap-4">
-            <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-zinc-100">
-              <div
-                className={cn(
-                  "h-full rounded-full",
-                  capacityPct >= 90 ? "bg-danger" : capacityPct >= 75 ? "bg-warning" : "bg-primary"
-                )}
-                style={{ width: `${capacityPct}%` }}
-              />
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-400">
+                  Capacity Utilization
+                </p>
+                <p className="mt-1 font-display text-lg font-bold text-zinc-900">
+                  {capacity === 0 ? "Unlimited Capacity" : `${total} / ${capacity} seats filled`}
+                </p>
+              </div>
+
+              {capacity === 0 ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-bold text-emerald-700">
+                  <span className="text-sm">∞</span> Unlimited Seats
+                </span>
+              ) : (
+                <span className={cn(
+                  "inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-bold",
+                  capacityPct >= 90 ? "bg-rose-50 text-rose-700 border-rose-200" :
+                  capacityPct >= 75 ? "bg-amber-50 text-amber-700 border-amber-200" :
+                  "bg-emerald-50 text-emerald-700 border-emerald-200"
+                )}>
+                  {capacityPct}% Filled
+                </span>
+              )}
             </div>
-            <span className="w-12 shrink-0 text-right text-sm font-semibold tabular-nums text-zinc-900">
-              {capacity === 0 ? "—" : `${capacityPct}%`}
-            </span>
+
+            <div className="mt-5 flex items-center justify-between gap-4">
+              <div className="h-3 flex-1 overflow-hidden rounded-full bg-zinc-100">
+                <div
+                  className={cn(
+                    "h-full rounded-full transition-all duration-500",
+                    capacity === 0
+                      ? "bg-gradient-to-r from-emerald-500 to-teal-500"
+                      : capacityPct >= 90
+                      ? "bg-rose-500"
+                      : capacityPct >= 75
+                      ? "bg-amber-500"
+                      : "bg-emerald-500"
+                  )}
+                  style={{ width: `${capacity === 0 ? 100 : capacityPct}%` }}
+                />
+              </div>
+              <span className="w-16 shrink-0 text-right text-xs font-bold tabular-nums text-zinc-700">
+                {capacity === 0 ? `${total} Registered` : `${capacityPct}%`}
+              </span>
+            </div>
           </div>
-          <p className="mt-3 text-sm text-zinc-600">
-            {total === 0
-              ? "Registrations will fill capacity here."
-              : capacity === 0
-                ? "This event has unlimited capacity."
-                : `${Math.max(capacity - total, 0)} seat${capacity - total === 1 ? "" : "s"} remaining.`}
+
+          <p className="mt-4 text-xs font-medium text-zinc-500 leading-relaxed border-t border-zinc-100 pt-3">
+            {capacity === 0
+              ? `This event has no capacity restriction. Total registered: ${total} attendees.`
+              : total === 0
+              ? `No seats claimed yet out of ${capacity} total capacity.`
+              : `${Math.max(capacity - total, 0)} seat${capacity - total === 1 ? "" : "s"} remaining out of ${capacity}.`}
           </p>
         </div>
 
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xs">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
                 Attendee flow
               </p>
               <h2 className="mt-2 flex items-center gap-2 font-display text-xl font-medium tracking-tight text-zinc-900">
-                Registered · Attending · Checked in
+                Registered · Checked in · Not Checked in
                 <HelpTooltip
-                  text="How far attendees have progressed: signing up, confirming attendance, then arriving at the venue."
+                  text="Check-in progression of registered attendees: scanned at door vs awaiting arrival."
                   side="bottom"
                 />
               </h2>
@@ -379,23 +698,23 @@ export default function EventManageInsightsPage() {
           </div>
           <div className="mt-6 flex items-end gap-3">
             {[
-              { label: "Registered", value: total, color: "#a1a1aa", max: total },
-              { label: "Attending", value: going, color: "#7c3aed", max: total },
-              { label: "Checked in", value: checkedIn, color: "#10b981", max: total },
+              { label: "Registered", value: total, color: "#7c3aed", max: total, pct: 100 },
+              { label: "Checked in", value: checkedIn, color: "#10b981", max: total, pct: checkedInPct },
+              { label: "Not Checked in", value: notCheckedIn, color: "#f59e0b", max: total, pct: notCheckedInPct },
             ].map((stage) => {
-              const pct = stage.max > 0 ? (stage.value / stage.max) * 100 : 0;
+              const heightPct = stage.max > 0 ? (stage.value / stage.max) * 100 : 0;
               return (
                 <div key={stage.label} className="flex flex-1 flex-col items-center gap-2">
                   <div className="flex h-40 w-full items-end justify-center rounded-xl bg-zinc-50">
                     <div
                       className="w-full max-w-[3rem] rounded-t-xl transition-all"
-                      style={{ height: `${Math.max(pct, 3)}%`, background: stage.color }}
+                      style={{ height: `${Math.max(heightPct, 3)}%`, background: stage.color }}
                     />
                   </div>
-                  <span className="text-xs font-semibold text-zinc-700">
-                    {stage.value.toLocaleString()}
+                  <span className="text-xs font-bold text-zinc-900 tabular-nums">
+                    {stage.value.toLocaleString()} <span className="text-[11px] font-semibold text-zinc-500">({total > 0 ? stage.pct : 0}%)</span>
                   </span>
-                  <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
                     {stage.label}
                   </span>
                 </div>
@@ -412,18 +731,25 @@ export default function EventManageInsightsPage() {
           title="Registrations over time"
           tooltip="Registration sign-ups bucketed by day. The darkest bar is your busiest day."
           action={
-            total > 0 && (
-              <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">
-                {total} total
-              </span>
-            )
+            <div className="flex items-center gap-2">
+              {busiestDay && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-semibold text-amber-700">
+                  🔥 Busiest: {busiestDay.label} ({busiestDay.value})
+                </span>
+              )}
+              {total > 0 && (
+                <span className="rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-semibold text-primary">
+                  {total} total
+                </span>
+              )}
+            </div>
           }
         >
           {timeline.length === 0 ? (
-            <EmptyState text="Registrations will show up here over time." />
+            <EmptyState text="Registrations will show up here over time as attendees sign up." />
           ) : (
             <div className="pt-6">
-              <VerticalBars data={timeline} height={240} />
+              <VerticalBars data={timeline} height={240} barClassName="bg-purple-600 hover:bg-purple-700 shadow-xs" />
             </div>
           )}
         </ChartCard>
@@ -473,12 +799,12 @@ export default function EventManageInsightsPage() {
               size={150}
               thickness={20}
               centerTitle="Checked in"
-              centerValue={going > 0 ? `${checkInPct}%` : "0%"}
-              centerSub={`of ${going} attending`}
+              centerValue={total > 0 ? `${checkedInPct}%` : "0%"}
+              centerSub={`of ${total} registered`}
             />
             <div className="grid flex-1 gap-2.5">
-              <LegendRow color="#10b981" label="Checked in" count={checkedIn} total={going} />
-              <LegendRow color="#e4e4e7" label="Not yet" count={Math.max(going - checkedIn, 0)} total={going} />
+              <LegendRow color="#10b981" label="Checked in" count={checkedIn} total={total} />
+              <LegendRow color="#f59e0b" label="Not Checked in" count={notCheckedIn} total={total} />
             </div>
           </div>
         </ChartCard>
@@ -556,19 +882,20 @@ export default function EventManageInsightsPage() {
           eyebrow="Capacity"
           title="Workload by member"
           tooltip="Open tasks assigned to each team member. Keep the load balanced as the event approaches."
+          className="flex flex-col justify-start h-full"
         >
           {workload.length === 0 ? (
             <EmptyState text="No tasks assigned yet." />
           ) : (
-            <div className="grid gap-5">
+            <div className="max-h-[260px] overflow-y-auto grid gap-4 pr-1.5 scrollbar-thin">
               {workload.map((w) => (
                 <ProgressRow
                   key={w.name}
                   label={w.name}
-                  value={w.value}
-                  max={workloadMax}
-                  color="#7c3aed"
-                  valueLabel={w.value === 1 ? "1 task" : `${w.value} tasks`}
+                  value={w.progressPct}
+                  max={100}
+                  color={w.barColor}
+                  valueLabel={w.statusText}
                 />
               ))}
             </div>
@@ -579,11 +906,12 @@ export default function EventManageInsightsPage() {
           eyebrow="Live"
           title="Recent registrations"
           tooltip="The latest people to register for this event."
+          className="flex flex-col justify-start h-full"
         >
           {recent.length === 0 ? (
             <EmptyState text="No registrations yet." />
           ) : (
-            <div className="grid gap-2.5">
+            <div className="max-h-[260px] overflow-y-auto grid gap-2.5 pr-1.5 scrollbar-thin">
               {recent.map((r) => {
                 const name =
                   `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim() ||

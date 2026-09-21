@@ -6,9 +6,10 @@ import { useQuery } from "@tanstack/react-query";
 import { getPublicEvents } from "@/service/eventService";
 import { IEvent } from "@/types";
 import Select from "../widgets/Select";
-import { formatPrice, encodeEventId } from "@/lib/utils";
+import { formatPrice, encodeEventId, getEventCoverUrl } from "@/lib/utils";
 import { Search, RotateCcw, AlertCircle, Video, CalendarDays, MapPin, ArrowRight } from "lucide-react";
 import ShaderBackground from "../landing/ShaderBackground";
+import EventCoverPlaceholder from "../widgets/EventCoverPlaceholder";
 
 export default function DiscoverEvents() {
   // State for search and filters
@@ -284,11 +285,7 @@ export default function DiscoverEvents() {
                   event.location?.toLowerCase().includes("http");
 
                 // Get cover image path from database or mockup
-                const rawImg = event.coverImage;
-                const backendBaseUrl = process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL?.replace("/api/v1", "") || "";
-                const imageUrl = (rawImg && rawImg !== "null" && rawImg !== "undefined" && rawImg.trim() !== "")
-                  ? (rawImg.startsWith("http") ? rawImg : `${backendBaseUrl}${rawImg}`)
-                  : `https://picsum.photos/seed/eventx-${eventId}/720/400`;
+                const imageUrl = getEventCoverUrl(event.coverImage);
 
                 return (
                   <article
@@ -297,14 +294,18 @@ export default function DiscoverEvents() {
                   >
                     {/* Event cover image */}
                     <div className="relative h-44 w-full overflow-hidden bg-zinc-100">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={imageUrl}
-                        alt={event.title}
-                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                        loading="lazy"
-                        decoding="async"
-                      />
+                      {imageUrl ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img
+                          src={imageUrl}
+                          alt={event.title}
+                          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      ) : (
+                        <EventCoverPlaceholder title={event.title} category={event.category} />
+                      )}
 
                       {/* Online badge */}
                       {isOnline && (
