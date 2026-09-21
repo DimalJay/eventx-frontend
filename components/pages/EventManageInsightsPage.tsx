@@ -5,13 +5,14 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
-import { Users, ScanLine, Wallet, Download, UserX } from "lucide-react";
+import { Users, ScanLine, Wallet, Download, UserX, Sparkles, Star, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { getEventById } from "@/service/eventService";
 import { getEventRegistrations } from "@/service/registrationService";
+import { getFeedbacks } from "@/service/feedbackService";
 import { getTasksRequest } from "@/service/taskService";
 import { getTeamMembers } from "@/service/teamService";
-import { IRegistration, IEvent, ITask } from "@/types";
+import { IRegistration, IEvent, ITask, IFeedback } from "@/types";
 import { TeamMember } from "@/types/team";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/utils";
@@ -90,6 +91,16 @@ export default function EventManageInsightsPage() {
     retry: false,
   });
 
+  const { data: rawFeedbacks = [] } = useQuery({
+    queryKey: ["manage-feedbacks", eventId],
+    queryFn: async () => {
+      const res = await getFeedbacks(eventId);
+      return (res.data || []) as IFeedback[];
+    },
+    enabled: !!eventId,
+    retry: false,
+  });
+
   const total = registrations.length;
   const going = registrations.filter((r) => r.status === "GOING").length;
   const waitlist = registrations.filter((r) => r.status === "WAITLIST").length;
@@ -107,6 +118,52 @@ export default function EventManageInsightsPage() {
   const capacityPct = capacity > 0 ? Math.min(Math.round((total / capacity) * 100), 100) : 0;
 
   const revenue = event && event.ticketPrice > 0 ? total * event.ticketPrice : 0;
+
+  // Feedback & AI Sentiment Analytics Summary
+  const feedbackAnalytics = useMemo(() => {
+    const count = rawFeedbacks.length;
+    if (count === 0) {
+      return {
+        count: 0,
+        avgScore: 0,
+        posCount: 0,
+        neuCount: 0,
+        negCount: 0,
+        posPct: 0,
+        neuPct: 0,
+        negPct: 0,
+      };
+    }
+
+    const totalScore = rawFeedbacks.reduce((acc, f) => {
+      const org = Number(f.organizationRating) || 0;
+      const con = Number(f.contentRating) || 0;
+      const exp = Number(f.experienceRating) || 0;
+      return acc + (org + con + exp) / 3;
+    }, 0);
+
+    const avgScore = Math.round((totalScore / count) * 10) / 10;
+
+    const posCount = rawFeedbacks.filter((f) => String(f.sentiment).toLowerCase() === "positive").length;
+    const neuCount = rawFeedbacks.filter((f) => String(f.sentiment).toLowerCase() === "neutral").length;
+    const negCount = rawFeedbacks.filter((f) => String(f.sentiment).toLowerCase() === "negative").length;
+    const totalSent = posCount + neuCount + negCount;
+
+    const posPct = totalSent > 0 ? Math.round((posCount / totalSent) * 100) : 0;
+    const neuPct = totalSent > 0 ? Math.round((neuCount / totalSent) * 100) : 0;
+    const negPct = totalSent > 0 ? Math.round((negCount / totalSent) * 100) : 0;
+
+    return {
+      count,
+      avgScore,
+      posCount,
+      neuCount,
+      negCount,
+      posPct,
+      neuPct,
+      negPct,
+    };
+  }, [rawFeedbacks]);
   const recentCount = useMemo(
     () =>
       registrations.filter((r) => {
@@ -255,10 +312,36 @@ export default function EventManageInsightsPage() {
 
   const handleExport = () => {
     if (registrations.length === 0) return;
-    const rows = registrationCSVRows(registrations);
+
+    // Create lookup map for feedback entries by participantId / email
+    const fbMap = new Map<string, IFeedback>();
+    rawFeedbacks.forEach((f) => {
+      if (f.participantId) fbMap.set(String(f.participantId), f);
+      if (f.email) fbMap.set(f.email.toLowerCase(), f);
+    });
+
+    const rows = registrations.map((r) => {
+      const fb = fbMap.get(String(r.userId)) || (r.email ? fbMap.get(r.email.toLowerCase()) : undefined);
+      const isCheckedIn = Boolean(r.chekingTime) || Boolean(r.checkingTime);
+      return {
+        "Registration ID": r.id,
+        "First Name": r.firstName ?? "",
+        "Last Name": r.lastName ?? "",
+        Email: r.email ?? "",
+        Status: r.status ?? "",
+        "Checked In": isCheckedIn ? "YES" : "NO",
+        "Check-in Time": r.chekingTime ? String(r.chekingTime) : r.checkingTime ? String(r.checkingTime) : "",
+        "Org Rating": fb ? (fb.organizationRating ?? "") : "",
+        "Content Rating": fb ? (fb.contentRating ?? "") : "",
+        "Experience Rating": fb ? (fb.experienceRating ?? "") : "",
+        "AI Sentiment": fb ? (fb.sentiment ?? "") : "",
+        "Written Comment": fb ? fb.comment ?? "" : "",
+      };
+    });
+
     const filename = `insights-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`;
     downloadCSV(filename, rows);
-    toast.success(`Exported ${rows.length} registrations.`);
+    toast.success(`Exported ${registrations.length} registrations with feedback data.`);
   };
 
   if (isLoading) {
@@ -341,6 +424,89 @@ export default function EventManageInsightsPage() {
           }
           icon={<Wallet className="h-4 w-4" />}
         />
+      </section>
+
+      {/* Compact Feedback & AI Sentiment Summary Card */}
+      <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xs">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-100 pb-4">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-amber-50 border border-amber-200">
+              <Sparkles className="h-4 w-4 text-amber-600" />
+            </div>
+            <div>
+              <h3 className="font-display text-base font-bold text-zinc-900">
+                Feedback & AI Sentiment Summary
+              </h3>
+              <p className="text-xs text-zinc-500">
+                Attendee ratings overview and AI classified sentiment leaning
+              </p>
+            </div>
+          </div>
+
+          <Link
+            href={`/event/manage/${encodeEventId(eventId)}/feedbacks`}
+            className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline"
+          >
+            <span>View detailed feedbacks page</span>
+            <span>→</span>
+          </Link>
+        </div>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          {/* Rating Score */}
+          <div className="flex items-center gap-3 rounded-xl border border-amber-100 bg-amber-50/60 p-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-100/80 text-amber-700">
+              <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-800">
+                Avg Satisfaction
+              </p>
+              <p className="font-display text-lg font-extrabold text-zinc-900 tabular-nums">
+                {feedbackAnalytics.avgScore > 0 ? `${feedbackAnalytics.avgScore.toFixed(1)} / 5.0` : "No Ratings Yet"}
+              </p>
+              <p className="text-[11px] font-medium text-amber-700">
+                {feedbackAnalytics.count} attendee{feedbackAnalytics.count === 1 ? "" : "s"} submitted ratings
+              </p>
+            </div>
+          </div>
+
+          {/* AI Sentiment Index */}
+          <div className="flex items-center gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100/80 text-emerald-700">
+              <Sparkles className="h-5 w-5 text-emerald-600" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-800">
+                AI Sentiment Index
+              </p>
+              <p className="font-display text-lg font-extrabold text-zinc-900 tabular-nums">
+                {feedbackAnalytics.count > 0 ? `${feedbackAnalytics.posPct}% Positive` : "No AI Data"}
+              </p>
+              <p className="text-[11px] font-medium text-emerald-700">
+                {feedbackAnalytics.posCount} Pos · {feedbackAnalytics.neuCount} Neu · {feedbackAnalytics.negCount} Neg
+              </p>
+            </div>
+          </div>
+
+          {/* Response Ratio */}
+          <div className="flex items-center gap-3 rounded-xl border border-indigo-100 bg-indigo-50/60 p-3.5">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-100/80 text-indigo-700">
+              <MessageSquare className="h-5 w-5 text-indigo-600" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-indigo-800">
+                Feedback Response Rate
+              </p>
+              <p className="font-display text-lg font-extrabold text-zinc-900 tabular-nums">
+                {total > 0 ? `${Math.round((feedbackAnalytics.count / total) * 100)}%` : "0%"}
+              </p>
+              <p className="text-[11px] font-medium text-indigo-700">
+                {feedbackAnalytics.count} of {total} registered attendees
+              </p>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* Capacity + recent flow */}
