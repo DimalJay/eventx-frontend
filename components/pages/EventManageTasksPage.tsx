@@ -142,7 +142,6 @@ export default function EventManageTasksPage() {
   };
 
   const handleDrop = (e: React.DragEvent, targetStatus: TaskStatus) => {
-    console.log("Dropping task to status:", targetStatus);
     e.preventDefault();
     const draggedTaskId = e.dataTransfer.getData("taskId");
 

@@ -1,16 +1,52 @@
 'use client';
+
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import {
+  UserPlus,
+  UserCheck,
+  MessageSquare,
+  Clock,
+  ArrowRight,
+} from "lucide-react";
 import { getEventById } from "@/service/eventService";
 import { getEventRegistrations } from "@/service/registrationService";
-import { IRegistration } from "@/types";
-import { formatPrice, decodeEventId, encodeEventId } from "@/lib/utils";
+import { getFeedbacks } from "@/service/feedbackService";
+import { IRegistration, IFeedback } from "@/types";
+import { formatPrice, decodeEventId, encodeEventId, getEventCoverUrl } from "@/lib/utils";
 import { EventOverviewLoadingSkeleton } from "@/components/skeleton/EventOverviewLoadingSkeleton";
+import EventCoverPlaceholder from "@/components/widgets/EventCoverPlaceholder";
+
+function timeAgo(dateValue?: string | Date): string {
+  if (!dateValue) return "Recently";
+  const date = typeof dateValue === "string"
+    ? new Date(dateValue.includes(" ") ? dateValue.replace(" ", "T") : dateValue)
+    : new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return "Recently";
+  const now = new Date();
+  const diffSec = Math.floor((now.getTime() - date.getTime()) / 1000);
+  if (diffSec < 60) return "Just now";
+  if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+  if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+  if (diffSec < 604800) return `${Math.floor(diffSec / 86400)}d ago`;
+  return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
 
 export default function EventManageOverviewPage() {
   const params = useParams();
   const eventId = decodeEventId(params.id as string);
+
+  // Live Timer for Countdown
+  const [nowTime, setNowTime] = useState<number>(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNowTime(Date.now());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const { data: event, isLoading } = useQuery({
     queryKey: ['event', eventId],
@@ -31,26 +67,130 @@ export default function EventManageOverviewPage() {
     enabled: !!eventId,
   });
 
+  const { data: rawFeedbacks = [] } = useQuery({
+    queryKey: ["manage-feedbacks", eventId],
+    queryFn: async () => {
+      const res = await getFeedbacks(eventId);
+      return (res.data || []) as IFeedback[];
+    },
+    enabled: !!eventId,
+  });
+
   const totalRegs = registrations.length;
   const checkedInCount = registrations.filter((r) => !!r.chekingTime).length;
+
+  // Recent Activity - Latest 4 items
+  const activities = useMemo(() => {
+    const list: {
+      id: string;
+      title: string;
+      meta: string;
+      date: Date;
+      icon: React.ReactNode;
+      color: string;
+    }[] = [];
+
+    registrations.forEach((r, idx) => {
+      const name = `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim() || "Attendee";
+      const regDate = r.registeredAt ? new Date(r.registeredAt) : new Date(0);
+
+      list.push({
+        id: `reg-${r.id || idx}`,
+        title: `${name} registered`,
+        meta: timeAgo(r.registeredAt),
+        date: regDate,
+        icon: <UserPlus className="h-3.5 w-3.5 text-blue-600" />,
+        color: "bg-blue-50 border-blue-100",
+      });
+
+      if (r.chekingTime) {
+        const checkDate = new Date(r.chekingTime);
+        list.push({
+          id: `check-${r.id || idx}`,
+          title: `${name} checked in`,
+          meta: timeAgo(r.chekingTime),
+          date: checkDate,
+          icon: <UserCheck className="h-3.5 w-3.5 text-emerald-600" />,
+          color: "bg-emerald-50 border-emerald-100",
+        });
+      }
+    });
+
+    rawFeedbacks.forEach((f, idx) => {
+      const name = `${f.firstName ?? ""} ${f.lastName ?? ""}`.trim() || "Attendee";
+      const fbDate = f.createdAt
+        ? new Date(f.createdAt.includes(" ") ? f.createdAt.replace(" ", "T") : f.createdAt)
+        : new Date(0);
+
+      list.push({
+        id: `fb-${f.id || idx}`,
+        title: `${name} submitted feedback`,
+        meta: `${f.experienceRating || 5}★ (${f.sentiment || "Neutral"}) • ${timeAgo(f.createdAt)}`,
+        date: fbDate,
+        icon: <MessageSquare className="h-3.5 w-3.5 text-amber-600" />,
+        color: "bg-amber-50 border-amber-100",
+      });
+    });
+
+    list.sort((a, b) => b.date.getTime() - a.date.getTime());
+    return list.slice(0, 4);
+  }, [registrations, rawFeedbacks]);
+
+  // Live Countdown & Status Logic
+  const eventStatusInfo = useMemo(() => {
+    if (!event) return null;
+
+    const start = new Date(event.startDate).getTime();
+    const end = new Date(event.endDate).getTime();
+
+    if (nowTime < start) {
+      const diff = start - nowTime;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      return {
+        stage: "upcoming",
+        badge: "Upcoming Event",
+        badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+        countdownText: `${String(days).padStart(2, '0')}d : ${String(hours).padStart(2, '0')}h : ${String(minutes).padStart(2, '0')}m : ${String(seconds).padStart(2, '0')}s`,
+        desc: "Event is scheduled for the future. Prepare your agenda and invite attendees.",
+        linkText: "Review agenda",
+        href: `/event/manage/${encodeEventId(eventId)}/agenda`,
+      };
+    } else if (nowTime >= start && nowTime <= end) {
+      return {
+        stage: "live",
+        badge: "Live Now",
+        badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+        countdownText: "Event is Live!",
+        desc: "Event is currently ongoing. Track registrations and scan attendee QR badges.",
+        linkText: "Manage attendees & QR",
+        href: `/event/manage/${encodeEventId(eventId)}/registration`,
+      };
+    } else {
+      return {
+        stage: "completed",
+        badge: "Completed",
+        badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+        countdownText: "Event Finished",
+        desc: "This event has passed. Review attendee ratings & AI sentiment analysis.",
+        linkText: "View Feedback & AI",
+        href: `/event/manage/${encodeEventId(eventId)}/feedbacks`,
+      };
+    }
+  }, [event, eventId, nowTime]);
 
   if (isLoading) {
     return <EventOverviewLoadingSkeleton />;
   }
 
-
   if (!event) {
     return <div className="p-8 text-center text-danger">Failed to load event details.</div>;
   }
 
-  const coverUrl = (() => {
-    const coverPath = event.coverImage || "";
-    if (!coverPath) return "";
-    if (coverPath.startsWith("http")) return coverPath;
-
-    const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace("/api/v1", "");
-    return `${backendBase}${coverPath}`;
-  })();
+  const coverUrl = getEventCoverUrl(event.coverImage);
 
   const formattedStartDate = new Date(event.startDate).toLocaleDateString("en-US", {
     month: "short",
@@ -118,20 +258,14 @@ export default function EventManageOverviewPage() {
     { label: "Visibility", value: event.isPublic ? "Public Event" : "Private Event" },
   ];
 
-  interface ActivityItem {
-    title: string;
-    meta: string;
-  }
-
-  const activity: ActivityItem[] = [];
-
   return (
     <div className="flex flex-col gap-6">
+      {/* 4 Stats Cards */}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((item) => (
           <div
             key={item.label}
-            className="rounded-2xl border border-zinc-200 bg-white p-6"
+            className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xs"
           >
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
               {item.label}
@@ -142,43 +276,53 @@ export default function EventManageOverviewPage() {
         ))}
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
-        <div className="rounded-2xl border border-zinc-200 bg-white p-7">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
-                Event details
+      {/* Main Grid Section with Equal Height Alignment */}
+      <section className="grid gap-6 lg:grid-cols-[1.6fr_1fr] items-stretch">
+        {/* Left Card: Event Details (Scrollable if long to align with right sidebar) */}
+        <div className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-7 shadow-2xs max-h-[868px] overflow-hidden">
+          <div className="flex-1 overflow-y-auto pr-1">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                  Event details
+                </p>
+                <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-zinc-900">
+                  {event.title}
+                </h2>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {details.map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-2xl border border-zinc-200/80 bg-zinc-50/80 px-5 py-3.5"
+                >
+                  <p className="text-xs font-medium uppercase tracking-[0.14em] text-zinc-500">
+                    {item.label}
+                  </p>
+                  <p className="mt-1 font-semibold text-zinc-900">{item.value}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500 mb-2">
+                Description
               </p>
-              <h2 className="mt-2 font-display text-2xl font-medium tracking-tight text-zinc-900">
-                {event.title}
-              </h2>
+              <p className="text-sm leading-7 text-zinc-600 whitespace-pre-line">
+                {event.description || "No description provided for this event."}
+              </p>
             </div>
           </div>
-
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            {details.map((item) => (
-              <div
-                key={item.label}
-                className="rounded-2xl border border-zinc-200 bg-zinc-50 px-5 py-4"
-              >
-                <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">
-                  {item.label}
-                </p>
-                <p className="mt-1 font-semibold text-zinc-900">{item.value}</p>
-              </div>
-            ))}
-          </div>
-
-          <p className="mt-6 text-sm leading-7 text-zinc-600">
-            {event.description || "No description provided for this event."}
-          </p>
         </div>
 
-        <aside className="grid gap-4">
-          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-900 text-white">
+        {/* Right Sidebar: Fixed Height Boxes (Milestone & Recent Activity) */}
+        <aside className="flex flex-col gap-5 justify-between max-h-[868px]">
+          {/* Top Sidebar Box: Cover Image + Next Milestone */}
+          <div className="overflow-hidden rounded-2xl border border-zinc-900 bg-zinc-900 text-white shadow-sm flex flex-col justify-between h-[488px] shrink-0">
             {coverUrl ? (
-              <div className="relative aspect-video w-full overflow-hidden bg-zinc-900">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
+              <div className="relative h-80 w-full shrink-0 overflow-hidden bg-zinc-900">
                 <img
                   src={coverUrl}
                   alt={event.title}
@@ -186,47 +330,103 @@ export default function EventManageOverviewPage() {
                 />
               </div>
             ) : (
-              <div className="relative aspect-video w-full overflow-hidden bg-zinc-900 flex items-center justify-center text-white/35 text-xs font-medium">
-                No cover image
+              <div className="relative h-[304px] w-full shrink-0 overflow-hidden">
+                <EventCoverPlaceholder title={event.title} category={event.category} />
               </div>
             )}
-            <div className="p-6">
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">
-                Next milestone
-              </p>
-              <p className="mt-3 font-display text-2xl font-medium">Event Status</p>
-              <p className="mt-3 text-sm text-white/70">
-                {new Date(event.startDate) > new Date()
-                  ? "This event is scheduled for the future. Prepare your agenda and invite speakers."
-                  : "This event has already started or passed."}
-              </p>
-              <Link
-                href={`/event/manage/${encodeEventId(eventId)}/agenda`}
-                className="mt-5 inline-flex h-10 items-center justify-center rounded-full bg-white px-4 text-sm font-semibold text-zinc-900"
-              >
-                Review agenda
-              </Link>
+
+            <div className="p-4 flex flex-col justify-between flex-1">
+              <div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">
+                    Next milestone
+                  </p>
+                  {eventStatusInfo && (
+                    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${eventStatusInfo.badgeColor}`}>
+                      {eventStatusInfo.stage === "live" && (
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                      )}
+                      <span>{eventStatusInfo.badge}</span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-2">
+                  <p className="text-xs font-medium text-white/50 uppercase tracking-wider">
+                    {eventStatusInfo?.stage === "upcoming" ? "Time Until Launch" : "Current Status"}
+                  </p>
+                  <p className="mt-0.5 font-display text-xl font-bold tracking-tight text-white tabular-nums">
+                    {eventStatusInfo?.countdownText}
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-white/10">
+                <Link
+                  href={eventStatusInfo?.href || `#`}
+                  className="inline-flex h-8 w-full items-center justify-center gap-2 rounded-full bg-white px-4 text-xs font-bold text-zinc-900 hover:bg-zinc-100 transition active:scale-[0.98]"
+                >
+                  <span>{eventStatusInfo?.linkText}</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
-              Recent activity
-            </p>
-            <div className="mt-4 grid gap-4 text-sm text-zinc-600">
-              {activity.length > 0 ? (
-                activity.map((item) => (
-                  <div
-                    key={item.title}
-                    className="rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-3"
-                  >
-                    <p className="font-semibold text-zinc-900">{item.title}</p>
-                    <p className="mt-1 text-xs text-zinc-500">{item.meta}</p>
+          {/* Bottom Sidebar Box: Recent Activity (Latest 4 Activities) */}
+          <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xs flex flex-col justify-between h-[380px] shrink-0">
+            <div>
+              <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                  Recent activity
+                </p>
+                <span className="text-[11px] font-semibold text-zinc-400">
+                  {activities.length} latest
+                </span>
+              </div>
+
+              <div className="mt-3 grid gap-2.5">
+                {activities.length > 0 ? (
+                  activities.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center gap-3 rounded-xl border border-zinc-100 bg-zinc-50/80 px-3.5 py-2.5 transition hover:bg-zinc-100/60"
+                    >
+                      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border ${item.color}`}>
+                        {item.icon}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-xs font-semibold text-zinc-900">
+                          {item.title}
+                        </p>
+                        <p className="text-[11px] font-medium text-zinc-500">
+                          {item.meta}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-6 text-center">
+                    <Clock className="h-6 w-6 text-zinc-300" />
+                    <p className="mt-2 text-xs font-medium text-zinc-400">
+                      No recent activity recorded yet.
+                    </p>
                   </div>
-                ))
-              ) : (
-                <p className="text-sm text-zinc-500 p-2">No recent activity recorded yet.</p>
-              )}
+                )}
+              </div>
+            </div>
+
+            <div className="pt-2">
+              <Link
+                href={`/event/manage/${encodeEventId(eventId)}/registration`}
+                className="text-[11px] font-semibold text-primary hover:underline inline-flex items-center gap-1"
+              >
+                <span>View all attendees</span>
+                <span>→</span>
+              </Link>
             </div>
           </div>
         </aside>

@@ -46,28 +46,40 @@ export default function VerticalBars({
         {data.map((d, i) => {
           const pct = max > 0 ? (d.value / max) * 100 : 0;
           const isPeak = highlightPeak && i === peakIndex && d.value > 0;
+          const barHeightPct = Math.max(pct, d.value > 0 ? 8 : 3);
+
           return (
             <div
               key={`${d.label}-${i}`}
               className="group relative flex h-full min-w-0 flex-1 items-end justify-center"
             >
-              <div className="relative flex w-full flex-1 items-end justify-center px-0.5">
-                <div
-                  className={cn(
-                    "pointer-events-none absolute -top-7 z-10 hidden whitespace-nowrap rounded-lg border border-zinc-200 bg-white px-2 py-1 text-xs font-semibold text-zinc-900 shadow-card group-hover:block",
-                    isPeak && "border-primary/30 text-primary"
-                  )}
-                >
-                  {d.value}
-                </div>
+              <div className="relative flex h-full w-full items-end justify-center px-0.5">
+                {/* Count Badge floating dynamically above top of the Bar */}
+                {d.value > 0 && (
+                  <div
+                    className={cn(
+                      "absolute z-10 whitespace-nowrap rounded-md px-1.5 py-0.5 text-[11px] font-bold tabular-nums shadow-2xs transition-transform group-hover:scale-110",
+                      isPeak
+                        ? "bg-purple-700 text-white"
+                        : "bg-zinc-800 text-white"
+                    )}
+                    style={{ bottom: `calc(${barHeightPct}% + 6px)` }}
+                  >
+                    {d.value}
+                  </div>
+                )}
+
                 <motion.div
                   initial={reducedMotion ? false : { height: "0%" }}
-                  animate={{ height: `${Math.max(pct, d.value > 0 ? 4 : 2)}%` }}
+                  animate={{ height: `${barHeightPct}%` }}
                   transition={{ delay: i * 0.05, duration: 0.7, ease: "easeOut" }}
                   className={cn(
-                    "w-[70%] min-w-1 rounded-t-lg transition-colors",
-                    barClassName,
-                    isPeak && "bg-primary-strong"
+                    "w-[70%] min-w-[12px] rounded-t-lg transition-all",
+                    isPeak
+                      ? "bg-purple-600 hover:bg-purple-700 shadow-md ring-2 ring-purple-200"
+                      : d.value > 0
+                      ? "bg-purple-400 hover:bg-purple-500"
+                      : "bg-zinc-200/60"
                   )}
                 />
               </div>
