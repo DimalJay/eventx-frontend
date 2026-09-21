@@ -28,16 +28,6 @@ export default function EventCoverPlaceholder({
       <div className="pointer-events-none absolute -bottom-10 -left-10 h-44 w-44 rounded-full bg-cyan-200/30 blur-2xl" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.2)_1px,transparent_1px)] [background-size:18px_18px] opacity-40" />
 
-      {/* Top Header Badge */}
-      <div className="relative z-10 flex items-center justify-between">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/20 px-3 py-1 text-xs font-semibold text-white shadow-xs backdrop-blur-md">
-          <Sparkles className="h-3.5 w-3.5 text-amber-200" />
-          <span className="capitalize">{displayCategory}</span>
-        </span>
-        <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/30 bg-white/20 text-white shadow-xs backdrop-blur-md">
-          <Calendar className="h-4 w-4" />
-        </span>
-      </div>
 
       {/* Center Branded Graphic & Title */}
       <div className="relative z-10 my-auto flex flex-col items-center justify-center text-center py-4 px-2">

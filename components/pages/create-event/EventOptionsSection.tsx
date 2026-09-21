@@ -16,12 +16,14 @@ interface EventOptionsSectionProps {
   hasLimit: boolean;
   setHasLimit: (val: boolean) => void;
   hideHeader?: boolean;
+  disablePricing?: boolean;
 }
 
 export default function EventOptionsSection({
   hasLimit,
   setHasLimit,
   hideHeader = false,
+  disablePricing = false,
 }: EventOptionsSectionProps) {
   const { register, control, watch, setValue, formState: { errors } } = useFormContext();
   const [connectStripeOpen, setConnectStripeOpen] = useState(false);
@@ -44,7 +46,15 @@ export default function EventOptionsSection({
       <div className={`divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white ${hideHeader ? "" : "mt-2"}`}>
         {/* Ticket price */}
         <div>
-          <OptionRow icon={<TicketIcon />} label="Ticket Price" help="Leave Free for no-cost entry. Choosing Paid opens Stripe checkout so attendees can buy tickets online.">
+          <OptionRow
+            icon={<TicketIcon />}
+            label="Ticket Price"
+            help={
+              disablePricing
+                ? "Event type and ticket price cannot be changed once the event is created."
+                : "Leave Free for no-cost entry. Choosing Paid opens Stripe checkout so attendees can buy tickets online."
+            }
+          >
             <Controller
               name="isPaid"
               control={control}
@@ -53,9 +63,12 @@ export default function EventOptionsSection({
                   name={field.name}
                   ariaLabel="Ticket price type"
                   value={field.value}
+                  disabled={disablePricing}
                   onChange={(next) => {
                     field.onChange(next);
-                    if (next === "paid" && !isStripeConnected) {
+                    if (next === "free") {
+                      setValue("ticketPrice", 0);
+                    } else if (next === "paid" && !isStripeConnected) {
                       setConnectStripeOpen(true);
                     }
                   }}
@@ -69,6 +82,11 @@ export default function EventOptionsSection({
               )}
             />
           </OptionRow>
+          {disablePricing && (
+            <p className="px-4 pb-3 text-xs text-zinc-500">
+              Event type and ticket price cannot be changed once the event is created.
+            </p>
+          )}
           <div
             className={`grid transition-all duration-300 ease-in-out ${watch("isPaid") === "paid" ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
               }`}
@@ -78,7 +96,13 @@ export default function EventOptionsSection({
                 <input
                   type="number"
                   placeholder="Ticket price (LKR)"
-                  className={`${inputBase} h-11 sm:flex-1`}
+                  readOnly={disablePricing}
+                  onKeyDown={disablePricing ? (e) => e.preventDefault() : undefined}
+                  className={`${inputBase} h-11 sm:flex-1 ${
+                    disablePricing
+                      ? "cursor-not-allowed bg-zinc-100 text-zinc-500 border-zinc-200 select-none"
+                      : ""
+                  }`}
                   {...register("ticketPrice", { valueAsNumber: true })}
                 />
                 {!isStripeConnected && (

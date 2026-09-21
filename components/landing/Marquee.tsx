@@ -17,7 +17,7 @@ function Strip() {
           key={item}
           className="mx-6 flex items-center gap-3 whitespace-nowrap"
         >
-          <span className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-700">
+          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-700">
             {item}
           </span>
           <span className="h-1.5 w-1.5 rotate-45 bg-primary" />

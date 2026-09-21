@@ -38,6 +38,8 @@ export default function PaymentCheckoutDialog({
 
   const formattedPrice = formatPrice(price);
 
+  const isSeatsFull = Boolean(capacity && capacity > 0 && (seatsLeft ?? 0) <= 0);
+
   return (
     <Dialog
       open={open}
@@ -81,11 +83,13 @@ export default function PaymentCheckoutDialog({
           </button>
           <button
             type="button"
-            disabled={mutation.isPending}
+            disabled={mutation.isPending || isSeatsFull}
             onClick={() => mutation.mutate()}
             className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-4 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {mutation.isPending ? (
+            {isSeatsFull ? (
+              "Seats Full"
+            ) : mutation.isPending ? (
               <>
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 Redirecting to Stripe...

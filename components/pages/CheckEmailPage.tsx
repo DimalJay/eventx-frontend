@@ -45,7 +45,7 @@ export default function CheckEmailPage() {
           <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-black">
             Confirm your email
           </p>
-          <h1 className="mt-4 text-3xl font-semibold leading-tight tracking-tight text-black">
+          <h1 className="mt-4 font-display text-3xl font-medium leading-[1.1] tracking-tight text-zinc-900 sm:text-4xl">
             Check your inbox
           </h1>
           <p className="mt-3 text-sm leading-6 text-black/70">
@@ -57,7 +57,7 @@ export default function CheckEmailPage() {
           <button
             onClick={handleResend}
             disabled={!email || sending}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/60"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-black px-6 py-3 text-sm font-semibold text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/60"
           >
             <RefreshCw className={`h-4 w-4 ${sending ? "animate-spin" : ""}`} strokeWidth={2} />
             {sending ? "Sending..." : "Resend email"}

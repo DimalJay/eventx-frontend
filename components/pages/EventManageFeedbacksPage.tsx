@@ -235,7 +235,7 @@ export default function EventManageFeedbacksPage() {
             </span>
             <span className="text-[11px] font-medium text-emerald-600">Live Updating</span>
           </div>
-          <h2 className="mt-1 font-display text-2xl font-bold tracking-tight text-zinc-900 sm:text-3xl">
+          <h2 className="mt-1 font-display text-2xl font-medium tracking-tight text-zinc-900 sm:text-3xl">
             Attendee Ratings & Sentiment
           </h2>
         </div>
@@ -268,7 +268,7 @@ export default function EventManageFeedbacksPage() {
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-400">
                 Total Submissions
               </p>
-              <p className="mt-1 font-display text-4xl font-extrabold tabular-nums text-zinc-900">
+              <p className="mt-1 text-3xl font-semibold tabular-nums text-zinc-900 sm:text-4xl">
                 {analytics.total}
               </p>
             </div>
@@ -357,10 +357,10 @@ export default function EventManageFeedbacksPage() {
 
                     {/* Center Text inside Donut */}
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="font-display text-2xl font-black text-emerald-600 tabular-nums">
+                      <span className="text-2xl font-semibold text-emerald-600 tabular-nums">
                         {posPct}%
                       </span>
-                      <span className="text-[9px] font-extrabold uppercase tracking-wider text-zinc-400">
+                      <span className="text-[9px] font-semibold uppercase tracking-wider text-zinc-400">
                         Positive
                       </span>
                     </div>
@@ -556,7 +556,7 @@ export default function EventManageFeedbacksPage() {
       {/* 3 Main Category Breakdown Cards (Organization, Content, Experience) */}
       <div>
         <div className="mb-4">
-          <h3 className="font-display text-xl font-bold text-zinc-900 font-medium">Category Evaluation</h3>
+          <h3 className="font-display text-xl font-medium text-zinc-900">Category Evaluation</h3>
           <p className="text-xs text-zinc-500">Summary & Star Distribution for Organization, Content, and Overall Experience</p>
         </div>
 
@@ -573,14 +573,14 @@ export default function EventManageFeedbacksPage() {
                   </div>
                   <div className="flex items-baseline gap-1 rounded-2xl bg-amber-50 px-3 py-1 text-amber-900 border border-amber-200/60">
                     <Star className="h-4 w-4 fill-amber-400 text-amber-400 self-center" />
-                    <span className="font-display text-lg font-bold tabular-nums">
+                    <span className="text-lg font-semibold tabular-nums">
                       {cat.score > 0 ? cat.score.toFixed(1) : "—"}
                     </span>
                     <span className="text-xs text-amber-700/80">/5</span>
                   </div>
                 </div>
 
-                <h4 className="mt-4 font-display text-lg font-bold text-zinc-900">{cat.title}</h4>
+                <h4 className="mt-4 font-display text-lg font-medium text-zinc-900">{cat.title}</h4>
                 <p className="text-xs text-zinc-500">{cat.subtitle}</p>
 
                 {/* Rating Distribution Bar Chart */}

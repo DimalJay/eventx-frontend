@@ -16,6 +16,7 @@ export default function Select({
   menuClassName,
   align = "left",
   ariaLabel,
+  disabled = false,
 }: {
   name?: string;
   value: string;
@@ -25,6 +26,7 @@ export default function Select({
   menuClassName?: string;
   align?: "left" | "right";
   ariaLabel?: string;
+  disabled?: boolean;
 }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -37,18 +39,27 @@ export default function Select({
       {name && <input type="hidden" name={name} value={value} />}
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        disabled={disabled}
+        onClick={() => {
+          if (!disabled) {
+            setOpen((v) => !v);
+          }
+        }}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={ariaLabel}
         className={cn(
-          "flex items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white text-sm font-medium text-zinc-900 outline-none transition hover:border-zinc-300 focus:border-primary/60 focus:ring-2 focus:ring-primary/20",
+          "flex items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white text-sm font-medium text-zinc-900 outline-none transition hover:border-zinc-300 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-500 disabled:border-zinc-200 disabled:hover:border-zinc-200",
           className
         )}
       >
         <span className="truncate">{selected?.label ?? (value ? String(value) : "")}</span>
         <FiChevronDown
-          className={cn("h-4 w-4 shrink-0 text-zinc-400 transition-transform duration-200", open && "rotate-180")}
+          className={cn(
+            "h-4 w-4 shrink-0 text-zinc-400 transition-transform duration-200",
+            open && "rotate-180",
+            disabled && "opacity-40"
+          )}
         />
       </button>
 
