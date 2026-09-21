@@ -65,15 +65,17 @@ export default function EventManageOverviewPage() {
       return (res.data || []) as IRegistration[];
     },
     enabled: !!eventId,
+    refetchInterval: 5000,
   });
 
   const { data: rawFeedbacks = [] } = useQuery({
-    queryKey: ["manage-feedbacks", eventId],
+    queryKey: ["feedbacks", eventId],
     queryFn: async () => {
       const res = await getFeedbacks(eventId);
       return (res.data || []) as IFeedback[];
     },
     enabled: !!eventId,
+    refetchInterval: 5000,
   });
 
   const totalRegs = registrations.length;

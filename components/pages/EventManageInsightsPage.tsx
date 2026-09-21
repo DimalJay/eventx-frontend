@@ -66,6 +66,7 @@ export default function EventManageInsightsPage() {
     },
     enabled: !!eventId,
     retry: false,
+    refetchInterval: 5000,
   });
 
   const { data: tasks = [] } = useQuery({
@@ -89,13 +90,14 @@ export default function EventManageInsightsPage() {
   });
 
   const { data: rawFeedbacks = [] } = useQuery({
-    queryKey: ["manage-feedbacks", eventId],
+    queryKey: ["feedbacks", eventId],
     queryFn: async () => {
       const res = await getFeedbacks(eventId);
       return (res.data || []) as IFeedback[];
     },
     enabled: !!eventId,
     retry: false,
+    refetchInterval: 5000,
   });
 
   const total = registrations.length;

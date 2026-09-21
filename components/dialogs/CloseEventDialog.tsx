@@ -24,6 +24,8 @@ export default function CloseEventDialog({ open, onClose, eventId, eventTitle, t
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["event", eventId] });
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["my-events"] });
       toast.success(closing ? "Event closed." : "Event reopened.");
       onClose();
     },

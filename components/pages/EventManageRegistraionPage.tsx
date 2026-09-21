@@ -65,6 +65,7 @@ export default function EventManageRegistraionPage() {
     },
     enabled: !!eventId,
     retry: false,
+    refetchInterval: 5000,
   });
 
   const updateMutation = useMutation({

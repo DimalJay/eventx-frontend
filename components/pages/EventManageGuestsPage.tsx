@@ -47,6 +47,7 @@ export default function EventManageGuestsPage() {
     },
     enabled: !!eventId,
     retry: false,
+    refetchInterval: 5000,
   });
 
   const total = guests.length;
