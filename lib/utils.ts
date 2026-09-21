@@ -78,18 +78,29 @@ export function registrationCSVRows(registrations: IRegistration[]) {
         ? "VIP"
         : "General";
 
-  return registrations.map((r) => ({
-    Name:
-      `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim() ||
-      String(r.userId ?? "") ||
-      "Unknown",
-    Email: r.email ?? "",
-    Status: statusLabel(r.status || ""),
-    Category: category(r),
-    "Ticket code": r.ticketCode ?? "",
-    Registered: formatDateTime(r.registeredAt),
-    "Checked in": formatDateTime(r.chekingTime ?? r.checkingTime),
-  }));
+  return registrations.map((r) => {
+    const isCheckedIn = Boolean(r.chekingTime) || Boolean(r.checkingTime);
+    const row: Record<string, unknown> = {
+      "Registration ID": r.id,
+      "First Name": r.firstName ?? "",
+      "Last Name": r.lastName ?? "",
+      Email: r.email ?? "",
+      Status: statusLabel(r.status || ""),
+      Category: category(r),
+      "Ticket Code": r.ticketCode ?? "",
+      "Registered At": formatDateTime(r.registeredAt),
+      "Checked In": isCheckedIn ? "YES" : "NO",
+      "Check-in Time": formatDateTime(r.chekingTime ?? r.checkingTime),
+    };
+
+    if (r.customFields && typeof r.customFields === "object") {
+      Object.entries(r.customFields).forEach(([k, v]) => {
+        row[`Field: ${k}`] = v;
+      });
+    }
+
+    return row;
+  });
 }
 
 export function downloadCSV(filename: string, rows: Record<string, unknown>[]) {

@@ -307,41 +307,114 @@ export default function EventManageInsightsPage() {
         (a, b) =>
           new Date(b.registeredAt).getTime() - new Date(a.registeredAt).getTime()
       )
-      .slice(0, 6);
+      .slice(0, 4);
   }, [registrations]);
 
   const handleExport = () => {
-    if (registrations.length === 0) return;
+    const isFree = !event || event.ticketPrice === 0;
 
-    // Create lookup map for feedback entries by participantId / email
-    const fbMap = new Map<string, IFeedback>();
-    rawFeedbacks.forEach((f) => {
-      if (f.participantId) fbMap.set(String(f.participantId), f);
-      if (f.email) fbMap.set(f.email.toLowerCase(), f);
-    });
+    const rows = [
+      {
+        Category: "Executive KPI Summary",
+        Metric: "Event Title",
+        Value: event?.title || "N/A",
+        Details: "",
+      },
+      {
+        Category: "Executive KPI Summary",
+        Metric: "Total Registrations",
+        Value: total.toLocaleString(),
+        Details: `${recentCount} registered in the last 7 days`,
+      },
+      {
+        Category: "Executive KPI Summary",
+        Metric: "Capacity Limit",
+        Value: capacity === 0 ? "Unlimited" : capacity.toLocaleString(),
+        Details: capacity === 0 ? "No capacity cap" : `${capacityPct}% seats filled`,
+      },
+      {
+        Category: "Executive KPI Summary",
+        Metric: "Estimated Revenue",
+        Value: isFree ? "Free event" : formatPrice(revenue, true),
+        Details: isFree ? "No ticket charge" : `${total} tickets × ${formatPrice(event?.ticketPrice ?? 0)}`,
+      },
+      {
+        Category: "Attendance Flow",
+        Metric: "Checked In Attendees",
+        Value: checkedIn.toLocaleString(),
+        Details: `${checkedInPct}% of registered attendees`,
+      },
+      {
+        Category: "Attendance Flow",
+        Metric: "Not Checked In Attendees",
+        Value: notCheckedIn.toLocaleString(),
+        Details: `${notCheckedInPct}% awaiting check-in`,
+      },
+      {
+        Category: "Feedback & AI Sentiment Summary",
+        Metric: "Feedback Response Count",
+        Value: feedbackAnalytics.count.toLocaleString(),
+        Details: total > 0 ? `${Math.round((feedbackAnalytics.count / total) * 100)}% response rate` : "0% response rate",
+      },
+      {
+        Category: "Feedback & AI Sentiment Summary",
+        Metric: "Average Satisfaction Rating",
+        Value: feedbackAnalytics.avgScore > 0 ? `${feedbackAnalytics.avgScore.toFixed(1)} / 5.0` : "No Ratings Yet",
+        Details: "Combined Organization, Content & Experience rating average",
+      },
+      {
+        Category: "Feedback & AI Sentiment Summary",
+        Metric: "AI Positive Sentiment",
+        Value: `${feedbackAnalytics.posCount} (${feedbackAnalytics.posPct}%)`,
+        Details: "AI classified positive feedback count",
+      },
+      {
+        Category: "Feedback & AI Sentiment Summary",
+        Metric: "AI Neutral Sentiment",
+        Value: `${feedbackAnalytics.neuCount} (${feedbackAnalytics.neuPct}%)`,
+        Details: "AI classified neutral feedback count",
+      },
+      {
+        Category: "Feedback & AI Sentiment Summary",
+        Metric: "AI Negative Sentiment",
+        Value: `${feedbackAnalytics.negCount} (${feedbackAnalytics.negPct}%)`,
+        Details: "AI classified negative feedback count",
+      },
+      {
+        Category: "Registration Breakdown",
+        Metric: "Going Status Count",
+        Value: going.toLocaleString(),
+        Details: total > 0 ? `${Math.round((going / total) * 100)}% of total` : "0%",
+      },
+      {
+        Category: "Registration Breakdown",
+        Metric: "Waitlist Status Count",
+        Value: waitlist.toLocaleString(),
+        Details: total > 0 ? `${Math.round((waitlist / total) * 100)}% of total` : "0%",
+      },
+      {
+        Category: "Registration Breakdown",
+        Metric: "Not Going Status Count",
+        Value: notGoing.toLocaleString(),
+        Details: total > 0 ? `${Math.round((notGoing / total) * 100)}% of total` : "0%",
+      },
+      {
+        Category: "Registration Breakdown",
+        Metric: "Pending Status Count",
+        Value: pending.toLocaleString(),
+        Details: total > 0 ? `${Math.round((pending / total) * 100)}% of total` : "0%",
+      },
+      {
+        Category: "Task & Operations Overview",
+        Metric: "Total Team Tasks",
+        Value: tasks.length.toLocaleString(),
+        Details: `${tasksDone} Done (${taskCompletionPct}%), ${tasksInProgress} In progress, ${tasksTodo} To do`,
+      },
+    ];
 
-    const rows = registrations.map((r) => {
-      const fb = fbMap.get(String(r.userId)) || (r.email ? fbMap.get(r.email.toLowerCase()) : undefined);
-      const isCheckedIn = Boolean(r.chekingTime) || Boolean(r.checkingTime);
-      return {
-        "Registration ID": r.id,
-        "First Name": r.firstName ?? "",
-        "Last Name": r.lastName ?? "",
-        Email: r.email ?? "",
-        Status: r.status ?? "",
-        "Checked In": isCheckedIn ? "YES" : "NO",
-        "Check-in Time": r.chekingTime ? String(r.chekingTime) : r.checkingTime ? String(r.checkingTime) : "",
-        "Org Rating": fb ? (fb.organizationRating ?? "") : "",
-        "Content Rating": fb ? (fb.contentRating ?? "") : "",
-        "Experience Rating": fb ? (fb.experienceRating ?? "") : "",
-        "AI Sentiment": fb ? (fb.sentiment ?? "") : "",
-        "Written Comment": fb ? fb.comment ?? "" : "",
-      };
-    });
-
-    const filename = `insights-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`;
+    const filename = `insights-analytics-${eventId}-${new Date().toISOString().slice(0, 10)}.csv`;
     downloadCSV(filename, rows);
-    toast.success(`Exported ${registrations.length} registrations with feedback data.`);
+    toast.success(`Exported Event Executive Insights report.`);
   };
 
   if (isLoading) {
@@ -771,6 +844,7 @@ export default function EventManageInsightsPage() {
           eyebrow="Capacity"
           title="Workload by member"
           tooltip="Open tasks assigned to each team member. Keep the load balanced as the event approaches."
+          className="flex flex-col justify-between h-full"
         >
           {workload.length === 0 ? (
             <EmptyState text="No tasks assigned yet." />
@@ -794,6 +868,7 @@ export default function EventManageInsightsPage() {
           eyebrow="Live"
           title="Recent registrations"
           tooltip="The latest people to register for this event."
+          className="flex flex-col justify-between h-full"
         >
           {recent.length === 0 ? (
             <EmptyState text="No registrations yet." />
