@@ -114,7 +114,10 @@ export default function EventManageInsightsPage() {
   const capacity = event?.capacity ?? 0;
   const capacityPct = capacity > 0 ? Math.min(Math.round((total / capacity) * 100), 100) : 0;
 
-  const revenue = event && event.ticketPrice > 0 ? total * event.ticketPrice : 0;
+  const grossRevenue = event && event.ticketPrice > 0 ? total * event.ticketPrice : 0;
+  const platformFee = grossRevenue * 0.05;
+  const netRevenue = grossRevenue - platformFee;
+  const revenue = netRevenue;
 
   // Feedback & AI Sentiment Analytics Summary
   const feedbackAnalytics = useMemo(() => {
@@ -372,9 +375,9 @@ export default function EventManageInsightsPage() {
       },
       {
         Category: "Executive KPI Summary",
-        Metric: "Estimated Revenue",
+        Metric: "Estimated Revenue (Net)",
         Value: isFree ? "Free event" : formatPrice(revenue, true),
-        Details: isFree ? "No ticket charge" : `${total} tickets × ${formatPrice(event?.ticketPrice ?? 0)}`,
+        Details: isFree ? "No ticket charge" : `Gross: ${formatPrice(grossRevenue, true)} - 5% Admin Fee: ${formatPrice(platformFee, true)}`,
       },
       {
         Category: "Attendance Flow",
@@ -531,7 +534,7 @@ export default function EventManageInsightsPage() {
           delta={
             isFree
               ? "No ticket charge"
-              : `${total} × ${formatPrice(event?.ticketPrice ?? 0)}`
+              : `Net payout (after 5% admin fee)`
           }
           icon={<Wallet className="h-4 w-4" />}
         />
@@ -592,7 +595,7 @@ export default function EventManageInsightsPage() {
                 AI Sentiment Index
               </p>
               <p className="font-display text-lg font-extrabold text-zinc-900 tabular-nums">
-                {feedbackAnalytics.count > 0 ? `${feedbackAnalytics.posPct}% Positive` : "No AI Data"}
+                {feedbackAnalytics.count > 0 ? `${feedbackAnalytics.posPct}% Positive` : "No AI Sentiment Data"}
               </p>
               <p className="text-[11px] font-medium text-emerald-700">
                 {feedbackAnalytics.posCount} Pos · {feedbackAnalytics.neuCount} Neu · {feedbackAnalytics.negCount} Neg
@@ -732,11 +735,6 @@ export default function EventManageInsightsPage() {
           tooltip="Registration sign-ups bucketed by day. The darkest bar is your busiest day."
           action={
             <div className="flex items-center gap-2">
-              {busiestDay && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-semibold text-amber-700">
-                  🔥 Busiest: {busiestDay.label} ({busiestDay.value})
-                </span>
-              )}
               {total > 0 && (
                 <span className="rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-semibold text-primary">
                   {total} total

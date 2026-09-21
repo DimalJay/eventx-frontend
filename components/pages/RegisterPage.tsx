@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import { registerRequest } from "@/service/userService";
+import { useAuth } from "../auth/AuthContext";
 import { toast } from "sonner";
 import * as z from "zod";
 import { useForm } from "react-hook-form";
@@ -41,7 +42,14 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { user, isAuthenticated } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      router.replace("/home");
+    }
+  }, [isAuthenticated, user, router]);
 
   const {
     register,
