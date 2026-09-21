@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { deleteEventRequest } from "@/service/eventService";
 import { HTTPError } from "@/lib/request";
@@ -17,6 +17,7 @@ type Props = {
 
 export default function DeleteEventDialog({ open, onClose, eventId, eventTitle }: Props) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [confirmation, setConfirmation] = useState("");
 
   const mutation = useMutation({
@@ -24,6 +25,9 @@ export default function DeleteEventDialog({ open, onClose, eventId, eventTitle }
       return deleteEventRequest(eventId);
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event", eventId] });
+      queryClient.invalidateQueries({ queryKey: ["events"] });
+      queryClient.invalidateQueries({ queryKey: ["my-events"] });
       toast.success("Event deleted.");
       router.push("/home");
     },

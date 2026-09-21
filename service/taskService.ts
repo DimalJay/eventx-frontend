@@ -9,8 +9,8 @@ export const createTaskRequest = async (data: any) => {
       eventId: data.eventId,
       title: data.title,
       description: data.description,
-      assignedTo: data.assignedTo,
-      assignedBy: data.assignedBy,
+      assignedTo: String(data.assignedTo ?? ""),
+      assignedBy: String(data.assignedBy ?? ""),
       dueDate: data.dueDate,
     },
   });
@@ -36,8 +36,8 @@ export const updateTaskRequest = async (id: string, data: any) => {
       id: id,
       title: data.title,
       description: data.description,
-      assignedTo: data.assignedTo,
-      assignedBy: data.assignedBy,
+      assignedTo: String(data.assignedTo ?? ""),
+      assignedBy: String(data.assignedBy ?? ""),
       dueDate: data.dueDate,
     },
   });

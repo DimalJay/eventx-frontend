@@ -65,8 +65,8 @@ export default function EventTaskUpdateDialog({
       reset({
         title: task.title ?? "",
         description: task.description ?? "",
-        assignedTo: task.assignedTo ?? "",
-        assignedBy: task.assignedBy ?? "",
+        assignedTo: String(task.assignedTo ?? ""),
+        assignedBy: String(task.assignedBy ?? ""),
         dueDate: task.dueDate ? task.dueDate.slice(0, 10) : "",
       });
     }
@@ -95,8 +95,8 @@ export default function EventTaskUpdateDialog({
                   ...currentTask,
                   title: newData.title,
                   description: newData.description,
-                  assignedTo: newData.assignedTo,
-                  assignedBy: newData.assignedBy,
+                  assignedTo: String(newData.assignedTo),
+                  assignedBy: String(newData.assignedBy),
                   dueDate: newData.dueDate,
                 }
               : currentTask

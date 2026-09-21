@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { KeyRound, Lock, LoaderCircle, ShieldCheck } from "lucide-react";
 import { resetPasswordRequest } from "@/service/userService";
+import { useMutation } from "@tanstack/react-query";
+import { HTTPError } from "@/lib/request";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -31,30 +33,31 @@ export default function ResetPasswordPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<ResetFormValues>({ resolver: zodResolver(resetSchema) });
 
-  useEffect(() => {
-    if (done) {
-      toast.success("Password reset successfully. You can now log in.");
-    }
-  }, [done]);
-
-  const onSubmit = async (data: ResetFormValues) => {
-    try {
-      const res = await resetPasswordRequest({
+  const mutation = useMutation({
+    mutationFn: (data: ResetFormValues) =>
+      resetPasswordRequest({
         token,
         email,
         newPassword: data.newPassword,
-      });
+      }),
+    onSuccess: (res) => {
       if (res?.success) {
         setDone(true);
+        toast.success("Password reset successfully. You can now log in.");
       } else {
         toast.error(res?.message || "Could not reset your password.");
       }
-    } catch (error: any) {
+    },
+    onError: (error: HTTPError) => {
       toast.error(error?.response?.data?.message || error?.message || "Could not reset your password.");
-    }
+    },
+  });
+
+  const onSubmit = (data: ResetFormValues) => {
+    mutation.mutate(data);
   };
 
   return (
@@ -146,10 +149,10 @@ export default function ResetPasswordPage() {
 
                 <button
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={mutation.isPending}
                   className="mt-1 flex h-12 items-center justify-center gap-2 rounded-full bg-black px-6 text-sm font-semibold text-white transition hover:bg-black/90 disabled:cursor-not-allowed disabled:bg-black/60"
                 >
-                  {isSubmitting ? (
+                  {mutation.isPending ? (
                     <>
                       <LoaderCircle className="h-4 w-4 animate-spin" /> Updating...
                     </>

@@ -11,7 +11,6 @@ type Props = {
   onClose: () => void;
   registrations: IRegistration[];
   onCheckIn: (id: string) => void;
-  onNotGoing: (id: string) => void;
   isPending: boolean;
 };
 
@@ -28,13 +27,15 @@ function extractTicketCode(raw: string): string {
   }
 }
 
-export default function CheckInDialog({ open, onClose, registrations, onCheckIn, onNotGoing, isPending }: Props) {
+export default function CheckInDialog({ open, onClose, registrations, onCheckIn, isPending }: Props) {
   const [scannedReg, setScannedReg] = useState<IRegistration | null>(null);
   const [input, setInput] = useState("");
 
   if (!open) return null;
 
   if (scannedReg) {
+    const alreadyCheckedIn = Boolean(scannedReg.chekingTime || scannedReg.checkingTime);
+
     return (
       <Dialog
         open={open}
@@ -48,33 +49,29 @@ export default function CheckInDialog({ open, onClose, registrations, onCheckIn,
         </p>
 
         <div className="mt-5 flex flex-col gap-3">
-          <button
-            type="button"
-            disabled={isPending}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-            onClick={() =>
-              onCheckIn(scannedReg.id)
-            }
-          >
-            {isPending ? (
-              <>
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Checking in...
-              </>
-            ) : (
-              "Mark as checked in"
-            )}
-          </button>
-          <button
-            type="button"
-            disabled={isPending}
-            className="flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 px-5 py-3 text-sm font-semibold text-red-600 transition hover:border-red-300 disabled:opacity-40"
-            onClick={() =>
-              onNotGoing(scannedReg.id)
-            }
-          >
-            Reject
-          </button>
+          {alreadyCheckedIn ? (
+            <div className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700">
+              Marked as checked in
+            </div>
+          ) : (
+            <button
+              type="button"
+              disabled={isPending}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+              onClick={() =>
+                onCheckIn(scannedReg.id)
+              }
+            >
+              {isPending ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Checking in...
+                </>
+              ) : (
+                "Mark as checked in"
+              )}
+            </button>
+          )}
         </div>
 
         <button
@@ -86,6 +83,18 @@ export default function CheckInDialog({ open, onClose, registrations, onCheckIn,
           }}
         >
           Scan another
+        </button>
+
+        <button
+          type="button"
+          className="mt-2 inline-flex h-10 w-full items-center justify-center rounded-full border border-zinc-200 px-4 text-sm font-semibold text-zinc-500 transition hover:border-zinc-400 hover:text-zinc-900"
+          onClick={() => {
+            setScannedReg(null);
+            setInput("");
+            onClose();
+          }}
+        >
+          Cancel
         </button>
       </Dialog>
     );

@@ -66,7 +66,7 @@ export default function HomePage() {
     : null;
 
   const { data: tasks = [] } = useQuery({
-    queryKey: ['tasks', nextEvent?.id],
+    queryKey: ['tasks-event-' + nextEvent?.id],
     queryFn: async () => {
       if (!nextEvent?.id) return [];
       const response = await getTasksRequest({ eventId: String(nextEvent.id) });
