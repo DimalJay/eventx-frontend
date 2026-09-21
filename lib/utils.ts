@@ -6,6 +6,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function getEventCoverUrl(coverImage?: string | null): string | null {
+  if (!coverImage) return null;
+  const rawImg = String(coverImage).trim();
+  if (!rawImg || rawImg === "null" || rawImg === "undefined") return null;
+  if (rawImg.startsWith("http") || rawImg.startsWith("data:")) return rawImg;
+  const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace("/api/v1", "");
+  return `${backendBase}${rawImg.startsWith("/") ? "" : "/"}${rawImg}`;
+}
+
 export function encodeEventId(id: string | number | null | undefined): string {
   if (id === null || id === undefined || id === "") return "";
   return btoa(String(id)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");

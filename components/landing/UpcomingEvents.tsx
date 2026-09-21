@@ -4,44 +4,13 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowRight, MapPin, CalendarDays } from "lucide-react";
 import { IEvent } from "@/types";
-import { formatPrice, encodeEventId } from "@/lib/utils";
+import { formatPrice, encodeEventId, getEventCoverUrl } from "@/lib/utils";
+import EventCoverPlaceholder from "@/components/widgets/EventCoverPlaceholder";
 
 type UpcomingEventsProps = {
   events: IEvent[];
   isLoading: boolean;
 };
-
-function eventImage(event: IEvent): string | null {
-  const rawImg = event.coverImage;
-
-  if (!rawImg || rawImg === "null" || rawImg === "undefined" || rawImg.trim() === "") {
-    return null;
-  }
-
-  if (rawImg.startsWith("http")) {
-    return rawImg;
-  }
-
-  const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace(
-    "/api/v1",
-    ""
-  );
-  return `${backendBase}${rawImg.startsWith("/") ? "" : "/"}${rawImg}`;
-}
-
-function placeholderImage(title: string): string {
-  const lowerTitle = title.toLowerCase();
-  if (lowerTitle.includes("sport") || lowerTitle.includes("meet") || lowerTitle.includes("run")) {
-    return "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=800&auto=format&fit=crop&q=80";
-  }
-  if (lowerTitle.includes("tech") || lowerTitle.includes("code") || lowerTitle.includes("hackathon") || lowerTitle.includes("ai")) {
-    return "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?w=800&auto=format&fit=crop&q=80";
-  }
-  if (lowerTitle.includes("music") || lowerTitle.includes("night") || lowerTitle.includes("concert") || lowerTitle.includes("party")) {
-    return "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800&auto=format&fit=crop&q=80";
-  }
-  return "/images/default-event.jpg";
-}
 
 export default function UpcomingEvents({ events, isLoading }: UpcomingEventsProps) {
   const reduce = useReducedMotion();
@@ -90,7 +59,7 @@ export default function UpcomingEvents({ events, isLoading }: UpcomingEventsProp
                 "en-US",
                 { month: "short", day: "numeric", year: "numeric" }
               );
-              const image = eventImage(event) || placeholderImage(event.title);
+              const imageUrl = getEventCoverUrl(event.coverImage);
 
               return (
                 <motion.div
@@ -100,13 +69,17 @@ export default function UpcomingEvents({ events, isLoading }: UpcomingEventsProp
                   className="group flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-zinc-200/70 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-zinc-900/5"
                 >
                   <div className="relative h-44 overflow-hidden bg-zinc-100">
-                    <img
-                      src={image}
-                      alt={event.title}
-                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                      loading="lazy"
-                      decoding="async"
-                    />
+                    {imageUrl ? (
+                      <img
+                        src={imageUrl}
+                        alt={event.title}
+                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : (
+                      <EventCoverPlaceholder title={event.title} category={event.category} />
+                    )}
                   </div>
 
                   <div className="flex flex-1 flex-col p-5">

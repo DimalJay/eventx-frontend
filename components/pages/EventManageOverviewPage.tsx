@@ -15,8 +15,9 @@ import { getEventById } from "@/service/eventService";
 import { getEventRegistrations } from "@/service/registrationService";
 import { getFeedbacks } from "@/service/feedbackService";
 import { IRegistration, IFeedback } from "@/types";
-import { formatPrice, decodeEventId, encodeEventId } from "@/lib/utils";
+import { formatPrice, decodeEventId, encodeEventId, getEventCoverUrl } from "@/lib/utils";
 import { EventOverviewLoadingSkeleton } from "@/components/skeleton/EventOverviewLoadingSkeleton";
+import EventCoverPlaceholder from "@/components/widgets/EventCoverPlaceholder";
 
 function timeAgo(dateValue?: string | Date): string {
   if (!dateValue) return "Recently";
@@ -189,14 +190,7 @@ export default function EventManageOverviewPage() {
     return <div className="p-8 text-center text-danger">Failed to load event details.</div>;
   }
 
-  const coverUrl = (() => {
-    const coverPath = event.coverImage || "";
-    if (!coverPath) return "";
-    if (coverPath.startsWith("http")) return coverPath;
-
-    const backendBase = (process.env.NEXT_PUBLIC_EVENTX_BACKEND_URL || "").replace("/api/v1", "");
-    return `${backendBase}${coverPath}`;
-  })();
+  const coverUrl = getEventCoverUrl(event.coverImage);
 
   const formattedStartDate = new Date(event.startDate).toLocaleDateString("en-US", {
     month: "short",
@@ -287,6 +281,19 @@ export default function EventManageOverviewPage() {
         {/* Left Card: Event Details (Scrollable if long to align with right sidebar) */}
         <div className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-7 shadow-2xs max-h-[660px] overflow-hidden">
           <div className="flex-1 overflow-y-auto pr-1">
+            {/* Event Cover Banner */}
+            <div className="relative mb-5 h-44 w-full overflow-hidden rounded-xl bg-zinc-900 shadow-xs">
+              {coverUrl ? (
+                <img
+                  src={coverUrl}
+                  alt={event.title}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <EventCoverPlaceholder title={event.title} category={event.category} />
+              )}
+            </div>
+
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">

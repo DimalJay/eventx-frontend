@@ -15,6 +15,7 @@ import RegisterEventDialog from "../dialogs/RegisterEventDialog";
 import PaymentCheckoutDialog from "../dialogs/PaymentCheckoutDialog";
 import LoginPromptDialog from "../dialogs/LoginPromptDialog";
 import { EventViewLoadingSkeleton } from "@/components/skeleton/EventViewLoadingSkeleton";
+import EventCoverPlaceholder from "../widgets/EventCoverPlaceholder";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -274,9 +275,7 @@ export default function EventViewPage({ id }: { id?: string }) {
             {event.cover ? (
               <img src={event.cover} alt={`${event.name} cover`} className="absolute inset-0 h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center px-8 text-center text-xs font-semibold uppercase tracking-[0.3em] text-white/40">
-                {event.name}
-              </div>
+              <EventCoverPlaceholder title={event.name} category={backendEvent.category} />
             )}
           </motion.div>
 
