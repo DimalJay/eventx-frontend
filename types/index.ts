@@ -120,3 +120,35 @@ export interface StripeConnectStatus {
   pending: boolean;
   account: StripeAccountInfo | null;
 }
+
+export interface IPaymentBuyer {
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export interface IPaymentRecord {
+  id: number;
+  amount: number;
+  paymentAt: string;
+  buyer: IPaymentBuyer | null;
+}
+
+export interface IEventPayments {
+  event: {
+    id: string | number;
+    title: string;
+    startDate: string;
+    coverImage: string | null;
+  };
+  paymentCount: number;
+  revenue: number;
+  commission: number;
+  payout: number;
+  payments: IPaymentRecord[];
+}
+
+export interface PaymentRecords {
+  sales: IEventPayments[];
+  purchases: IEventPayments[];
+}

@@ -1,5 +1,5 @@
 import { request } from "@/lib/request";
-import { Response, StripeConnectStatus } from "@/types";
+import { PaymentRecords, Response, StripeConnectStatus } from "@/types";
 
 const ALREADY_PURCHASED_PATTERNS = [
   /already (purchased|bought|registered|booked)/i,
@@ -98,5 +98,28 @@ export const disconnectStripe = async (): Promise<void> => {
 
   if (res && !res.success) {
     throw new Error(res.message || "Unable to disconnect Stripe.");
+  }
+};
+
+export const getPaymentRecords = async (): Promise<PaymentRecords> => {
+  const res: Response = await request("/payment/records", {
+    method: "GET",
+  });
+
+  if (res && !res.success) {
+    throw new Error(res.message || "Unable to load payment records.");
+  }
+
+  return res?.data ?? { sales: [], purchases: [] };
+};
+
+export const confirmPayment = async (sessionId: string): Promise<void> => {
+  const res: Response = await request("/payment/confirm", {
+    method: "POST",
+    data: { session_id: sessionId },
+  });
+
+  if (res && !res.success) {
+    throw new Error(res.message || "Unable to confirm payment.");
   }
 };

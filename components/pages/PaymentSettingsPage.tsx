@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuth } from "@/components/auth/AuthContext";
 import DisconnectStripeDialog from "@/components/dialogs/DisconnectStripeDialog";
+import PaymentRecordsSection from "@/components/settings/PaymentRecordsSection";
 import {
   connectStripeAccount,
   disconnectStripe,
@@ -135,6 +136,8 @@ export default function PaymentSettingsPage() {
             ))}
           </div>
         </section>
+
+        <PaymentRecordsSection />
       </>
     );
   }
@@ -316,6 +319,8 @@ export default function PaymentSettingsPage() {
             ))}
           </div>
         </section>
+
+        <PaymentRecordsSection />
 
         <DisconnectStripeDialog
           open={disconnectOpen}
