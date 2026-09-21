@@ -109,6 +109,7 @@ export default function EventViewPage({ id }: { id?: string }) {
     } catch {
       /* ignore */
     }
+    refetchRegistrations();
   };
 
   useEffect(() => {
@@ -132,7 +133,7 @@ export default function EventViewPage({ id }: { id?: string }) {
     enabled: !!eventId,
   });
 
-  const { data: registrationsResponse } = useQuery({
+  const { data: registrationsResponse, refetch: refetchRegistrations } = useQuery({
     queryKey: ["registrations", eventId],
     queryFn: () => getEventRegistrations({ data: { eventId } }),
     enabled: !!eventId,
@@ -182,8 +183,8 @@ export default function EventViewPage({ id }: { id?: string }) {
 
   const visibilityText = backendEvent.isPublic ? "Public Event" : "Private Event";
 
-  // Fetch registrations count
-  const totalRegistered = registrationsResponse?.data?.length || 0;
+  // Fetch registrations count (favor backendEvent.registrationsCount if provided, fallback to response total or data length)
+  const totalRegistered = (backendEvent as any).registrationsCount ?? registrationsResponse?.total ?? registrationsResponse?.data?.length ?? 0;
   const seatsLeftText = backendEvent.capacity === 0 ? "Unlimited" : String(Math.max(0, backendEvent.capacity - totalRegistered));
 
   // Mapping Backend Data to Frontend Variables

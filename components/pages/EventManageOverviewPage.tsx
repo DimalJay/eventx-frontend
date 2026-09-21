@@ -155,7 +155,6 @@ export default function EventManageOverviewPage() {
         badge: "Upcoming Event",
         badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
         countdownText: `${String(days).padStart(2, '0')}d : ${String(hours).padStart(2, '0')}h : ${String(minutes).padStart(2, '0')}m : ${String(seconds).padStart(2, '0')}s`,
-        desc: "Event is scheduled for the future. Prepare your agenda and invite attendees.",
         linkText: "Review agenda",
         href: `/event/manage/${encodeEventId(eventId)}/agenda`,
       };
@@ -165,7 +164,6 @@ export default function EventManageOverviewPage() {
         badge: "Live Now",
         badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
         countdownText: "Event is Live!",
-        desc: "Event is currently ongoing. Track registrations and scan attendee QR badges.",
         linkText: "Manage attendees & QR",
         href: `/event/manage/${encodeEventId(eventId)}/registration`,
       };
@@ -175,7 +173,6 @@ export default function EventManageOverviewPage() {
         badge: "Completed",
         badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
         countdownText: "Event Finished",
-        desc: "This event has passed. Review attendee ratings & AI sentiment analysis.",
         linkText: "View Feedback & AI",
         href: `/event/manage/${encodeEventId(eventId)}/feedbacks`,
       };
@@ -278,19 +275,15 @@ export default function EventManageOverviewPage() {
 
       {/* Main Grid Section with Equal Height Alignment */}
       <section className="grid gap-6 lg:grid-cols-[1.6fr_1fr] items-stretch">
-        {/* Left Card: Event Details (Scrollable if long to align with right sidebar) */}
-        <div className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-7 shadow-2xs max-h-[868px] overflow-hidden">
+        {/* Left Card: Event Details */}
+        <div className="flex flex-col rounded-2xl border border-zinc-200 bg-white p-7 shadow-2xs max-h-[868px] overflow-hidden">
           <div className="flex-1 overflow-y-auto pr-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
-                  Event details
-                </p>
-                <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-zinc-900">
-                  {event.title}
-                </h2>
-              </div>
-            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+              Event details
+            </p>
+            <h2 className="mt-2 font-display text-2xl font-bold tracking-tight text-zinc-900">
+              {event.title}
+            </h2>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               {details.map((item) => (
@@ -317,8 +310,8 @@ export default function EventManageOverviewPage() {
           </div>
         </div>
 
-        {/* Right Sidebar: Fixed Height Boxes (Milestone & Recent Activity) */}
-        <aside className="flex flex-col gap-5 justify-between max-h-[868px]">
+        {/* Right Sidebar */}
+        <aside className="flex flex-col gap-5 max-h-[868px]">
           {/* Top Sidebar Box: Cover Image + Next Milestone */}
           <div className="overflow-hidden rounded-2xl border border-zinc-900 bg-zinc-900 text-white shadow-sm flex flex-col justify-between h-[488px] shrink-0">
             {coverUrl ? (
@@ -376,8 +369,8 @@ export default function EventManageOverviewPage() {
             </div>
           </div>
 
-          {/* Bottom Sidebar Box: Recent Activity (Latest 4 Activities) */}
-          <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xs flex flex-col justify-between h-[380px] shrink-0">
+          {/* Bottom Sidebar Box: Recent Activity */}
+          <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xs flex flex-col justify-between flex-1 min-h-0">
             <div>
               <div className="flex items-center justify-between border-b border-zinc-100 pb-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
