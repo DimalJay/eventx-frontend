@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { motion, useReducedMotion } from "framer-motion";
-import { Users, CalendarCheck, ScanLine, Wallet, Download } from "lucide-react";
+import { Users, ScanLine, Wallet, Download, UserX } from "lucide-react";
 import { toast } from "sonner";
 import { getEventById } from "@/service/eventService";
 import { getEventRegistrations } from "@/service/registrationService";
@@ -98,14 +98,15 @@ export default function EventManageInsightsPage() {
   const checkedIn = registrations.filter(
     (r) => Boolean(r.chekingTime) || Boolean(r.checkingTime)
   ).length;
+  const notCheckedIn = Math.max(0, total - checkedIn);
 
-  const attendancePct = total > 0 ? Math.round((going / total) * 100) : 0;
-  const checkInPct = going > 0 ? Math.round((checkedIn / going) * 100) : 0;
+  const checkedInPct = total > 0 ? Math.round((checkedIn / total) * 100) : 0;
+  const notCheckedInPct = total > 0 ? Math.round((notCheckedIn / total) * 100) : 0;
 
   const capacity = event?.capacity ?? 0;
   const capacityPct = capacity > 0 ? Math.min(Math.round((total / capacity) * 100), 100) : 0;
 
-  const revenue = event && event.ticketPrice > 0 ? going * event.ticketPrice : 0;
+  const revenue = event && event.ticketPrice > 0 ? total * event.ticketPrice : 0;
   const recentCount = useMemo(
     () =>
       registrations.filter((r) => {
@@ -192,9 +193,9 @@ export default function EventManageInsightsPage() {
   const checkedInSlices = [
     { label: "Checked in", value: checkedIn, color: "#10b981" },
     {
-      label: "Not yet",
-      value: Math.max(going - checkedIn, 0),
-      color: "#e4e4e7",
+      label: "Not Checked in",
+      value: notCheckedIn,
+      color: "#f59e0b",
     },
   ];
 
@@ -315,18 +316,20 @@ export default function EventManageInsightsPage() {
           icon={<Users className="h-4 w-4" />}
         />
         <StatCard
-          label="Attending"
-          value={going.toLocaleString()}
-          delta={`${attendancePct}% of registered`}
-          icon={<CalendarCheck className="h-4 w-4" />}
-        />
-        <StatCard
           label="Checked in"
           value={checkedIn.toLocaleString()}
           delta={
-            going === 0 ? "Opens on event day" : `${checkInPct}% of attendees`
+            total === 0 ? "Opens on event day" : `${checkedInPct}% of registered`
           }
           icon={<ScanLine className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Not Checked in"
+          value={notCheckedIn.toLocaleString()}
+          delta={
+            total === 0 ? "No pending arrivals" : `${notCheckedInPct}% awaiting check-in`
+          }
+          icon={<UserX className="h-4 w-4" />}
         />
         <StatCard
           label="Estimated revenue"
@@ -334,7 +337,7 @@ export default function EventManageInsightsPage() {
           delta={
             isFree
               ? "No ticket charge"
-              : `${going} × ${formatPrice(event?.ticketPrice ?? 0)}`
+              : `${total} × ${formatPrice(event?.ticketPrice ?? 0)}`
           }
           icon={<Wallet className="h-4 w-4" />}
         />
@@ -401,16 +404,16 @@ export default function EventManageInsightsPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-zinc-200 bg-white p-6">
+        <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xs">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
                 Attendee flow
               </p>
               <h2 className="mt-2 flex items-center gap-2 font-display text-xl font-medium tracking-tight text-zinc-900">
-                Registered · Attending · Checked in
+                Registered · Checked in · Not Checked in
                 <HelpTooltip
-                  text="How far attendees have progressed: signing up, confirming attendance, then arriving at the venue."
+                  text="Check-in progression of registered attendees: scanned at door vs awaiting arrival."
                   side="bottom"
                 />
               </h2>
@@ -418,23 +421,23 @@ export default function EventManageInsightsPage() {
           </div>
           <div className="mt-6 flex items-end gap-3">
             {[
-              { label: "Registered", value: total, color: "#a1a1aa", max: total },
-              { label: "Attending", value: going, color: "#7c3aed", max: total },
-              { label: "Checked in", value: checkedIn, color: "#10b981", max: total },
+              { label: "Registered", value: total, color: "#7c3aed", max: total, pct: 100 },
+              { label: "Checked in", value: checkedIn, color: "#10b981", max: total, pct: checkedInPct },
+              { label: "Not Checked in", value: notCheckedIn, color: "#f59e0b", max: total, pct: notCheckedInPct },
             ].map((stage) => {
-              const pct = stage.max > 0 ? (stage.value / stage.max) * 100 : 0;
+              const heightPct = stage.max > 0 ? (stage.value / stage.max) * 100 : 0;
               return (
                 <div key={stage.label} className="flex flex-1 flex-col items-center gap-2">
                   <div className="flex h-40 w-full items-end justify-center rounded-xl bg-zinc-50">
                     <div
                       className="w-full max-w-[3rem] rounded-t-xl transition-all"
-                      style={{ height: `${Math.max(pct, 3)}%`, background: stage.color }}
+                      style={{ height: `${Math.max(heightPct, 3)}%`, background: stage.color }}
                     />
                   </div>
-                  <span className="text-xs font-semibold text-zinc-700">
-                    {stage.value.toLocaleString()}
+                  <span className="text-xs font-bold text-zinc-900 tabular-nums">
+                    {stage.value.toLocaleString()} <span className="text-[11px] font-semibold text-zinc-500">({total > 0 ? stage.pct : 0}%)</span>
                   </span>
-                  <span className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500">
                     {stage.label}
                   </span>
                 </div>
@@ -519,12 +522,12 @@ export default function EventManageInsightsPage() {
               size={150}
               thickness={20}
               centerTitle="Checked in"
-              centerValue={going > 0 ? `${checkInPct}%` : "0%"}
-              centerSub={`of ${going} attending`}
+              centerValue={total > 0 ? `${checkedInPct}%` : "0%"}
+              centerSub={`of ${total} registered`}
             />
             <div className="grid flex-1 gap-2.5">
-              <LegendRow color="#10b981" label="Checked in" count={checkedIn} total={going} />
-              <LegendRow color="#e4e4e7" label="Not yet" count={Math.max(going - checkedIn, 0)} total={going} />
+              <LegendRow color="#10b981" label="Checked in" count={checkedIn} total={total} />
+              <LegendRow color="#f59e0b" label="Not Checked in" count={notCheckedIn} total={total} />
             </div>
           </div>
         </ChartCard>
