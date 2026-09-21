@@ -258,9 +258,18 @@ export default function EventViewPage({ id }: { id?: string }) {
     return trimmed;
   };
 
+  const isSuspended = backendEvent.status && backendEvent.status.toLowerCase() === 'suspended';
+
   return (
     <div className="relative flex min-h-screen flex-1 justify-center overflow-hidden bg-zinc-50/70">
       <main className="relative w-full max-w-6xl flex-1 px-5 py-12 sm:px-10 sm:py-16 lg:px-14">
+        {isSuspended && (
+          <div className="mb-8 rounded-2xl bg-amber-50 border border-amber-200 p-4 text-amber-800 flex items-center justify-center gap-2">
+            <span className="font-semibold uppercase tracking-widest text-sm">Suspended</span>
+            <span className="text-sm border-l border-amber-300 pl-2">This event has been suspended by the administrator. Registration and other actions are disabled.</span>
+          </div>
+        )}
+
         {/* Hero - asymmetric split cover + title */}
         <motion.section
           className="grid items-center gap-10 lg:grid-cols-[minmax(0,400px)_1fr] lg:gap-16"
@@ -349,24 +358,33 @@ export default function EventViewPage({ id }: { id?: string }) {
             {/* Actions - one primary, two quiet utilities */}
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <a
-                href="#tickets"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-black px-7 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 active:scale-[0.98]"
+                href={isSuspended ? undefined : "#tickets"}
+                className={`inline-flex h-12 items-center justify-center gap-2 rounded-full px-7 text-sm font-semibold uppercase tracking-widest transition ${
+                  isSuspended
+                    ? "bg-black/20 text-white/50 cursor-not-allowed"
+                    : "bg-black text-white hover:bg-black/90 active:scale-[0.98]"
+                }`}
+                onClick={(e) => isSuspended && e.preventDefault()}
               >
                 {isPaid ? "Get your ticket" : "Register free"}
               </a>
-              <AddToCalendar
-                title={event.name}
-                description={event.tagline}
-                location={`${event.venue}, ${event.location}`}
-                start={event.start}
-                end={event.end}
-                timezone={event.timezone}
-                className="inline-flex h-12 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
-              />
-              <ShareButton
-                title={event.name}
-                text={event.tagline}
-              />
+              {!isSuspended && (
+                <>
+                  <AddToCalendar
+                    title={event.name}
+                    description={event.tagline}
+                    location={`${event.venue}, ${event.location}`}
+                    start={event.start}
+                    end={event.end}
+                    timezone={event.timezone}
+                    className="inline-flex h-12 items-center justify-center rounded-full border border-black/15 px-5 text-sm font-semibold uppercase tracking-widest text-black transition hover:border-black/40"
+                  />
+                  <ShareButton
+                    title={event.name}
+                    text={event.tagline}
+                  />
+                </>
+              )}
             </div>
           </motion.div>
         </motion.section>
@@ -449,7 +467,12 @@ export default function EventViewPage({ id }: { id?: string }) {
                   <button
                     type="button"
                     onClick={openTicket}
-                    className="inline-flex h-12 w-full items-center justify-center rounded-full bg-black px-6 text-sm font-semibold uppercase tracking-widest text-white transition hover:bg-black/90 active:scale-[0.98]"
+                    disabled={isSuspended}
+                    className={`inline-flex h-12 w-full items-center justify-center rounded-full px-6 text-sm font-semibold uppercase tracking-widest transition ${
+                      isSuspended
+                        ? "bg-black/20 text-white/50 cursor-not-allowed"
+                        : "bg-black text-white hover:bg-black/90 active:scale-[0.98]"
+                    }`}
                   >
                     {isPaid ? "Register & pay" : "Register"}
                   </button>

@@ -32,10 +32,10 @@ export default function DiscoverEvents() {
     retry: false,
   });
 
-  // Safe typed list of events (only show public events)
+  // Safe typed list of events (only show public events and hide suspended)
   const events = useMemo(() => {
     return (rawEvents as IEvent[]).filter(
-      (event) => event.isPublic !== false && String(event.isPublic) !== "false"
+      (event) => event.isPublic !== false && String(event.isPublic) !== "false" && (!event.status || event.status.toLowerCase() !== 'suspended')
     );
   }, [rawEvents]);
 
