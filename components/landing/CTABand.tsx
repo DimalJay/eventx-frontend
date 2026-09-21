@@ -1,7 +1,13 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useAuth } from "../auth/AuthContext";
 
 export default function CTABand() {
+  const { isAuthenticated } = useAuth();
+  const targetHref = isAuthenticated ? "/home" : "/register";
+
   return (
     <section className="bg-white">
       <div className="mx-auto w-full max-w-6xl px-6 pb-24">
@@ -37,7 +43,7 @@ export default function CTABand() {
           </p>
           <div className="mt-8 flex justify-center">
             <Link
-              href="/register"
+              href={targetHref}
               className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-8 text-sm font-semibold text-primary transition hover:bg-primary-soft active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
               Get started free

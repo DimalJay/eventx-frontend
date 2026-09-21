@@ -4,5 +4,6 @@ export interface TeamMember {
   role: string;
   id: number;
   label?: string | null;
+  status?: string;
   isOrganizer?: boolean;
 }
