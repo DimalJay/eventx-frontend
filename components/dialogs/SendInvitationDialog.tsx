@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { sendInvitationsRequest } from "@/service/registrationService";
+import { HTTPError } from "@/lib/request";
 import { toast } from "sonner";
 import HelpTooltip from "@/components/widgets/HelpTooltip";
 import Select from "@/components/widgets/Select";
@@ -38,12 +39,13 @@ export default function SendInvitationDialog({ eventId, open, onClose }: Props) 
         toast.success(`Successfully sent ${res.data?.sentCount || 0} invitations!`);
         setEmailsInput("");
         queryClient.invalidateQueries({ queryKey: ["manage-registrations", eventId] });
+        queryClient.invalidateQueries({ queryKey: ["event-guests", eventId] });
         onClose();
       } else {
         toast.error(res?.message || "Failed to send invitations.");
       }
     },
-    onError: (err: any) => {
+    onError: (err: HTTPError) => {
       toast.error(err?.message || "Error sending invitations.");
     },
   });
