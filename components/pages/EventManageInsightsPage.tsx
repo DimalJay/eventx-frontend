@@ -844,12 +844,12 @@ export default function EventManageInsightsPage() {
           eyebrow="Capacity"
           title="Workload by member"
           tooltip="Open tasks assigned to each team member. Keep the load balanced as the event approaches."
-          className="flex flex-col justify-between h-full"
+          className="flex flex-col justify-start h-full"
         >
           {workload.length === 0 ? (
             <EmptyState text="No tasks assigned yet." />
           ) : (
-            <div className="grid gap-5">
+            <div className="max-h-[260px] overflow-y-auto grid gap-4 pr-1.5 scrollbar-thin">
               {workload.map((w) => (
                 <ProgressRow
                   key={w.name}
@@ -868,12 +868,12 @@ export default function EventManageInsightsPage() {
           eyebrow="Live"
           title="Recent registrations"
           tooltip="The latest people to register for this event."
-          className="flex flex-col justify-between h-full"
+          className="flex flex-col justify-start h-full"
         >
           {recent.length === 0 ? (
             <EmptyState text="No registrations yet." />
           ) : (
-            <div className="grid gap-2.5">
+            <div className="max-h-[260px] overflow-y-auto grid gap-2.5 pr-1.5 scrollbar-thin">
               {recent.map((r) => {
                 const name =
                   `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim() ||
