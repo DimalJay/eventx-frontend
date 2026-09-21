@@ -279,21 +279,8 @@ export default function EventManageOverviewPage() {
       {/* Main Grid Section with Equal Height Alignment */}
       <section className="grid gap-6 lg:grid-cols-[1.6fr_1fr] items-stretch">
         {/* Left Card: Event Details (Scrollable if long to align with right sidebar) */}
-        <div className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-7 shadow-2xs max-h-[660px] overflow-hidden">
+        <div className="flex flex-col justify-between rounded-2xl border border-zinc-200 bg-white p-7 shadow-2xs max-h-[868px] overflow-hidden">
           <div className="flex-1 overflow-y-auto pr-1">
-            {/* Event Cover Banner */}
-            <div className="relative mb-5 h-44 w-full overflow-hidden rounded-xl bg-zinc-900 shadow-xs">
-              {coverUrl ? (
-                <img
-                  src={coverUrl}
-                  alt={event.title}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <EventCoverPlaceholder title={event.title} category={event.category} />
-              )}
-            </div>
-
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
@@ -331,49 +318,61 @@ export default function EventManageOverviewPage() {
         </div>
 
         {/* Right Sidebar: Fixed Height Boxes (Milestone & Recent Activity) */}
-        <aside className="flex flex-col gap-5 justify-between max-h-[660px]">
-          {/* Top Sidebar Box: Next Milestone with Live Countdown */}
-          <div className="overflow-hidden rounded-2xl border border-zinc-900 bg-zinc-900 text-white p-6 shadow-sm flex flex-col justify-between h-[260px] shrink-0">
-            <div>
-              <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">
-                  Next milestone
-                </p>
-                {eventStatusInfo && (
-                  <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${eventStatusInfo.badgeColor}`}>
-                    {eventStatusInfo.stage === "live" && (
-                      <span className="relative flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                      </span>
-                    )}
-                    <span>{eventStatusInfo.badge}</span>
-                  </span>
-                )}
+        <aside className="flex flex-col gap-5 justify-between max-h-[868px]">
+          {/* Top Sidebar Box: Cover Image + Next Milestone */}
+          <div className="overflow-hidden rounded-2xl border border-zinc-900 bg-zinc-900 text-white shadow-sm flex flex-col justify-between h-[488px] shrink-0">
+            {coverUrl ? (
+              <div className="relative h-80 w-full shrink-0 overflow-hidden bg-zinc-900">
+                <img
+                  src={coverUrl}
+                  alt={event.title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="relative h-[304px] w-full shrink-0 overflow-hidden">
+                <EventCoverPlaceholder title={event.title} category={event.category} />
+              </div>
+            )}
+
+            <div className="p-4 flex flex-col justify-between flex-1">
+              <div>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/60">
+                    Next milestone
+                  </p>
+                  {eventStatusInfo && (
+                    <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${eventStatusInfo.badgeColor}`}>
+                      {eventStatusInfo.stage === "live" && (
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                      )}
+                      <span>{eventStatusInfo.badge}</span>
+                    </span>
+                  )}
+                </div>
+
+                <div className="mt-2">
+                  <p className="text-xs font-medium text-white/50 uppercase tracking-wider">
+                    {eventStatusInfo?.stage === "upcoming" ? "Time Until Launch" : "Current Status"}
+                  </p>
+                  <p className="mt-0.5 font-display text-xl font-bold tracking-tight text-white tabular-nums">
+                    {eventStatusInfo?.countdownText}
+                  </p>
+                </div>
               </div>
 
-              <div className="mt-2.5">
-                <p className="text-xs font-medium text-white/50 uppercase tracking-wider">
-                  {eventStatusInfo?.stage === "upcoming" ? "Time Until Launch" : "Current Status"}
-                </p>
-                <p className="mt-1 font-display text-2xl font-bold tracking-tight text-white tabular-nums">
-                  {eventStatusInfo?.countdownText}
-                </p>
+              <div className="pt-2 border-t border-white/10">
+                <Link
+                  href={eventStatusInfo?.href || `#`}
+                  className="inline-flex h-8 w-full items-center justify-center gap-2 rounded-full bg-white px-4 text-xs font-bold text-zinc-900 hover:bg-zinc-100 transition active:scale-[0.98]"
+                >
+                  <span>{eventStatusInfo?.linkText}</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </Link>
               </div>
-
-              <p className="mt-2.5 text-xs text-white/70 leading-relaxed line-clamp-2">
-                {eventStatusInfo?.desc}
-              </p>
-            </div>
-
-            <div className="pt-2 border-t border-white/10">
-              <Link
-                href={eventStatusInfo?.href || `#`}
-                className="inline-flex h-9 w-full items-center justify-center gap-2 rounded-full bg-white px-4 text-xs font-bold text-zinc-900 hover:bg-zinc-100 transition active:scale-[0.98]"
-              >
-                <span>{eventStatusInfo?.linkText}</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
             </div>
           </div>
 
